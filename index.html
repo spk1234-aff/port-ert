@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>พอร์ตเอิ๊ต</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0B1A3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="พอร์ตเอิ๊ต">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style id="app-css">
+:root{
+  --bg:#F5F6F3; --surface:#FFFFFF; --sunk:#EEF0EC; --line:#E4E8E3; --ink:#111814; --ink-2:#4A554F; --muted:#8A948E;
+  --accent:#0F7A58; --accent-soft:#E2F1E9; --on-accent:#FFFFFF; --gain:#13875C; --gain-soft:#E2F3EA; --loss:#CF4A3E; --loss-soft:#FBE9E6;
+  --grid:#ECEFEB; --warn-bg:#FFF6E0; --warn-ink:#7A5410;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B0F0D; --surface:#131916; --sunk:#0F1411; --line:#222B26; --ink:#EEF3F0; --ink-2:#AEB9B3; --muted:#75817B;
+  --accent:#5CCB9E; --accent-soft:#16291F; --on-accent:#08110C; --gain:#5CCB9E; --gain-soft:#132A1F; --loss:#F2837A; --loss-soft:#2E1715;
+  --grid:#1B2320; --warn-bg:#2B230E; --warn-ink:#EFCD80; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0B0F0D; --surface:#131916; --sunk:#0F1411; --line:#222B26; --ink:#EEF3F0; --ink-2:#AEB9B3; --muted:#75817B;
+  --accent:#5CCB9E; --accent-soft:#16291F; --on-accent:#08110C; --gain:#5CCB9E; --gain-soft:#132A1F; --loss:#F2837A; --loss-soft:#2E1715;
+  --grid:#1B2320; --warn-bg:#2B230E; --warn-ink:#EFCD80; color-scheme:dark;}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+#app{max-width:880px;margin:0 auto;padding-inline:20px;padding-block:28px 110px;display:flex;flex-direction:column;gap:36px}
+h1,h2{font-family:var(--f-display);margin:0;line-height:1.25;text-wrap:balance}
+h2{font-size:17px;font-weight:600}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.muted{color:var(--muted)}
+.gain{color:var(--gain)} .loss{color:var(--loss)}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 16px;font-weight:500;font-size:14px;line-height:1.4}
+.btn:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.sm{padding:4px 12px;font-size:13px}
+.btn.text{border:0;background:none;padding:4px 6px;color:var(--muted);font-size:13px}
+.btn.text:hover{color:var(--ink)}
+.btn.danger{color:var(--loss)}
+.btn.danger.armed{background:var(--loss);border-color:var(--loss);color:#fff}
+input[type=text],input[type=number],input[type=month],select{background:var(--sunk);border:1px solid transparent;border-radius:10px;padding:8px 12px;min-width:0;width:100%}
+input:focus,select:focus{border-color:var(--accent);outline:none;background:var(--surface)}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--ink);color:var(--bg);display:grid;place-items:center;flex:none}
+.brand h1{font-size:18px;font-weight:600}
+.brand .sub{font-size:12px;color:var(--muted);line-height:1.2}
+.top .right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);background:var(--sunk)}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.owner{color:var(--accent);background:var(--accent-soft)}
+.top .right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.lockb{display:inline-flex;align-items:center;gap:6px}.lockb svg{width:15px;height:15px}
+.login{gap:14px}.lg-row{display:flex;gap:8px;flex-wrap:wrap}.lg-row input{flex:1 1 160px;min-width:0}
+.lg-err{margin:0;color:var(--loss);font-size:14px}
+.title-edit{display:flex;gap:6px;align-items:center}
+.title-edit input{font:600 16px var(--f-display);width:220px}
+
+.banner{background:var(--warn-bg);color:var(--warn-ink);border-radius:14px;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13px}
+
+/* hero */
+.hero{display:flex;flex-direction:column;gap:6px}
+.hero .lbl{font-size:13px;color:var(--muted)}
+.hero .big{font:600 clamp(44px,10vw,76px)/1.05 var(--f-display);letter-spacing:-.03em}
+.hero .big .cur{font-size:.5em;vertical-align:.55em;margin-right:4px;color:var(--muted);font-weight:500}
+.hero .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:14px;color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+.chip.gain{background:var(--gain-soft)} .chip.loss{background:var(--loss-soft)} .chip.flat{background:var(--sunk);color:var(--muted)}
+.dotsep{width:3px;height:3px;border-radius:50%;background:var(--muted);display:inline-block}
+
+/* allocation */
+.alloc{display:flex;flex-direction:column;gap:10px}
+.alloc .bar{display:flex;height:10px;border-radius:999px;overflow:hidden;gap:2px;background:var(--sunk)}
+.alloc .bar span{display:block;height:100%}
+.alloc .keys{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink-2)}
+.alloc .keys span{display:inline-flex;align-items:center;gap:6px}
+.alloc .keys b{font-weight:600;color:var(--ink)}
+.kdot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* chart panel */
+.panel{background:var(--surface);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tabs{display:inline-flex;background:var(--sunk);border-radius:999px;padding:3px;gap:2px;max-width:100%;overflow-x:auto}
+.tabs button{border:0;background:transparent;border-radius:999px;padding:5px 14px;font-size:13px;color:var(--muted);white-space:nowrap}
+.tabs button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.panel-h.sub{margin-top:-4px}
+.tabs.quiet{background:transparent;padding:0;gap:4px;flex-wrap:wrap;overflow:visible}
+.tabs.quiet button{border:1px solid var(--line);padding:3px 12px;font-size:12px}
+.tabs.quiet button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);box-shadow:none}
+.yr{display:flex;align-items:center;gap:8px;min-width:0}
+.yr b{font-family:var(--f-display);font-weight:600;font-size:15px}
+.yr small{font-size:11px;color:var(--muted);background:var(--sunk);border-radius:999px;padding:0 8px;white-space:nowrap}
+.gbar{display:inline-block;height:4px;border-radius:2px;background:var(--muted);opacity:.7}
+.gbar.gain{background:var(--gain)} .gbar.loss{background:var(--loss)}
+.hist .r.two{display:flex;flex-direction:column;align-items:flex-end;line-height:1.3}
+.hist .r.two small{font-size:11px;white-space:nowrap}
+.hist .r.two span{white-space:nowrap}
+.ysum{font-size:12px;color:var(--muted);text-align:right;padding-top:2px}
+.yrs summary,.yrs .hh{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) minmax(96px,1fr) 14px}
+@media (max-width:560px){.gbar{display:none}.yrs summary,.yrs .hh{grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(90px,1fr) 14px}}
+.wealth{display:flex;flex-direction:column;gap:10px}
+.wtot{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.wtot b{font:600 15px var(--f-display);color:var(--ink)}
+.wbar{flex:1;height:4px;border-radius:2px;background:var(--line);overflow:hidden;max-width:220px}
+.wbar i{display:block;height:100%;background:var(--ink)}
+.switch{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.switch button{display:flex;align-items:center;gap:12px;text-align:left;border:1.5px solid transparent;background:var(--surface);border-radius:16px;padding:10px 14px;min-width:0}
+.switch button[aria-pressed="true"]{border-color:var(--ink)}
+.switch .si{width:36px;height:36px;border-radius:11px;background:var(--sunk);color:var(--ink-2);display:grid;place-items:center;flex:none}
+.switch .si svg{width:19px;height:19px}
+.switch button[aria-pressed="true"] .si{background:var(--ink);color:var(--bg)}
+.switch .st{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.switch .st small{font-size:12px;color:var(--muted);white-space:nowrap}
+.switch .st b{font:600 17px var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.goals{grid-template-columns:minmax(0,1fr)}}
+.goal{background:var(--surface);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.goal .gh{display:flex;align-items:center;gap:12px}
+.goal .grow{flex:1;min-width:0}
+.goal .nm{font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.goal .meta{font-size:12px;color:var(--muted)}
+.goal .gv{font:600 30px/1.1 var(--f-display);letter-spacing:-.02em}
+.prog{height:8px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.prog span{display:block;height:100%;border-radius:999px}
+.gm{display:flex;justify-content:space-between;gap:4px 10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.goal.add{border:1.5px dashed var(--line);background:transparent;color:var(--muted);align-items:center;justify-content:center;min-height:110px;font-size:14px}
+.goal.add:hover{color:var(--ink);border-color:var(--ink-2)}
+.goal-ed{grid-column:1/-1;border-radius:20px;overflow:hidden}
+.goal-ed .editor{border-top:0}
+.fields{display:grid;grid-template-columns:2fr 1.4fr 1fr 1fr;gap:10px}
+@media (max-width:620px){.fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.fields label:first-child{grid-column:1/-1}}
+.editor select,.editor input[type=number]{background:var(--surface)}
+.erow .prev:empty{display:none}
+.srct{display:inline-block;font-size:11px;color:var(--ink-2);background:var(--sunk);border-radius:6px;padding:0 6px;margin-right:6px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.fields.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:620px){.fields.two{grid-template-columns:minmax(0,1fr)}}
+.hint{font-size:11px;color:var(--muted)}
+.srow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:14px 18px;border-top:1px solid var(--grid)}
+.srow:first-child{border-top:0}
+.srow .nm{font-weight:600;line-height:1.3}
+.srow .val{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.srow .val .v{font-weight:600}
+.srow .val .p{font-size:12px}
+.sits{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--muted)}
+.sits span{display:inline-flex;align-items:center;gap:5px}
+.sbadge{width:38px;height:38px;border-radius:12px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:600 16px var(--f-display);flex:none}
+.dpays{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 6px}.dpay{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 4px 3px 10px;border-radius:999px;background:var(--own-soft,var(--sunk));color:var(--muted)}.dpay b{color:var(--ink);font-weight:600}.dpay button{border:0;background:transparent;color:var(--muted);width:22px;height:22px;border-radius:50%;font-size:15px;line-height:1}.dpay button:hover{background:var(--loss-soft);color:var(--loss)}
+.sbadge.un{background:var(--sunk);color:var(--muted)}
+.sbadge.lg{position:relative;overflow:hidden;width:42px;height:42px;border-radius:13px;color:#fff;letter-spacing:-.03em;
+  background:radial-gradient(120% 90% at 20% 0%,color-mix(in srgb,var(--bc) 55%,#fff) 0%,transparent 55%),linear-gradient(150deg,color-mix(in srgb,var(--bc) 82%,#fff),var(--bc) 45%,color-mix(in srgb,var(--bc) 70%,#000));
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / .35),inset 0 -2px 0 rgb(0 0 0 / .14),0 2px 6px -1px color-mix(in srgb,var(--bc) 55%,transparent)}
+.sbadge.lg::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgb(255 255 255 / .22),transparent 48%);pointer-events:none}
+.sbadge.lg b{position:relative;z-index:1;font:700 18px/1 var(--f-display);text-shadow:0 1px 1px rgb(0 0 0 / .22)}
+.sbadge.lg.s2 b{font-size:15px}.sbadge.lg.s3 b{font-size:12px;letter-spacing:0}
+.sbadge.lg svg{position:relative;z-index:1;width:22px;height:22px;stroke-width:2;filter:drop-shadow(0 1px 1px rgb(0 0 0 / .22))}
+.sbadge.lg.img{background:#fff;box-shadow:0 0 0 1px var(--line),0 2px 6px -2px rgb(0 0 0 / .18)}.sbadge.lg.img::after{display:none}.sbadge.lg.img img{width:100%;height:100%;object-fit:cover;display:block}
+.se-up{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.se-up .hint{flex-basis:100%}
+.btn.up{display:inline-flex;align-items:center;gap:6px;cursor:pointer}.btn.up svg{width:15px;height:15px}
+.mark{overflow:hidden;position:relative}.mark.has{width:46px;height:46px;border-radius:50%;background:transparent;filter:drop-shadow(0 2px 4px rgb(0 0 0 / .18))}.mark img{width:100%;height:100%;object-fit:cover;display:block}
+.mark.editable{cursor:pointer}.mark.editable i{position:absolute;inset:0;display:grid;place-items:center;background:rgb(0 0 0 / .45);color:#fff;opacity:0;transition:opacity .15s}.mark.editable i svg{width:16px;height:16px}.mark.editable:hover i,.mark.editable:focus-within i{opacity:1}
+.se-lbl{font-size:13px;color:var(--muted);margin-bottom:-6px}
+.picker .txtopt{font:700 14px var(--f-display)}
+.sbe{font-size:12px;font-weight:500;padding:0 4px;color:var(--muted)}
+.src-ed{padding:14px 18px 16px;border-top:1px dashed var(--grid);display:flex;flex-direction:column;gap:12px;background:var(--sunk)}
+.se-prev{display:flex;gap:14px;align-items:flex-end}.se-prev label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.src-ed .acts{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.src-ed .acts span{display:flex;gap:8px}
+.sbar{grid-column:2/-1;height:4px;border-radius:2px;background:var(--sunk);overflow:hidden}
+.sbar span{display:block;height:100%;background:var(--ink-2)}
+.btn.edit{display:inline-flex;align-items:center;gap:5px}
+.btn.edit svg{width:14px;height:14px}
+.arow .own{margin-top:-4px}
+button.srct.add{border:1px dashed var(--ink-2);background:transparent;color:var(--ink);cursor:pointer;font:inherit;font-size:11px}
+.goal-set{border:1px dashed var(--line);background:transparent;border-radius:10px;padding:8px;color:var(--ink-2);font-size:13px}
+.goal-set:hover,button.srct.add:hover{border-color:var(--ink);color:var(--ink)}
+.switch{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:560px){.switch .si{display:none}.switch button{padding:10px 12px}.switch .st b{font-size:15px}}
+.wsub{font-size:12px;color:var(--muted)}
+.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:620px){.fields.three{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.editor input[type=month]{background:var(--surface)}
+.panel .intro{font-size:13px;color:var(--muted);margin:2px 0 0}
+.plin{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px}
+@media (max-width:560px){.plin{grid-template-columns:minmax(0,1fr)}}
+.plin label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+.slide{display:flex;gap:10px;align-items:center}
+.slide input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}
+.slide input[type=number]{width:120px;flex:none}
+.cmps{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.cmp{background:var(--sunk);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted);border:1.5px solid transparent}
+.cmp.hl{border-color:var(--accent);background:var(--accent-soft)}
+.cmp .k{font-size:12px;font-weight:600;color:var(--ink-2)}
+.cmp b{font:600 20px var(--f-display);color:var(--ink)}
+.save-note{font-size:14px;background:var(--gain-soft);border-radius:12px;padding:10px 14px}
+.sched summary{cursor:pointer;font-size:13px;color:var(--ink-2);padding:4px 0}
+.sched .tbl{max-height:320px;overflow:auto;margin-top:8px;border-radius:12px;border:1px solid var(--grid)}
+.sched table{width:100%;border-collapse:collapse;font-size:12px}
+.sched th,.sched td{padding:6px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--grid)}
+.sched th{position:sticky;top:0;background:var(--surface);color:var(--muted);font-weight:500}
+.sched th:nth-child(-n+2),.sched td:nth-child(-n+2){text-align:left}
+.fine{font-size:11px;color:var(--muted);margin:0}
+
+/* section colors */
+:root{--c-inv:#0F7A58;--c-inv-soft:#E2F1E9;--c-sav:#2F6FD0;--c-sav-soft:#E4ECFA;--c-debt:#C8532E;--c-debt-soft:#FBE8E0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c-inv:#5CCB9E;--c-inv-soft:#16291F;--c-sav:#86AEF2;--c-sav-soft:#172238;--c-debt:#F2946F;--c-debt-soft:#35190F}}
+:root[data-theme="dark"]{--c-inv:#5CCB9E;--c-inv-soft:#16291F;--c-sav:#86AEF2;--c-sav-soft:#172238;--c-debt:#F2946F;--c-debt-soft:#35190F}
+#app{--sec:var(--c-inv);--sec-soft:var(--c-inv-soft)}
+#app.v-sav{--sec:var(--c-sav);--sec-soft:var(--c-sav-soft)}
+#app.v-debt{--sec:var(--c-debt);--sec-soft:var(--c-debt-soft)}
+.c-inv,.switch button[data-v="inv"]{--own:var(--c-inv);--own-soft:var(--c-inv-soft)}
+.c-sav,.switch button[data-v="sav"]{--own:var(--c-sav);--own-soft:var(--c-sav-soft)}
+.c-debt,.switch button[data-v="debt"]{--own:var(--c-debt);--own-soft:var(--c-debt-soft)}
+.add-btn{border-color:var(--own);color:var(--own);background:var(--surface)}
+.add-btn.on,.add-btn:hover{background:var(--own);border-color:var(--own);color:var(--surface)}
+.switch .si{background:var(--own-soft);color:var(--own)}
+.switch .st small{color:var(--own)}
+.switch button[aria-pressed="true"]{border-color:var(--own);background:var(--own-soft)}
+.switch button[aria-pressed="true"] .si{background:var(--own);color:var(--surface)}
+.hero .lbl{color:var(--sec);font-weight:600}
+.hero .big .cur{color:var(--sec)}
+.sec-h h2::before{content:"";display:inline-block;width:4px;height:15px;border-radius:2px;background:var(--sec);margin-right:9px;vertical-align:-2px}
+.panel{box-shadow:inset 0 3px 0 var(--sec)}
+.entry{border-color:var(--sec);box-shadow:none}
+.tabs.quiet button[aria-pressed="true"]{background:var(--sec);border-color:var(--sec);color:var(--surface)}
+.tabs button[aria-pressed="true"]{color:var(--sec)}
+.cmp.hl{border-color:var(--sec);background:var(--sec-soft)}
+.slide input[type=range]{accent-color:var(--sec)}
+.goal.add:hover{border-color:var(--sec);color:var(--sec)}
+
+/* wealth goal */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .goalx{--ink:#1B2822}}
+:root[data-theme="dark"] .goalx{--ink:#1B2822}
+.goalx{--ink:#121A16;--bg:#F1F5F2;--g1:#5CCB9E;--g2:#86AEF2;background:var(--ink);color:var(--bg);border-radius:22px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:14px}
+.gx-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.gx-eye{font-size:12px;letter-spacing:.06em;opacity:.65}
+.gx-title{font:600 20px/1.3 var(--f-display);margin:2px 0 4px}
+.gx-link{border:0;background:none;color:inherit;opacity:.6;font-size:12px;text-decoration:underline;padding:0 4px}
+.gx-msg{font-size:14px;opacity:.85}
+.gx-pct{text-align:right;flex:none;display:flex;flex-direction:column;line-height:1}
+.gx-pct b{font:700 clamp(36px,7vw,52px)/1 var(--f-display);letter-spacing:-.02em;background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.gx-pct span{font-size:12px;opacity:.65;margin-top:6px}
+.gx-bar{position:relative;height:14px;border-radius:999px;background:color-mix(in srgb,var(--bg) 16%,transparent);overflow:hidden}
+.gx-fill{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,var(--g1),var(--g2))}
+@media (prefers-reduced-motion:no-preference){.gx-fill{animation:gxgrow 1.1s cubic-bezier(.2,.8,.2,1)}@keyframes gxgrow{from{width:0}}}
+.gx-tick{position:absolute;top:3px;bottom:3px;width:2px;margin-left:-1px;background:color-mix(in srgb,var(--bg) 35%,transparent);border-radius:1px}
+.gx-tick.done{background:color-mix(in srgb,var(--ink) 35%,transparent)}
+.gx-scale{position:relative;height:14px;font-size:11px;margin-top:-8px}
+.gx-scale span{position:absolute;transform:translateX(-50%);opacity:.5;white-space:nowrap}
+.gx-scale span:last-child{transform:translateX(-100%)}
+.gx-scale span.done{opacity:.95;font-weight:600}
+.gx-stats{display:flex;flex-wrap:wrap;gap:10px 28px}
+.gx-stats div{display:flex;flex-direction:column;line-height:1.3}
+.gx-stats span{font-size:12px;opacity:.6}
+.gx-stats b{font:600 17px var(--f-display)}
+.gx-plan{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;align-items:center;border-top:1px solid color-mix(in srgb,var(--bg) 15%,transparent);padding-top:14px}
+@media (max-width:620px){.gx-plan{grid-template-columns:minmax(0,1fr)}.gx-top{flex-direction:column}.gx-pct{text-align:left}}
+.gx-ctrl{display:flex;flex-wrap:wrap;gap:12px 18px}
+.gx-ctrl label{display:flex;flex-direction:column;gap:6px;font-size:12px;opacity:.9}
+.gx-in{display:flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--bg) 12%,transparent);border-radius:10px;padding:0 10px}
+.gx-in input{background:transparent!important;border:0!important;color:inherit;width:100px;padding:7px 0}
+.gx-rs{display:inline-flex;gap:4px}
+.gx-rs button{border:1px solid color-mix(in srgb,var(--bg) 25%,transparent);background:transparent;color:inherit;border-radius:999px;padding:4px 10px;font-size:12px}
+.gx-rs button[aria-pressed="true"]{background:var(--bg);color:var(--ink);border-color:var(--bg);font-weight:600}
+.gx-eta{display:flex;flex-direction:column;gap:2px;line-height:1.35}
+.gx-eta span{font-size:12px;opacity:.65}
+.gx-eta b{font:600 22px var(--f-display)}
+.gx-eta small{font-size:12px;opacity:.75}
+.gx-eta em{font-style:normal;font-size:12px;margin-top:4px;color:var(--g1)}
+.gx-edit{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
+.gx-edit input{background:color-mix(in srgb,var(--bg) 12%,transparent)!important;color:inherit;border:0;width:160px}
+.irr-note{font-size:12px;color:var(--muted);margin:2px 0 0}
+.hero .row .chip+.chip{margin-left:-6px}
+.efields{display:flex;flex-wrap:wrap;gap:12px}
+.pend{display:inline-block;font-size:11px;font-weight:600;color:var(--warn-ink);background:var(--warn-bg);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.pendb{align-items:center}
+.pendb .btn{background:var(--surface)}
+.sdate{display:block;font-size:11px;color:var(--muted);line-height:1.2}
+.erow.s4{grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1fr))}
+.erow.s4 .prev{grid-column:2/-1}
+.erow .who small{font-weight:400}
+@media (max-width:560px){.erow.s4{grid-template-columns:repeat(3,minmax(0,1fr))}.erow.s4 .who,.erow.s4 .prev{grid-column:1/-1}}
+.lm{display:flex;flex-direction:column;gap:14px}
+.lm-nav{display:flex;align-items:center;gap:10px}
+.lm-nav b{font:600 17px var(--f-display)}
+.lm-nav .btn{padding:2px 12px}
+.lm-nav .btn[disabled]{opacity:.35;cursor:default}
+.lm-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.lm-stats{grid-template-columns:minmax(0,1fr)}}
+.lm-stats>div{background:var(--sunk);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.lm-stats span{font-size:12px;color:var(--muted)}
+.lm-stats b{font:600 22px var(--f-display)}
+.lm-stats small{font-size:12px;color:var(--muted)}
+.lm-stats small.gain{color:var(--gain)} .lm-stats small.loss{color:var(--loss)}
+.lm-list{display:flex;flex-direction:column;overflow-x:auto}
+.lm-row{display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(4,minmax(80px,1fr));gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--grid);font-size:13px;min-width:520px}
+.lm-row>span:not(:first-child){text-align:right}
+.lm-row.hd{border-top:0;font-size:12px;color:var(--muted);padding-top:0}
+.lm-row .aname{display:flex;align-items:center;gap:8px;min-width:0}
+.topnav{display:flex;gap:6px;background:var(--surface);border-radius:16px;padding:5px;position:sticky;top:env(safe-area-inset-top,0px);z-index:4;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.topnav button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border:0;background:transparent;border-radius:12px;padding:9px 6px;font-size:14px;color:var(--ink-2);white-space:nowrap}
+.topnav button svg{width:18px;height:18px;color:var(--own)}
+.topnav button[aria-pressed="true"]{background:var(--own-soft);color:var(--own);font-weight:600}
+@media (max-width:480px){.topnav button{flex-direction:column;gap:2px;font-size:12px;padding:7px 2px}}
+:root{--c-home:var(--ink);--c-home-soft:var(--sunk)}
+.c-home{--own:var(--c-home);--own-soft:var(--c-home-soft)}
+#app.v-home{--sec:var(--ink);--sec-soft:var(--sunk)}
+.home-hero .row span{display:inline-flex;align-items:center;gap:6px}
+.actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.actions{grid-template-columns:minmax(0,1fr)}}
+.act{display:flex;align-items:center;gap:12px;text-align:left;border:1.5px solid var(--own);background:var(--own-soft);color:var(--ink);border-radius:16px;padding:14px 16px}
+.act svg{width:34px;height:34px;padding:7px;border-radius:10px;background:var(--own);color:var(--surface);flex:none}
+.act span{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.act b{font:600 15px var(--f-display);color:var(--own)}
+.act small{font-size:12px;color:var(--muted)}
+.act:hover{filter:brightness(.97)}
+.c-wrap.v-inv-local{--sec:var(--c-inv);--sec-soft:var(--c-inv-soft)}
+.c-wrap.v-sav-local{--sec:var(--c-sav);--sec-soft:var(--c-sav-soft)}
+.c-wrap.v-debt-local{--sec:var(--c-debt);--sec-soft:var(--c-debt-soft)}
+.mv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:720px){.mv{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mv>div{background:var(--surface);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:2px;box-shadow:inset 3px 0 0 var(--own)}
+.mv span{font-size:12px;color:var(--muted)}
+.mv b{font:600 20px var(--f-display)}
+.mv small{font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:3px;border-radius:2px;display:inline-block;flex:none}
+.sw.box{width:9px;height:9px;border-radius:3px}
+.sw.dash{height:0;border-top:2px dashed var(--muted);background:none!important}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart .ax text{fill:var(--muted);font:11px var(--f-body)}
+.chart .gridl{stroke:var(--grid);stroke-width:1}
+.chart .guide{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 3}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px;z-index:2;display:flex;flex-direction:column;gap:3px}
+.tip b{font-family:var(--f-display);font-size:13px;margin-bottom:2px}
+.tip .r{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.tip .r span:first-child{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
+
+/* section heads */
+.sec{display:flex;flex-direction:column;gap:12px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.sec-h .note{font-size:12px;color:var(--muted)}
+
+/* icons */
+.ico{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none}
+.ico svg{width:22px;height:22px}
+.ico.sm{width:26px;height:26px;border-radius:8px}
+.ico.sm svg{width:15px;height:15px}
+
+/* asset list */
+.list{background:var(--surface);border-radius:20px;overflow:hidden}
+.arow{display:grid;grid-template-columns:auto minmax(0,1fr) 110px auto;gap:14px;align-items:center;padding:14px 18px;border-top:1px solid var(--grid)}
+.arow:first-child{border-top:0}
+.arow .nm{font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arow .meta{font-size:12px;color:var(--muted)}
+.arow .val{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.arow .val .v{font-weight:600}
+.arow .val .p{font-size:12px;font-weight:600}
+.arow .spark{width:110px;height:34px}
+.arow .own{grid-column:1/-1;display:flex;justify-content:flex-end;margin-top:-10px}
+@media (max-width:560px){.arow{grid-template-columns:auto minmax(0,1fr) auto}.arow .spark{display:none}}
+.addrow{padding:12px 18px;border-top:1px solid var(--grid)}
+
+.editor{padding:16px 18px;border-top:1px solid var(--grid);background:var(--sunk);display:flex;flex-direction:column;gap:12px}
+.editor label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.editor input[type=text]{background:var(--surface)}
+.picker{display:flex;flex-wrap:wrap;gap:6px}
+.picker button{border:1px solid transparent;background:var(--surface);border-radius:10px;width:40px;height:40px;display:grid;place-items:center;color:var(--ink-2)}
+.picker button svg{width:20px;height:20px}
+.picker button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.swatches button{width:26px;height:26px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.swatches button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.editor .acts{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.editor .acts span{display:flex;gap:8px}
+
+/* history */
+.hist{background:var(--surface);border-radius:20px;overflow:hidden}
+.hist details{border-top:1px solid var(--grid)}
+.hist details:first-child{border-top:0}
+.hist summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) 78px 14px;gap:10px;align-items:center;padding:13px 18px;font-size:14px}
+.hist summary::-webkit-details-marker{display:none}
+.hist summary:hover{background:var(--sunk)}
+.hist summary .r{text-align:right}
+.hist summary .chev{color:var(--muted);transition:transform .15s}
+.hist details[open] summary .chev{transform:rotate(90deg)}
+.hist .hh{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) 78px 14px;gap:10px;padding:10px 18px 6px;font-size:12px;color:var(--muted)}
+.hist .hh .r{text-align:right}
+.hist .body{padding:4px 18px 14px;display:flex;flex-direction:column;gap:8px}
+.hline{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;font-size:13px}
+.hline .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+.hline .r{text-align:right;min-width:70px}
+.hist .body .acts{display:flex;justify-content:flex-end;gap:6px;padding-top:4px}
+@media (max-width:560px){.hist summary,.hist .hh{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 70px 14px}.hist .c-amt{display:none}}
+
+/* entry */
+.entry{border:1.5px solid var(--ink)}
+.entry .intro{font-size:13px;color:var(--muted);margin:2px 0 0}
+.erow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.3fr);gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--grid)}
+.erow .who{display:flex;align-items:center;gap:10px;min-width:0;font-weight:500}
+.erow .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.erow .stat{display:flex;gap:6px}
+.erow .stat select{width:auto;flex:none}
+.erow .prev{grid-column:2/-1;font-size:12px;color:var(--muted);margin-top:-4px}
+.erow.hd{border-top:0;font-size:12px;color:var(--muted);padding-bottom:0}
+@media (max-width:560px){.erow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.erow .who{grid-column:1/-1}.erow.hd span:first-child{display:none}.erow.hd{position:sticky;top:0}.erow .prev{grid-column:1/-1}}
+.entry .foot-acts{display:flex;gap:8px;justify-content:flex-end}
+.fieldm{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);max-width:200px}
+
+.savebar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 8px 8px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:5;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:13px}
+.savebar span.acts{display:flex;gap:6px}
+.savebar .btn{background:transparent;color:var(--bg);border-color:transparent}
+.savebar .btn.accent{background:var(--accent);color:var(--on-accent)}
+.foot{font-size:12px;color:var(--muted);text-align:center}
+.empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+<div id="app"></div>
+
+<script id="app-js">
+(function(){
+"use strict";
+var PAGE_TITLE="สมุดพอร์ต DCA";
+var FONT_HREF="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap";
+var PALETTE=["#2F6FD0","#C8901C","#C0457F","#159A82","#7B5CD6","#E0663A","#5E8A2A","#3A8FC0"];
+var ICONS={
+  lock:{t:"ล็อก",d:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>'},
+  unlock:{t:"ปลดล็อก",d:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 017.5-2"/>'},
+  index:{t:"กองทุนหุ้น / ดัชนี",d:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>'},
+  gold:{t:"ทองคำ",d:'<path d="M3 19h8l-1.6-5H4.6z"/><path d="M13 19h8l-1.6-5h-4.8z"/><path d="M8 11h8l-1.6-5H9.6z"/>'},
+  crypto:{t:"คริปโต",d:'<circle cx="12" cy="12" r="9"/><path d="M9.5 7.5v9M9.5 7.5h3.2a2 2 0 010 4H9.5M9.5 11.5h3.8a2.25 2.25 0 010 4.5H9.5M11.2 6v1.5M11.2 16v1.5"/>'},
+  property:{t:"อสังหาฯ / REIT",d:'<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/>'},
+  bond:{t:"ตราสารหนี้",d:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h6"/>'},
+  global:{t:"หุ้นต่างประเทศ",d:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>'},
+  tech:{t:"เทคโนโลยี",d:'<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>'},
+  green:{t:"พลังงาน / ESG",d:'<path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14z"/><path d="M5 19l7-7"/>'},
+  shield:{t:"เงินสำรองฉุกเฉิน",d:'<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>'},
+  grad:{t:"การศึกษา",d:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/><path d="M22 9v6"/>'},
+  piggy:{t:"เงินออมทั่วไป",d:'<path d="M4.5 11.5A7 6 0 0118 10h1.5v3.5H18l-1.5 3V19h-3v-2h-3v2h-3v-2.5A6 6 0 014.5 11.5z"/><path d="M10 7.2h3.5"/><circle cx="15" cy="11" r=".7" fill="currentColor"/>'},
+  ticket:{t:"สลากออมทรัพย์",d:'<path d="M3 8a2 2 0 002-2h14a2 2 0 002 2v2a2 2 0 000 4v2a2 2 0 00-2 2H5a2 2 0 00-2-2v-2a2 2 0 000-4z"/><path d="M14 6.5v11" stroke-dasharray="1.5 2"/>'},
+  bank:{t:"บัญชีธนาคาร",d:'<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/>'},
+  heart:{t:"สุขภาพ / ครอบครัว",d:'<path d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z"/>'},
+  loan:{t:"สินเชื่อ / เงินกู้",d:'<path d="M7 3h10v18l-2.5-1.5L12 21l-2.5-1.5L7 21z"/><path d="M10 8h4M10 12h4M10 16h2"/>'},
+  card:{t:"บัตรเครดิต",d:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>'},
+  car:{t:"รถยนต์",d:'<path d="M4 16l1.8-5.2A2 2 0 017.7 9.5h8.6a2 2 0 011.9 1.3L20 16"/><rect x="3" y="15" width="18" height="4" rx="1.5"/><path d="M6 19v1.5M18 19v1.5"/>'},
+  grid:{t:"ภาพรวม",d:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/>'},
+  upload:{t:"อัปโหลด",d:'<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/>'},
+  cash:{t:"เงินฝาก / เงินสด",d:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v.01M17.5 14.5v.01"/>'}
+};
+var INV_ICONS=["index","gold","crypto","property","bond","global","tech","green","cash"];
+function svgIcon(k){var i=ICONS[k]||ICONS.index;return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+i.d+'</svg>'}
+function guessIcon(n){n=(n||"").toLowerCase();if(/ทอง|gold/.test(n))return"gold";if(/btc|bitcoin|eth|crypto|คริปโต|บิต/.test(n))return"crypto";if(/reit|อสังห|property/.test(n))return"property";if(/bond|ตราสารหนี้|หุ้นกู้/.test(n))return"bond";if(/ฝาก|cash|เงินสด|money market/.test(n))return"cash";if(/tech|nasdaq|เทค/.test(n))return"tech";if(/global|world|ต่างประเทศ|china|japan|europe|vietnam/.test(n))return"global";return"index"}
+function assetIcon(a,sm){return '<span class="ico'+(sm?" sm":"")+'" style="background:color-mix(in srgb,'+a.color+' 15%,transparent);color:'+a.color+'">'+svgIcon(a.icon||guessIcon(a.name))+'</span>'}
+
+var API="https://script.google.com/macros/s/AKfycbyumAJi2UK_ZZV9MUu8eN0lvHqNhAf5XO8bOfeLWpL_8XogVs44DdiOj-KXA-ZhF_5f_Q/exec";
+var fromSeed=false,DATA_VER=0,saved={},state={};
+function setData(st,ver){saved=st||{};DATA_VER=+ver||0;state=clone(saved);["assets","records","savings","srecords","debts","dpay"].forEach(function(k){if(!state[k])state[k]=[]})}
+setData({},0);
+var dirty=false, canEdit=false, artifactNS=null, isOwner=false, unlocked=false;
+function ssGet(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+function ssSet(k,v){try{if(v==null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){}}
+function sha(t){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)).then(function(b){return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")})}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}}
+var token=null;
+function lockOf(){return true}
+function setEdit(){canEdit=!!token;if(canEdit&&fromSeed&&!dirty){dirty=true;ui.msg="ข้อมูลยังไม่ได้ย้ายเข้า Google Sheet กด “บันทึก” ที่แถบด้านล่างหนึ่งครั้งเพื่อย้ายข้อมูล"}}
+function gs(fn,args){return fetch(API,{method:"POST",body:JSON.stringify({fn:fn,args:args||[]})}).then(function(r){if(!r.ok)throw{code:"server"};return r.json()},function(){throw{code:"offline"}})}
+var ui={view:"home",lmIdx:null,gM:null,gR:5,gEdit:false,dEntryOpen:false,dEntryMonth:null,dEdit:null,dDraft:null,dHistYear:null,dSel:null,plExtra:0,plLump:0,sTab:"bal",sRange:"all",sStep:"month",sEntryOpen:false,sEntryMonth:null,sEdit:null,sDraft:null,sHistYear:null,tab:"total",unit:"baht",range:"all",step:"month",histYear:null,entryMonth:null,entryOpen:false,editingTitle:false,armed:null,msg:"",editAsset:null,draft:null,open:{}};
+
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+var nf0=new Intl.NumberFormat("th-TH",{maximumFractionDigits:0});
+var nf2=new Intl.NumberFormat("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2});
+function baht(v){return "฿"+nf0.format(Math.round(v))}
+function sbaht(v){return (v>0?"+":v<0?"−":"")+"฿"+nf0.format(Math.abs(Math.round(v)))}
+function pct(v){return (v>0?"+":v<0?"−":"")+nf2.format(Math.abs(v))+"%"}
+function cls(v){return v>0.0001?"gain":v<-0.0001?"loss":""}
+function chip(v,txt){return '<span class="chip '+(cls(v)||"flat")+'">'+txt+'</span>'}
+function short(v){var a=Math.abs(v);if(a>=1e6)return (v/1e6).toFixed(a>=1e7?0:1)+"M";if(a>=1e3)return (v/1e3).toFixed(a>=1e4?0:1)+"k";return String(Math.round(v))}
+function mLabel(m,long){var p=m.split("-");var d=new Date(+p[0],+p[1]-1,1);return d.toLocaleDateString("th-TH",long?{month:"long",year:"numeric"}:{month:"short",year:"2-digit"})}
+function be(y){return String(+y+543)}
+function mShort(m){var p=m.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString("th-TH",{month:"short"})}
+function prevMonth(m){var p=m.split("-").map(Number);p[1]--;if(p[1]<1){p[1]=12;p[0]--}return p[0]+"-"+String(p[1]).padStart(2,"0")}
+function nextMonth(m){var p=m.split("-").map(Number);p[1]++;if(p[1]>12){p[1]=1;p[0]++}return p[0]+"-"+String(p[1]).padStart(2,"0")}
+function thisMonth(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function fmtD(d){if(!d)return"";var p=d.split("-");return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})}
+function dateField(id){return '<label class="fieldm" for="'+id+'">วันที่ทำรายการ<input type="date" id="'+id+'" value="'+today()+'"></label>'}
+function uid(){return "a"+Math.random().toString(36).slice(2,8)}
+
+/* ---------- model ---------- */
+function compute(){
+  var recs=state.records.slice().sort(function(a,b){return a.m<b.m?-1:a.m>b.m?1:0});
+  var months=[];
+  if(recs.length){var m=recs[0].m,last=recs[recs.length-1].m;while(m<=last){months.push(m);m=nextMonth(m)}}
+  var byKey={};recs.forEach(function(r){byKey[r.m+"|"+r.a]=r});
+  var A=state.assets.map(function(a){
+    var cost=0,val=0,started=false,rows=[];
+    months.forEach(function(m){
+      var r=byKey[m+"|"+a.id];var amt=r?(+r.amt||0):0;cost+=amt;
+      if(r){started=true;val=(r.val==null||r.val==="")?val+amt:+r.val}
+      rows.push({m:m,amt:amt,cost:cost,val:started?val:0,rec:r||null,pct:cost>0?(val/cost-1)*100:0});
+    });
+    return {a:a,rows:rows,cost:cost,val:val,pl:val-cost,pct:cost>0?(val/cost-1)*100:0};
+  });
+  var hv={},pend={};recs.forEach(function(r){if(r.val!=null&&r.val!=='')hv[r.m]=1;else pend[r.m]=1});
+  var tot=months.map(function(m,i){var c=0,v=0,amt=0;A.forEach(function(x){c+=x.rows[i].cost;v+=x.rows[i].val;amt+=x.rows[i].amt});return {m:m,cost:c,val:v,amt:amt,pl:v-c,pct:c>0?(v/c-1)*100:0,hasVal:!!hv[m],pending:!!pend[m]}});
+  var last=tot[tot.length-1]||{cost:0,val:0,pl:0,pct:0,amt:0};
+  var years=[],yi={};
+  months.forEach(function(m,i){var y=m.slice(0,4);if(!(y in yi)){yi[y]=years.length;years.push({y:y,i0:i,i1:i})}years[yi[y]].i1=i});
+  years.forEach(function(Y){
+    var p=Y.i0-1;
+    function seg(get){var vs=p>=0?get(p).val:0,ve=get(Y.i1).val,c=0;for(var k=Y.i0;k<=Y.i1;k++)c+=get(k).amt;var g=ve-vs-c,den=vs+c/2;return{valStart:vs,valEnd:ve,contrib:c,gain:g,ret:den>0?g/den*100:0,costEnd:get(Y.i1).cost}}
+    var t=seg(function(k){return tot[k]});for(var key in t)Y[key]=t[key];
+    Y.cumPct=tot[Y.i1].pct;Y.hasVal=false;for(var q=Y.i0;q<=Y.i1;q++)if(tot[q].hasVal)Y.hasVal=true;Y.lastM=months[Y.i1];
+    Y.assets=A.map(function(x){var r=seg(function(k){return x.rows[k]});r.a=x.a;r.active=r.contrib>0||r.valEnd>0;return r});
+  });
+  var N=months.length,iv=0,iflows=[],ex=[];
+  A.forEach(function(x){var fl=[],first=-1;x.rows.forEach(function(r,i){if(r.amt>0){fl.push([i,r.amt]);if(first<0)first=i}});
+    x.held=first<0?0:N-first;x.irr=x.held>=6&&x.val>0?irrAnnual(fl,N,x.val):null;
+    if(x.irr!=null){iv+=x.val;iflows=iflows.concat(fl)}else if(x.val>0)ex.push(x.a.name)});
+  var pirr=iflows.length?irrAnnual(iflows,N,iv):null;
+  return {months:months,A:A,tot:tot,last:last,years:years,irr:pirr,irrEx:ex,activeMonths:tot.filter(function(t){return t.amt>0}).length};
+}
+
+function irrAnnual(fl,N,val){var lo=-0.2,hi=0.3;function fv(r){var s=0;fl.forEach(function(f){s+=f[1]*Math.pow(1+r,N-f[0])});return s}
+  if(fv(lo)>val||fv(hi)<val)return null;for(var k=0;k<100;k++){var mid=(lo+hi)/2;if(fv(mid)<val)lo=mid;else hi=mid}return(Math.pow(1+(lo+hi)/2,12)-1)*100}
+/* ---------- SVG charts ---------- */
+function niceStep(range,n){var raw=range/n;var mag=Math.pow(10,Math.floor(Math.log10(raw||1)));var f=raw/mag;return(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*mag}
+function scaleY(min,max,n){if(max===min)max=min+1;var step=niceStep(max-min,n);var lo=Math.floor(min/step)*step,hi=Math.ceil(max/step)*step;var t=[];for(var v=lo;v<=hi+step*1e-6;v+=step)t.push(+v.toFixed(10));return{lo:lo,hi:hi,ticks:t}}
+function drawChart(host,opt){
+  host.innerHTML="";
+  var W=Math.max(260,host.clientWidth||600),H=W<520?210:250;
+  var pl=opt.yWidth||44,pr=8,pt=8,pb=24,iw=W-pl-pr,ih=H-pt-pb,n=opt.labels.length;
+  if(!n){host.innerHTML='<div class="empty">ยังไม่มีข้อมูล</div>';return}
+  var min=0,max=0;
+  if(opt.type==="stack")opt.labels.forEach(function(_,i){var s=0;opt.series.forEach(function(se){s+=se.values[i]||0});max=Math.max(max,s)});
+  else opt.series.forEach(function(se){se.values.forEach(function(v){if(v!=null){max=Math.max(max,v);min=Math.min(min,v)}})});
+  var sc=scaleY(min,max,3),y=function(v){return pt+ih-(v-sc.lo)/(sc.hi-sc.lo)*ih},band=iw/n;
+  var x=opt.type==="stack"?function(i){return pl+band*(i+.5)}:function(i){return n===1?pl+iw/2:pl+iw*i/(n-1)};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" height="'+H+'" role="img" aria-label="'+esc(opt.aria||"")+'"><defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+(opt.areaColor||"#000")+'" stop-opacity=".22"/><stop offset="1" stop-color="'+(opt.areaColor||"#000")+'" stop-opacity="0"/></linearGradient></defs><g class="ax">';
+  sc.ticks.forEach(function(t){s+='<line class="gridl" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(t)+'" y2="'+y(t)+'"/><text x="'+(pl-8)+'" y="'+(y(t)+4)+'" text-anchor="end">'+esc(opt.yfmt(t))+'</text>'});
+  var every=Math.ceil(n/Math.max(2,Math.floor(iw/64)));
+  opt.labels.forEach(function(l,i){if(i%every===0)s+='<text x="'+x(i)+'" y="'+(H-4)+'" text-anchor="middle">'+esc((opt.xfmt||mLabel)(l))+'</text>'});
+  s+='</g>';
+  if(opt.type==="stack"){
+    var bw=Math.max(2,Math.min(22,band*.56));
+    opt.labels.forEach(function(_,i){var acc=0,segs=[];opt.series.forEach(function(se){var v=se.values[i]||0;if(v>0){segs.push([acc,v,se.color]);acc+=v}});
+      segs.forEach(function(g,j){var y0=y(g[0]),y1=y(g[0]+g[1]);s+='<rect x="'+(x(i)-bw/2)+'" y="'+y1+'" width="'+bw+'" height="'+Math.max(0,y0-y1-(j<segs.length-1?1.5:0))+'" rx="'+(j===segs.length-1?Math.min(4,bw/2):0)+'" fill="'+g[2]+'"/>'})});
+  }else{
+    opt.series.forEach(function(se){
+      var pts=[];se.values.forEach(function(v,i){if(v!=null)pts.push([x(i),y(v)])});if(!pts.length)return;
+      var d=pts.map(function(p,i){return(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)}).join("");
+      var base=y(Math.max(sc.lo,0));
+      if(se.area)s+='<path d="'+d+"L"+pts[pts.length-1][0].toFixed(1)+" "+base+"L"+pts[0][0].toFixed(1)+" "+base+'Z" fill="url(#gA)"/>';
+      s+='<path d="'+d+'" fill="none" stroke="'+se.color+'" stroke-width="'+(se.width||2)+'" stroke-linejoin="round" stroke-linecap="round"'+(se.dash?' stroke-dasharray="4 4"':"")+'/>';
+      var e=pts[pts.length-1];if(!se.dash)s+='<circle cx="'+e[0]+'" cy="'+e[1]+'" r="4" fill="'+se.color+'" stroke="var(--surface)" stroke-width="2"/>';
+    });
+  }
+  s+='<g class="hov"></g><rect x="'+pl+'" y="'+pt+'" width="'+iw+'" height="'+ih+'" fill="transparent" class="hit"/></svg>';
+  host.innerHTML=s;
+  var tip=document.createElement("div");tip.className="tip";tip.hidden=true;host.appendChild(tip);
+  var svg=host.querySelector("svg"),hov=host.querySelector(".hov"),hit=host.querySelector(".hit");
+  function show(ev){
+    var r=svg.getBoundingClientRect(),px=(ev.clientX-r.left)*W/r.width;
+    var i=opt.type==="stack"?Math.floor((px-pl)/band):Math.round((px-pl)/(n===1?1:iw/(n-1)));i=Math.max(0,Math.min(n-1,i));
+    var g='<line class="guide" x1="'+x(i)+'" x2="'+x(i)+'" y1="'+pt+'" y2="'+(pt+ih)+'"/>';
+    if(opt.type!=="stack")opt.series.forEach(function(se){var v=se.values[i];if(v!=null)g+='<circle cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="'+se.color+'" stroke="var(--surface)" stroke-width="2"/>'});
+    hov.innerHTML=g;tip.innerHTML=opt.tip(i);tip.hidden=false;
+    var tx=x(i)*r.width/W+14,tw=tip.offsetWidth;if(tx+tw>r.width)tx=x(i)*r.width/W-tw-14;
+    tip.style.left=Math.max(0,tx)+"px";tip.style.top="0px";
+  }
+  hit.addEventListener("pointermove",show);hit.addEventListener("pointerdown",show);
+  hit.addEventListener("pointerleave",function(){hov.innerHTML="";tip.hidden=true});
+}
+function spark(x){
+  var v=x.rows.map(function(r){return r.cost>0?r.val:null}).filter(function(z){return z!=null});
+  if(v.length<2)return '<span class="spark"></span>';
+  var mn=Math.min.apply(null,v),mx=Math.max.apply(null,v),W=110,H=34;if(mx===mn)mx=mn+1;
+  var d=v.map(function(z,i){return(i?"L":"M")+(i*(W-4)/(v.length-1)+2).toFixed(1)+" "+(H-3-(z-mn)/(mx-mn)*(H-6)).toFixed(1)}).join("");
+  var ex=W-2,ey=H-3-(v[v.length-1]-mn)/(mx-mn)*(H-6);
+  return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><path d="'+d+'" fill="none" stroke="'+x.a.color+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+ex+'" cy="'+ey.toFixed(1)+'" r="2.6" fill="'+x.a.color+'"/></svg>';
+}
+function tipRow(color,label,val,kind){return '<div class="r"><span><i class="sw'+(kind?" "+kind:"")+'" style="background:'+color+'"></i>'+esc(label)+'</span><span>'+val+'</span></div>'}
+
+/* ---------- render ---------- */
+var C;
+function render(){
+  C=compute();CS=computeS();CD=computeD();
+  var L=C.last,latest=C.months[C.months.length-1],h='';
+  // top
+  var LG=curLogo();var mk=LG?'<img src="'+LG+'" alt="">':svgIcon("index");
+  h+='<header class="top"><div class="brand">'+(canEdit?'<label class="mark'+(LG?' has':'')+' editable" title="กดเพื่อเปลี่ยนโลโก้พอร์ต">'+mk+'<i>'+svgIcon("upload")+'</i><input type="file" id="logo-file" accept="image/*" hidden></label>':'<span class="mark'+(LG?' has':'')+'">'+mk+'</span>')+'<div>';
+  if(canEdit&&ui.editingTitle)h+='<div class="title-edit"><input type="text" id="title-in" value="'+esc(state.title)+'" aria-label="ชื่อพอร์ต"><button class="btn sm primary" data-act="title-ok">ตกลง</button></div>';
+  else h+='<h1>'+esc(state.title||"พอร์ตของฉัน")+(canEdit?' <button class="btn text" data-act="title-edit">แก้ชื่อ</button>'+(LG?'<button class="btn text" data-act="logo-del">ลบโลโก้</button>':''):'')+'</h1>';
+  h+='<div class="sub">บันทึกการลงทุนและเงินเก็บ</div></div></div><div class="right">'+(canEdit?'<span class="pill owner"><i></i>โหมดแก้ไข</span>'+(lockOf()?'<button class="btn sm lockb" data-act="logout">'+svgIcon("lock")+'ออกจากระบบ</button>':''):'<span class="pill"><i></i>ดูอย่างเดียว</span>'+(true?'<button class="btn sm lockb" data-act="login-open">'+svgIcon("unlock")+'เข้าสู่ระบบ</button>':''))+'</div></header>';
+  if(!canEdit&&ui.loginOpen)h+=loginHTML();
+  if(canEdit&&ui.pinOpen)h+=pinHTML();
+  if(state.sample)h+='<div class="banner"><span><b>ข้อมูลตัวอย่าง</b> ตัวเลขสมมติเพื่อให้เห็นหน้าตาแอป</span>'+(canEdit?'<button class="btn sm" data-act="clear-sample">'+(ui.armed==="clear"?"ยืนยัน ล้างทั้งหมด":"ล้างตัวอย่าง")+'</button>':'')+'</div>';
+  if(ui.msg)h+='<div class="banner">'+esc(ui.msg)+'</div>';
+  var wInv=C.last.val,wSav=CS.last.bal,wAll=wInv+wSav,wDebt=CD.bal,wNet=wAll-wDebt;
+  var wsw=function(k,ic,lb,v){return '<button data-act="view" data-v="'+k+'" aria-pressed="'+(ui.view===k)+'"><span class="si">'+svgIcon(ic)+'</span><span class="st"><small>'+lb+(k!=="debt"&&wAll>0?' · '+nf0.format(v/wAll*100)+'%':'')+'</small><b>'+baht(v)+'</b></span></button>'};
+  var navs=[["home","grid","หน้าแรก"],["inv","index","การลงทุน"],["sav","piggy","เงินเก็บ"],["debt","loan","หนี้สิน"]];
+  h+='<nav class="topnav" aria-label="เมนู">'+navs.map(function(n){return '<button class="c-'+n[0]+'" data-act="view" data-v="'+n[0]+'" aria-pressed="'+(ui.view===n[0])+'">'+svgIcon(n[1])+'<span>'+n[2]+'</span></button>'}).join("")+'</nav>';
+  if(ui.view==="home")h+=homeHTML({inv:wInv,sav:wSav,all:wAll,debt:wDebt,net:wNet,wsw:wsw});
+  if(false)h+='<section class="wealth"><div class="wtot"><span>'+(wDebt>0?'ความมั่งคั่งสุทธิ':'ทรัพย์สินรวม')+'</span><b>'+(wNet<0?'−':'')+baht(Math.abs(wNet))+'</b>'+(wDebt>0?'<span class="wsub">ทรัพย์สิน '+baht(wAll)+' − หนี้ '+baht(wDebt)+'</span>':'')+'</div><div class="switch" role="group" aria-label="เลือกหมวด">'+wsw("inv","index","การลงทุน",wInv)+wsw("sav","piggy","เงินเก็บ",wSav)+wsw("debt","loan","หนี้สิน",wDebt)+'</div></section>';
+  if(ui.view==="home"){}else if(ui.view==="sav"){h+=savHTML()}else if(ui.view==="debt"){h+=debtHTML()}else{
+  if(canEdit&&ui.entryOpen)h+=entryHTML();
+  var pendM=C.tot.filter(function(t){return t.pending}).map(function(t){return t.m});
+  if(pendM.length)h+='<div class="banner pendb"><span><b>ยังไม่ได้กรอกมูลค่ารวม:</b> '+pendM.map(function(m){return esc(mLabel(m,true))}).join(", ")+' · ตอนนี้ใช้ยอดเงินต้นแทนไปก่อน</span>'+(canEdit?pendM.map(function(m){return '<button class="btn sm" data-act="edit-month" data-m="'+m+'">กรอกมูลค่า '+esc(mLabel(m))+'</button>'}).join(""):'')+'</div>';
+
+  // hero
+  var avg=C.activeMonths?L.cost/C.activeMonths:0,CY=C.years[C.years.length-1];
+  h+='<section class="hero"><span class="lbl">มูลค่าพอร์ต'+(latest?' · '+esc(mLabel(latest,true)):'')+'</span>'+
+     '<div class="big"><span class="cur">฿</span>'+nf0.format(Math.round(L.val))+'</div>'+
+     '<div class="row">'+chip(L.pl,sbaht(L.pl)+' · '+pct(L.pct))+(C.irr!=null?chip(C.irr,'เฉลี่ย '+pct(C.irr)+' ต่อปี'):'')+'<span>เงินต้น '+baht(L.cost)+'</span><span class="dotsep"></span><span>'+C.activeMonths+' เดือน</span><span class="dotsep"></span><span>เฉลี่ย '+baht(avg)+'/เดือน</span>'+(CY?'<span class="dotsep"></span><span>ปี '+be(CY.y)+' <b class="'+cls(CY.gain)+'">'+sbaht(CY.gain)+'</b></span>':'')+'</div>'+(C.irr!=null?'<p class="irr-note">ผลตอบแทนเฉลี่ยต่อปีคิดแบบ IRR จากเงินที่เติมแต่ละเดือนเทียบกับมูลค่าปัจจุบัน'+(C.irrEx.length?' (ไม่รวม '+esc(C.irrEx.join(", "))+' เพราะมีข้อมูลน้อยกว่า 6 เดือน)':'')+'</p>':'')+'</section>';
+
+  // allocation
+  if(C.A.length&&L.val>0){
+    h+='<section class="alloc" aria-label="สัดส่วนพอร์ต"><div class="bar">'+C.A.map(function(x){var p=x.val/L.val*100;return p>0?'<span style="width:'+p+'%;background:'+x.a.color+'" title="'+esc(x.a.name)+' '+nf2.format(p)+'%"></span>':''}).join("")+'</div>'+
+       '<div class="keys">'+C.A.map(function(x){return '<span><i class="kdot" style="background:'+x.a.color+'"></i>'+esc(x.a.name)+' <b>'+nf2.format(L.val>0?x.val/L.val*100:0)+'%</b></span>'}).join("")+'</div></section>';
+  }
+
+  // chart panel
+  var tabs=[["total","ภาพรวม"],["contrib","เงินที่เติม"],["assets","รายสินทรัพย์"]];
+  h+='<section class="panel"><div class="panel-h"><div class="tabs" role="group" aria-label="เลือกกราฟ">'+tabs.map(function(t){return '<button data-act="tab" data-v="'+t[0]+'" aria-pressed="'+(ui.tab===t[0])+'">'+t[1]+'</button>'}).join("")+'</div>'+
+     (ui.tab==="assets"?'<div class="tabs" role="group" aria-label="หน่วย"><button data-act="unit" data-v="baht" aria-pressed="'+(ui.unit==="baht")+'">฿</button><button data-act="unit" data-v="pct" aria-pressed="'+(ui.unit==="pct")+'">%</button></div>':'')+'</div>';
+  if(ui.range!=="all"&&ui.range!=="12m"&&ui.range!=="last"&&!C.years.some(function(Y){return Y.y===ui.range}))ui.range="all";
+  var ranges=[["last","เดือนล่าสุด"],["all","ตลอดการลงทุน"],["12m","12 เดือนล่าสุด"]].concat(C.years.slice().reverse().map(function(Y){return[Y.y,"ปี "+be(Y.y)]}));
+  h+='<div class="panel-h sub"><div class="tabs quiet" role="group" aria-label="ช่วงเวลา">'+ranges.map(function(r){return '<button data-act="range" data-v="'+r[0]+'" aria-pressed="'+(ui.range===r[0])+'">'+r[1]+'</button>'}).join("")+'</div>'+
+     (ui.range==="all"?'<div class="tabs quiet" role="group" aria-label="ความละเอียด"><button data-act="step" data-v="month" aria-pressed="'+(ui.step==="month")+'">รายเดือน</button><button data-act="step" data-v="year" aria-pressed="'+(ui.step==="year")+'">รายปี</button></div>':'')+'</div>';
+  if(ui.range==="last")h+=lastMonthHTML();
+  else if(ui.tab==="total")h+='<div class="legend"><span><i class="sw" style="background:var(--sec)"></i>มูลค่าพอร์ต</span><span><i class="sw dash"></i>เงินต้นสะสม · ช่องว่างระหว่างเส้นคือกำไร/ขาดทุน</span></div>';
+  else h+='<div class="legend">'+state.assets.map(function(a){return '<span><i class="sw'+(ui.tab==="contrib"?" box":"")+'" style="background:'+a.color+'"></i>'+esc(a.name)+'</span>'}).join("")+'</div>';
+  if(ui.range!=="last")h+='<div class="chart" id="chart"></div>';
+  h+='</section>';
+
+  // yearly
+  if(C.years.length){
+    h+='<section class="sec"><div class="sec-h"><h2>สรุปรายปี</h2><span class="note">กำไรของปี = มูลค่าที่เพิ่มขึ้น หักเงินที่เติมในปีนั้น</span></div><div class="hist yrs">';
+    h+='<div class="hh"><span>ปี</span><span class="r c-amt">เติมในปี</span><span class="r">มูลค่าสิ้นปี</span><span class="r">กำไรปีนี้</span><span></span></div>';
+    var maxAbs=Math.max.apply(null,C.years.map(function(Y){return Math.abs(Y.gain)}).concat([1]));
+    C.years.slice().reverse().forEach(function(Y){
+      var key="y"+Y.y,partial=Y.lastM.slice(5)!=="12";
+      h+='<details data-m="'+key+'"'+(ui.open[key]?" open":"")+'><summary><span class="yr"><b>'+be(Y.y)+'</b>'+(partial?'<small>ถึง '+esc(mShort(Y.lastM))+'</small>':'')+'<i class="gbar '+(cls(Y.gain)||"")+'" style="width:'+Math.max(3,Math.abs(Y.gain)/maxAbs*64).toFixed(0)+'px"></i></span>'+
+         '<span class="r c-amt">+'+baht(Y.contrib)+'</span><span class="r">'+baht(Y.valEnd)+'</span>'+(Y.hasVal?'<span class="r two"><span class="'+cls(Y.gain)+'">'+sbaht(Y.gain)+'</span><small class="'+cls(Y.ret)+'">'+pct(Y.ret)+'</small></span>':'<span class="r two"><span class="muted">–</span><small class="muted">ไม่มีข้อมูลมูลค่า</small></span>')+'<span class="chev">›</span></summary><div class="body">';
+      Y.assets.forEach(function(r){if(!r.active)return;h+='<div class="hline">'+assetIcon(r.a,true)+'<span class="n">'+esc(r.a.name)+'<small class="muted"> · เติม '+baht(r.contrib)+'</small></span><span class="r">'+baht(r.valEnd)+'</span><span class="r"><span class="'+cls(r.gain)+'">'+sbaht(r.gain)+'</span> <small class="'+cls(r.ret)+'">'+pct(r.ret)+'</small></span></div>'});
+      h+='<div class="ysum">เงินต้นสะสมสิ้นปี '+baht(Y.costEnd)+' · ผลตอบแทนสะสม <span class="'+cls(Y.cumPct)+'">'+pct(Y.cumPct)+'</span></div></div></details>';
+    });
+    h+='</div></section>';
+  }
+
+  // assets
+  h+='<section class="sec"><div class="sec-h"><h2>สินทรัพย์</h2><span class="note">'+state.assets.length+' รายการ</span></div><div class="list">';
+  if(!C.A.length)h+='<div class="empty">ยังไม่มีสินทรัพย์</div>';
+  C.A.forEach(function(x){
+    var share=L.val>0?x.val/L.val*100:0;
+    h+='<div class="arow">'+assetIcon(x.a)+'<div style="min-width:0"><div class="nm">'+esc(x.a.name)+'</div><div class="meta">'+(x.a.src?'<span class="srct">'+esc(x.a.src)+'</span>':(canEdit?'<button class="srct add" data-act="asset-edit" data-id="'+x.a.id+'">+ ใส่แหล่ง</button>':''))+'เงินต้น '+baht(x.cost)+' · '+nf2.format(share)+'%'+(x.irr!=null?' · <span class="'+cls(x.irr)+'">เฉลี่ย '+pct(x.irr)+'/ปี</span>':'')+'</div></div>'+spark(x)+
+       '<div class="val"><span class="v">'+baht(x.val)+'</span><span class="p '+cls(x.pct)+'">'+sbaht(x.pl)+' · '+pct(x.pct)+'</span></div>'+
+       (canEdit&&ui.editAsset!==x.a.id?'<div class="own"><button class="btn sm edit" data-act="asset-edit" data-id="'+x.a.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>แก้ไข</button></div>':'')+'</div>';
+    if(canEdit&&ui.editAsset===x.a.id)h+=editorHTML(x.a.id);
+  });
+  if(canEdit)h+=(ui.editAsset==="new"?editorHTML("new"):'<div class="addrow"><button class="btn sm" data-act="asset-new">+ เพิ่มสินทรัพย์</button></div>');
+  h+='</div></section>';
+
+  // history
+  h+='<section class="sec"><div class="sec-h"><h2>ประวัติรายเดือน</h2><span class="note">แตะเพื่อดูแยกรายสินทรัพย์</span></div>';
+  if(!ui.histYear||!C.years.some(function(Y){return Y.y===ui.histYear}))ui.histYear=C.years.length?C.years[C.years.length-1].y:null;
+  if(C.years.length>1)h+='<div><div class="tabs quiet" role="group" aria-label="เลือกปี">'+C.years.slice().reverse().map(function(Y){return '<button data-act="hyear" data-v="'+Y.y+'" aria-pressed="'+(ui.histYear===Y.y)+'">'+be(Y.y)+'</button>'}).join("")+'</div></div>';
+  h+='<div class="hist">';
+  if(!C.months.length)h+='<div class="empty">ยังไม่มีการบันทึก</div>';
+  else h+='<div class="hh"><span>เดือน</span><span class="r c-amt">เติม</span><span class="r">มูลค่า</span><span class="r">ผลตอบแทน</span><span></span></div>';
+  for(var i=C.months.length-1;i>=0;i--){
+    var t=C.tot[i],m=C.months[i];if(ui.histYear&&m.slice(0,4)!==ui.histYear)continue;
+    var ld=state.records.filter(function(r){return r.m===m}).map(function(r){return r.vd||r.d||""}).sort().pop();h+='<details data-m="'+m+'"'+(ui.open[m]?" open":"")+'><summary><span>'+esc(mLabel(m,true))+(ld?'<small class="sdate">บันทึก '+esc(fmtD(ld))+'</small>':'')+'</span><span class="r c-amt">'+(t.amt?"+"+baht(t.amt):"–")+'</span><span class="r">'+baht(t.val)+'</span>'+(t.pending?'<span class="r"><span class="pend">รอมูลค่า</span></span>':t.hasVal?'<span class="r '+cls(t.pct)+'">'+pct(t.pct)+'</span>':'<span class="r muted" title="ไม่ได้บันทึกมูลค่าเดือนนี้">–</span>')+'<span class="chev">›</span></summary><div class="body">';
+    C.A.forEach(function(x){var r=x.rows[i];if(!r.rec)return;var rc=r.rec;h+='<div class="hline">'+assetIcon(x.a,true)+'<span class="n">'+esc(x.a.name)+(rc.d?'<small class="muted"> · เติม '+esc(fmtD(rc.d))+'</small>':'')+(rc.vd?'<small class="muted"> · มูลค่า ณ '+esc(fmtD(rc.vd))+'</small>':'')+'</span><span class="r">'+(r.amt?"+"+baht(r.amt):"–")+'</span><span class="r">'+(rc.val==null?'<span class="pend">รอกรอกมูลค่า</span>':baht(r.val)+' <span class="'+cls(r.pct)+'">'+pct(r.pct)+'</span>')+'</span></div>'});
+    if(canEdit)h+='<div class="acts"><button class="btn sm" data-act="edit-month" data-m="'+m+'">แก้ไขเดือนนี้</button><button class="btn sm danger'+(ui.armed==="delm:"+m?" armed":"")+'" data-act="del-month" data-m="'+m+'">'+(ui.armed==="delm:"+m?"ยืนยันลบ":"ลบ")+'</button></div>';
+    h+='</div></details>';
+  }
+  h+='</div></section>';
+  }
+  if(ui.view==="home")h+=sourcesHTML();
+  h+='<p class="foot">'+(canEdit&&lockOf()?'<button class="btn text" data-act="pin-open">เปลี่ยนรหัสผ่าน</button> · ':'')+(canEdit?'คุณอยู่ในโหมดแก้ไข · คนที่เปิดลิงก์นี้จะดูได้อย่างเดียว':'ดูได้อย่างเดียว · แก้ไขได้เฉพาะผู้ที่มีรหัสผ่าน')+'</p>';
+  if(dirty)h+='<div class="savebar" role="region" aria-label="บันทึก"><span>'+(ui.saving?"กำลังบันทึก…":"มีการแก้ไขที่ยังไม่บันทึก")+'</span><span class="acts"><button class="btn sm" data-act="discard"'+(ui.saving?" disabled":"")+'>ยกเลิก</button><button class="btn sm accent" data-act="save"'+(ui.saving?" disabled":"")+'>บันทึก</button></span></div>';
+
+  var keep=captureEntry(),keepS=captureS(),keepD=captureD();if(ui.noRestore){keep=keepS=keepD=null;ui.noRestore=false}
+  var appEl=document.getElementById("app");appEl.className="v-"+ui.view;appEl.innerHTML=h;
+  restoreEntry(keep);restoreS(keepS);restoreD(keepD);if(ui.view==="debt")renderPlanRes();
+  document.querySelectorAll(".hist details").forEach(function(d){d.addEventListener("toggle",function(){ui.open[d.dataset.m]=d.open})});
+  drawAll();
+}
+
+function editorHTML(id){
+  var d=ui.draft;
+  var h='<div class="editor"><div class="fields two"><label>ชื่อสินทรัพย์<input type="text" id="ed-name" value="'+esc(d.name)+'" placeholder="เช่น กองทุน SET50"></label>'+srcField("ed-src",d.src)+'</div>';
+  h+='<label>ไอคอน<span class="picker">'+INV_ICONS.map(function(k){return '<button type="button" data-act="ed-icon" data-v="'+k+'" aria-pressed="'+(d.icon===k)+'" title="'+ICONS[k].t+'" aria-label="'+ICONS[k].t+'">'+svgIcon(k)+'</button>'}).join("")+'</span></label>';
+  h+='<label>สี<span class="swatches">'+PALETTE.map(function(c){return '<button type="button" data-act="ed-color" data-v="'+c+'" aria-pressed="'+(d.color===c)+'" style="background:'+c+'" aria-label="สี '+c+'"></button>'}).join("")+'</span></label>';
+  h+='<div class="acts"><span>'+(id!=="new"?'<button class="btn sm danger'+(ui.armed==="del:"+id?" armed":"")+'" data-act="del-asset" data-id="'+id+'">'+(ui.armed==="del:"+id?"ยืนยันลบ พร้อมประวัติ":"ลบสินทรัพย์")+'</button>':'')+'</span><span><button class="btn sm" data-act="ed-cancel">ยกเลิก</button><button class="btn sm primary" data-act="ed-ok">'+(id==="new"?"เพิ่ม":"ตกลง")+'</button></span></div></div>';
+  return h;
+}
+
+function view(M,rg,st){
+  var n=M.months.length,idx=[],i;
+  if(rg==="12m"){for(i=Math.max(0,n-12);i<n;i++)idx.push(i);return{idx:idx,yearly:false}}
+  if(rg!=="all"){for(i=0;i<n;i++)if(M.months[i].slice(0,4)===rg)idx.push(i);return{idx:idx,yearly:false}}
+  if(st==="year")return{idx:M.years.map(function(Y){return Y.i1}),yearly:true};
+  for(i=0;i<n;i++)idx.push(i);return{idx:idx,yearly:false};
+}
+function drawAll(){
+  if(!C)return;if(ui.view==="home"){drawHome();return}if(ui.view==="sav"){drawSavings();return}if(ui.view==="debt"){drawPlan();return}var el=document.getElementById("chart");if(!el||ui.range==="last")return;
+  var cs=getComputedStyle(document.getElementById("app"));
+  var accent=cs.getPropertyValue("--sec").trim()||"#0F7A58",muted=cs.getPropertyValue("--muted").trim()||"#8A948E";
+  var V=view(C,ui.range,ui.step),idx=V.idx,Yr=V.yearly;
+  var labels=idx.map(function(i){return Yr?C.months[i].slice(0,4):C.months[i]});
+  var xfmt=Yr?be:(ui.range!=="all"&&ui.range!=="12m"?mShort:mLabel);
+  function title(k){var i=idx[k];if(!Yr)return mLabel(C.months[i],true);var Y=C.years[k];return "ปี "+be(Y.y)+(Y.lastM.slice(5)!=="12"?" (ถึง "+mShort(Y.lastM)+")":" (สิ้นปี)")}
+  function o(extra){extra.labels=labels;extra.xfmt=xfmt;if(!extra.yfmt)extra.yfmt=short;return extra}
+  if(ui.tab==="total")drawChart(el,o({aria:"กราฟเงินต้นสะสมเทียบมูลค่าพอร์ต",areaColor:accent,
+    series:[{color:muted,dash:true,width:1.5,values:idx.map(function(i){return C.tot[i].cost})},{color:accent,area:true,width:2.4,values:idx.map(function(i){return C.tot[i].val})}],
+    tip:function(k){var t=C.tot[idx[k]];return '<b>'+esc(title(k))+'</b>'+tipRow(accent,"มูลค่าพอร์ต",baht(t.val))+tipRow(muted,"เงินต้นสะสม",baht(t.cost),"dash")+tipRow("transparent","กำไร/ขาดทุนสะสม",'<span class="'+cls(t.pl)+'">'+sbaht(t.pl)+' ('+pct(t.pct)+')</span>')+(Yr?tipRow("transparent","กำไรเฉพาะปีนี้",'<span class="'+cls(C.years[k].gain)+'">'+sbaht(C.years[k].gain)+'</span>'):'')}}));
+  else if(ui.tab==="contrib"){
+    var amtOf=function(ai,k){return Yr?C.years[k].assets[ai].contrib:C.A[ai].rows[idx[k]].amt};
+    drawChart(el,o({type:"stack",aria:"กราฟเงินที่เติม",
+    series:C.A.map(function(x,ai){return{color:x.a.color,values:idx.map(function(_,k){return amtOf(ai,k)})}}),
+    tip:function(k){var s='<b>'+esc(title(k))+'</b>',sum=0;C.A.forEach(function(x,ai){var v=amtOf(ai,k);sum+=v;if(v)s+=tipRow(x.a.color,x.a.name,baht(v),"box")});return s+tipRow("transparent","รวม","<b>"+baht(sum)+"</b>")}}));
+  }else{var P=ui.unit==="pct";drawChart(el,o({aria:"กราฟการเติบโตรายสินทรัพย์",yfmt:P?function(v){return v+"%"}:short,
+    series:C.A.map(function(x){return{color:x.a.color,values:idx.map(function(i){var r=x.rows[i];return r.cost>0?(P?r.pct:r.val):null})}}),
+    tip:function(k){var s='<b>'+esc(title(k))+'</b>';C.A.forEach(function(x){var r=x.rows[idx[k]];if(r.cost>0)s+=tipRow(x.a.color,x.a.name,baht(r.val)+' <span class="'+cls(r.pct)+'">'+pct(r.pct)+'</span>')});return s}}))}
+}
+
+function lastMonthHTML(){
+  var n=C.months.length;if(!n)return '<div class="empty">ยังไม่มีข้อมูล</div>';
+  if(ui.lmIdx==null||ui.lmIdx>=n)ui.lmIdx=n-1;var i=ui.lmIdx,t=C.tot[i],p=i>0?C.tot[i-1]:null;
+  var prevV=p?p.val:0,chg=t.val-prevV,mkt=chg-t.amt,mp=prevV>0?mkt/prevV*100:0;
+  var h='<div class="lm"><div class="lm-nav"><button class="btn sm" data-act="lm" data-v="-1"'+(i<=0?' disabled':'')+' aria-label="เดือนก่อน">‹</button><b>'+esc(mLabel(C.months[i],true))+'</b><button class="btn sm" data-act="lm" data-v="1"'+(i>=n-1?' disabled':'')+' aria-label="เดือนถัดไป">›</button>'+(t.pending?'<span class="pend">รอกรอกมูลค่า</span>':'')+'</div>';
+  h+='<div class="lm-stats"><div><span>เติมเงินเดือนนี้</span><b>'+baht(t.amt)+'</b></div>'+
+     '<div><span>มูลค่าเปลี่ยนจากเดือนก่อน</span><b class="'+(t.pending?'':cls(chg))+'">'+(t.pending?'–':sbaht(chg))+'</b><small>'+(t.pending?'รอกรอกมูลค่ารวมของเดือนนี้':baht(prevV)+' → '+baht(t.val))+'</small></div>'+
+     '<div><span>กำไรจากตลาด (หักเงินที่เติมแล้ว)</span><b class="'+cls(mkt)+'">'+(t.pending?'–':sbaht(mkt))+'</b><small class="'+cls(mp)+'">'+(t.pending||!prevV?'':pct(mp))+'</small></div></div>';
+  h+='<div class="lm-list"><div class="lm-row hd"><span>สินทรัพย์</span><span>เติม</span><span>มูลค่าเดือนก่อน</span><span>มูลค่าตอนนี้</span><span>เปลี่ยนแปลง</span></div>';
+  C.A.forEach(function(x){var r=x.rows[i],pr=i>0?x.rows[i-1].val:0;if(!r.rec&&!r.val)return;var c=r.val-pr-r.amt,pend=r.rec&&r.rec.val==null;
+    h+='<div class="lm-row"><span class="aname">'+assetIcon(x.a,true)+'<span>'+esc(x.a.name)+(r.rec&&r.rec.d?'<small class="muted"> · '+esc(fmtD(r.rec.d))+'</small>':'')+'</span></span><span>'+(r.amt?'+'+baht(r.amt):'–')+'</span><span>'+baht(pr)+'</span><span>'+(pend?'<span class="pend">รอกรอก</span>':baht(r.val))+'</span><span class="'+(pend?'':cls(c))+'">'+(pend?'–':sbaht(c))+'</span></div>'});
+  return h+'</div><p class="fine">“กำไรจากตลาด” คือมูลค่าที่เพิ่มขึ้นจากเดือนก่อน หักเงินที่เติมเข้าไปในเดือนนี้ออกแล้ว</p></div>';
+}
+
+/* ---------- savings ---------- */
+var SICONS=["shield","grad","piggy","ticket","bank","property","heart","cash"];
+var SKINDS={deposit:"เงินฝากดอกเบี้ยสูง",fixed:"เงินฝากประจำ",lottery:"สลากออมทรัพย์",other:"อื่น ๆ"};
+var CS;
+function computeS(){
+  var recs=state.srecords.slice().sort(function(a,b){return a.m<b.m?-1:a.m>b.m?1:0}),months=[];
+  if(recs.length){var m=recs[0].m,last=recs[recs.length-1].m;while(m<=last){months.push(m);m=nextMonth(m)}}
+  var byKey={},opM={};recs.forEach(function(r){if(r.op)opM[r.m+"|"+r.a]=r;else byKey[r.m+"|"+r.a]=r});
+  var A=state.savings.map(function(a){
+    var cd=0,ci=0,bal=0,rows=[];
+    months.forEach(function(m){var r=byKey[m+"|"+a.id],orr=opM[m+"|"+a.id],op=orr?(+orr.dep||0):0,io=sIO(r),dep=io[0]-io[1],it=r?(+r.int||0):0;cd+=dep+op;ci+=it;bal+=dep+it+op;
+      rows.push({m:m,dep:dep,din:io[0],wd:io[1],open:op,int:it,bal:bal,cost:cd,cumInt:ci,rec:r||orr||null,orec:orr||null})});
+    return{a:a,rows:rows,bal:bal,cumDep:cd,cumInt:ci};
+  });
+  var tot=months.map(function(m,i){var o={m:m,dep:0,int:0,bal:0,cost:0,cumInt:0};A.forEach(function(x){var r=x.rows[i];o.dep+=r.dep;o.int+=r.int;o.bal+=r.bal;o.cost+=r.cost;o.cumInt+=r.cumInt});return o});
+  var years=[],yi={};
+  months.forEach(function(m,i){var y=m.slice(0,4);if(!(y in yi)){yi[y]=years.length;years.push({y:y,i0:i,i1:i})}years[yi[y]].i1=i});
+  years.forEach(function(Y){
+    function seg(get){var bs=Y.i0>0?get(Y.i0-1).bal:0,d=0,it=0;for(var k=Y.i0;k<=Y.i1;k++){d+=get(k).dep;it+=get(k).int}var den=bs+d/2;return{balStart:bs,balEnd:get(Y.i1).bal,dep:d,int:it,ret:den>0?it/den*100:0}}
+    var t=seg(function(k){return tot[k]});for(var key in t)Y[key]=t[key];
+    Y.lastM=months[Y.i1];
+    Y.assets=A.map(function(x){var r=seg(function(k){return x.rows[k]});r.a=x.a;r.active=r.dep!==0||r.balEnd!==0;return r});
+  });
+  return{months:months,A:A,tot:tot,years:years,last:tot[tot.length-1]||{bal:0,cost:0,cumInt:0,dep:0,int:0}};
+}
+function sIO(r){if(!r)return[0,0];var d=+r.dep||0,w=+r.wd||0;if(d<0){w+=-d;d=0}return[d,w]}
+function sIcon(a,sm){return '<span class="ico'+(sm?" sm":"")+'" style="background:color-mix(in srgb,'+a.color+' 15%,transparent);color:'+a.color+'">'+svgIcon(a.icon||"piggy")+'</span>'}
+function rangeBar(M,rv,sv,ra,sa){
+  var ranges=[["all","ตลอดช่วง"],["12m","12 เดือนล่าสุด"]].concat(M.years.slice().reverse().map(function(Y){return[Y.y,"ปี "+be(Y.y)]}));
+  return '<div class="panel-h sub"><div class="tabs quiet" role="group" aria-label="ช่วงเวลา">'+ranges.map(function(r){return '<button data-act="'+ra+'" data-v="'+r[0]+'" aria-pressed="'+(rv===r[0])+'">'+r[1]+'</button>'}).join("")+'</div>'+
+    (rv==="all"?'<div class="tabs quiet" role="group" aria-label="ความละเอียด"><button data-act="'+sa+'" data-v="month" aria-pressed="'+(sv==="month")+'">รายเดือน</button><button data-act="'+sa+'" data-v="year" aria-pressed="'+(sv==="year")+'">รายปี</button></div>':'')+'</div>';
+}
+function avgDep(x){var r=x.rows.slice(-6),s=0,n=0;r.forEach(function(z){if(z.rec&&!z.rec.op){s+=z.dep;n++}});return n?s/n:0}
+
+function savHTML(){
+  var S=CS,L=S.last,latest=S.months[S.months.length-1],CY=S.years[S.years.length-1],h='';
+  if(canEdit&&ui.sEntryOpen)h+=sEntryHTML();
+  h+='<section class="hero"><span class="lbl">เงินเก็บรวม'+(latest?' · '+esc(mLabel(latest,true)):'')+'</span>'+
+     '<div class="big"><span class="cur">฿</span>'+nf0.format(Math.round(L.bal))+'</div>'+
+     '<div class="row">'+chip(L.cumInt,'ดอกเบี้ย/รางวัล '+sbaht(L.cumInt))+'<span>เงินที่ฝากสะสม '+baht(L.cost)+'</span>'+(CY?'<span class="dotsep"></span><span>ปี '+be(CY.y)+' ได้ดอกเบี้ย <b class="'+cls(CY.int)+'">'+sbaht(CY.int)+'</b></span>':'')+'</div></section>';
+
+  // goals
+  h+='<section class="sec"><div class="sec-h"><h2>เป้าหมายเงินเก็บ</h2><span class="note">'+state.savings.length+' บัญชี</span></div><div class="goals">';
+  S.A.forEach(function(x){
+    var a=x.a,t=+a.target||0,p=t>0?Math.min(100,x.bal/t*100):0,left=t-x.bal,avg=avgDep(x);
+    h+='<div class="goal"><div class="gh">'+sIcon(a)+'<div class="grow"><div class="nm">'+esc(a.name)+'</div><div class="meta">'+(a.src?'<span class="srct">'+esc(a.src)+'</span>':(canEdit?'<button class="srct add" data-act="s-edit" data-id="'+a.id+'">+ ใส่แหล่ง</button>':''))+esc(SKINDS[a.kind]||SKINDS.other)+(a.rate?' · '+nf2.format(+a.rate)+'% ต่อปี':'')+'</div></div>'+
+       (canEdit&&ui.sEdit!==a.id?'<button class="btn sm edit" data-act="s-edit" data-id="'+a.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>แก้ไข</button>':'')+'</div>'+
+       '<div class="gv">'+baht(x.bal)+'</div>';
+    if(!(t>0)&&canEdit&&ui.sEdit!==a.id)h+='<button class="goal-set" data-act="s-edit" data-id="'+a.id+'">+ ตั้งเป้าหมายเงินเก็บ</button>';
+    if(t>0)h+='<div class="prog" role="progressbar" aria-valuenow="'+p.toFixed(0)+'" aria-valuemin="0" aria-valuemax="100"><span style="width:'+p.toFixed(1)+'%;background:'+a.color+'"></span></div>'+
+       '<div class="gm"><span>'+nf0.format(p)+'% ของเป้า '+baht(t)+'</span><span>'+(left<=0?'<b class="gain">ถึงเป้าแล้ว</b>':'ขาดอีก '+baht(left)+(avg>0?' · ~'+Math.ceil(left/avg)+' เดือน':''))+'</span></div>';
+    h+='<div class="gm"><span>ดอกเบี้ย/รางวัลสะสม <b class="'+cls(x.cumInt)+'">'+sbaht(x.cumInt)+'</b></span><span>ฝากเฉลี่ย '+baht(avg)+'/เดือน</span></div></div>';
+    if(canEdit&&ui.sEdit===a.id)h+='<div class="goal-ed">'+sEditorHTML(a.id)+'</div>';
+  });
+  if(canEdit)h+=(ui.sEdit==="new"?'<div class="goal-ed">'+sEditorHTML("new")+'</div>':'<button class="goal add" data-act="s-new">+ เพิ่มบัญชีเงินเก็บ</button>');
+  if(!S.A.length&&!canEdit)h+='<div class="empty">ยังไม่มีบัญชีเงินเก็บ</div>';
+  h+='</div></section>';
+
+  // chart
+  if(ui.sRange!=="all"&&ui.sRange!=="12m"&&!S.years.some(function(Y){return Y.y===ui.sRange}))ui.sRange="all";
+  var tabs=[["bal","ยอดเงินเก็บ"],["dep","เงินที่ฝาก"],["int","ดอกเบี้ย/รางวัล"]];
+  h+='<section class="panel"><div class="panel-h"><div class="tabs" role="group" aria-label="เลือกกราฟ">'+tabs.map(function(t){return '<button data-act="stab" data-v="'+t[0]+'" aria-pressed="'+(ui.sTab===t[0])+'">'+t[1]+'</button>'}).join("")+'</div></div>'+
+     rangeBar(S,ui.sRange,ui.sStep,"srange","sstep")+
+     '<div class="legend">'+state.savings.map(function(a){return '<span><i class="sw box" style="background:'+a.color+'"></i>'+esc(a.name)+'</span>'}).join("")+'</div><div class="chart" id="chart"></div></section>';
+
+  // yearly
+  if(S.years.length){
+    h+='<section class="sec"><div class="sec-h"><h2>สรุปเงินเก็บรายปี</h2><span class="note">% ดอกเบี้ยคิดเทียบยอดเงินเฉลี่ยระหว่างปี</span></div><div class="hist yrs">';
+    h+='<div class="hh"><span>ปี</span><span class="r c-amt">ฝากในปี</span><span class="r">ยอดสิ้นปี</span><span class="r">ดอกเบี้ยปีนี้</span><span></span></div>';
+    S.years.slice().reverse().forEach(function(Y){
+      var key="sy"+Y.y,partial=Y.lastM.slice(5)!=="12";
+      h+='<details data-m="'+key+'"'+(ui.open[key]?" open":"")+'><summary><span class="yr"><b>'+be(Y.y)+'</b>'+(partial?'<small>ถึง '+esc(mShort(Y.lastM))+'</small>':'')+'</span>'+
+         '<span class="r c-amt">'+sbaht(Y.dep)+'</span><span class="r">'+baht(Y.balEnd)+'</span><span class="r two"><span class="'+cls(Y.int)+'">'+sbaht(Y.int)+'</span><small class="'+cls(Y.ret)+'">'+pct(Y.ret)+'</small></span><span class="chev">›</span></summary><div class="body">';
+      Y.assets.forEach(function(r){if(!r.active)return;h+='<div class="hline">'+sIcon(r.a,true)+'<span class="n">'+esc(r.a.name)+'<small class="muted"> · ฝาก '+baht(r.dep)+'</small></span><span class="r">'+baht(r.balEnd)+'</span><span class="r"><span class="'+cls(r.int)+'">'+sbaht(r.int)+'</span></span></div>'});
+      h+='</div></details>';
+    });
+    h+='</div></section>';
+  }
+
+  // history
+  if(!ui.sHistYear||!S.years.some(function(Y){return Y.y===ui.sHistYear}))ui.sHistYear=S.years.length?S.years[S.years.length-1].y:null;
+  h+='<section class="sec"><div class="sec-h"><h2>ประวัติเงินเก็บรายเดือน</h2><span class="note">แตะเพื่อดูแยกรายบัญชี</span></div>';
+  if(S.years.length>1)h+='<div><div class="tabs quiet" role="group" aria-label="เลือกปี">'+S.years.slice().reverse().map(function(Y){return '<button data-act="shyear" data-v="'+Y.y+'" aria-pressed="'+(ui.sHistYear===Y.y)+'">'+be(Y.y)+'</button>'}).join("")+'</div></div>';
+  h+='<div class="hist">';
+  if(!S.months.length)h+='<div class="empty">ยังไม่มีการบันทึก</div>';
+  else h+='<div class="hh"><span>เดือน</span><span class="r c-amt">ฝาก−ถอน</span><span class="r">ยอดรวม</span><span class="r">ดอกเบี้ย</span><span></span></div>';
+  for(var i=S.months.length-1;i>=0;i--){
+    var t=S.tot[i],m=S.months[i];t.open=S.A.some(function(x){return x.rows[i].open});if(ui.sHistYear&&m.slice(0,4)!==ui.sHistYear)continue;
+    var sld=state.srecords.filter(function(r){return r.m===m}).map(function(r){return r.d||""}).sort().pop();h+='<details data-m="s'+m+'"'+(ui.open["s"+m]?" open":"")+'><summary><span>'+esc(mLabel(m,true))+(sld?'<small class="sdate">บันทึก '+esc(fmtD(sld))+'</small>':'')+'</span><span class="r c-amt">'+(t.dep?sbaht(t.dep):(t.open?'<span class="muted">ยอดยกมา</span>':"–"))+'</span><span class="r">'+baht(t.bal)+'</span><span class="r '+cls(t.int)+'">'+(t.int?sbaht(t.int):"–")+'</span><span class="chev">›</span></summary><div class="body">';
+    S.A.forEach(function(x){var r=x.rows[i];if(!r.rec)return;if(r.orec)h+='<div class="hline">'+sIcon(x.a,true)+'<span class="n">'+esc(x.a.name)+'<small class="muted"> · ยอดยกมา (ยอดที่มีอยู่แล้ว)</small></span><span class="r">'+baht(r.open)+'</span><span class="r">'+(r.rec.op?baht(r.bal):'')+'</span></div>';if(r.rec.op)return;h+='<div class="hline">'+sIcon(x.a,true)+'<span class="n">'+esc(x.a.name)+(r.rec.d?'<small class="muted"> · '+esc(fmtD(r.rec.d))+'</small>':'')+'</span><span class="r">'+(r.din?'<span class="gain">+'+baht(r.din)+'</span> ':'')+(r.wd?'<span class="loss">−'+baht(r.wd)+'</span> ':'')+(!r.din&&!r.wd?'–':'')+(r.int?' <small class="gain">ดอกเบี้ย '+sbaht(r.int)+'</small>':'')+'</span><span class="r">'+baht(r.bal)+'</span></div>'});
+    if(canEdit)h+='<div class="acts"><button class="btn sm" data-act="s-edit-month" data-m="'+m+'">แก้ไขเดือนนี้</button><button class="btn sm danger'+(ui.armed==="sdelm:"+m?" armed":"")+'" data-act="s-del-month" data-m="'+m+'">'+(ui.armed==="sdelm:"+m?"ยืนยันลบ":"ลบ")+'</button></div>';
+    h+='</div></details>';
+  }
+  h+='</div></section>';
+  return h;
+}
+
+function sEditorHTML(id){
+  var d=ui.sDraft;
+  var h='<div class="editor"><div class="fields"><label>ชื่อบัญชี / เป้าหมาย<input type="text" id="sed-name" value="'+esc(d.name)+'" placeholder="เช่น เงินสำรองฉุกเฉิน"></label>'+
+    '<label>ประเภท<select id="sed-kind">'+Object.keys(SKINDS).map(function(k){return '<option value="'+k+'"'+(d.kind===k?" selected":"")+'>'+SKINDS[k]+'</option>'}).join("")+'</select></label>'+
+    '<label>ดอกเบี้ยต่อปี (%)<input type="number" step="any" min="0" id="sed-rate" value="'+(d.rate||d.rate===0?d.rate:"")+'" placeholder="ไม่บังคับ"></label>'+
+    '<label>เป้าหมาย (บาท)<input type="number" step="any" min="0" id="sed-target" value="'+(d.target||"")+'" placeholder="ไม่บังคับ"></label></div>'+
+    '<label>ยอดยกมา (เงินที่มีอยู่แล้วก่อนเริ่มบันทึก)<input type="number" step="any" min="0" id="sed-open" value="'+(d.open||"")+'" placeholder="0"><small class="hint">ยอดนี้เป็นยอดตั้งต้น ไม่นับเป็นเงินฝากของเดือนไหน เดือนต่อ ๆ ไปใส่เฉพาะยอดที่ฝากเพิ่มหรือถอน</small></label>'+srcField("sed-src",d.src);
+  h+='<label>ไอคอน<span class="picker">'+SICONS.map(function(k){return '<button type="button" data-act="sed-icon" data-v="'+k+'" aria-pressed="'+(d.icon===k)+'" title="'+ICONS[k].t+'" aria-label="'+ICONS[k].t+'">'+svgIcon(k)+'</button>'}).join("")+'</span></label>';
+  h+='<label>สี<span class="swatches">'+PALETTE.map(function(c){return '<button type="button" data-act="sed-color" data-v="'+c+'" aria-pressed="'+(d.color===c)+'" style="background:'+c+'" aria-label="สี '+c+'"></button>'}).join("")+'</span></label>';
+  h+='<div class="acts"><span>'+(id!=="new"?'<button class="btn sm danger'+(ui.armed==="sdel:"+id?" armed":"")+'" data-act="s-del" data-id="'+id+'">'+(ui.armed==="sdel:"+id?"ยืนยันลบ พร้อมประวัติ":"ลบบัญชี")+'</button>':'')+'</span><span><button class="btn sm" data-act="sed-cancel">ยกเลิก</button><button class="btn sm primary" data-act="sed-ok">'+(id==="new"?"เพิ่ม":"ตกลง")+'</button></span></div></div>';
+  return h;
+}
+function syncSDraft(){if(!ui.sDraft)return;var g=function(i){var e=document.getElementById(i);return e?e.value:null};var v;
+  if((v=g("sed-name"))!==null)ui.sDraft.name=v;if((v=g("sed-kind"))!==null)ui.sDraft.kind=v;if((v=g("sed-rate"))!==null)ui.sDraft.rate=v;if((v=g("sed-target"))!==null)ui.sDraft.target=v;if((v=g("sed-src"))!==null)ui.sDraft.src=v;if((v=g("sed-open"))!==null)ui.sDraft.open=v}
+
+function sEntryHTML(){
+  var m=ui.sEntryMonth;
+  var h='<section class="panel entry" id="sentry"><div><h2>บันทึกเงินเก็บประจำเดือน</h2><p class="intro">ใส่เฉพาะยอดที่เพิ่มหรือถอนในเดือนนี้ ไม่ต้องใส่ยอดรวม ระบบจะบวก/ลบจากยอดเดิมให้เอง เว้นว่างถ้าไม่มีความเคลื่อนไหว</p></div>';
+  h+='<div class="efields"><label class="fieldm" for="se-month">เดือน<input type="month" id="se-month" value="'+m+'"></label>'+dateField("se-date")+'</div>';
+  if(!state.savings.length)h+='<p class="muted">เพิ่มบัญชีเงินเก็บก่อน แล้วค่อยกลับมาบันทึก</p>';
+  else{
+    h+='<div><div class="erow s4 hd"><span>บัญชี</span><span>ฝากเพิ่ม (฿)</span><span>ถอนออก (฿)</span><span>ดอกเบี้ย/รางวัล (฿)</span></div>';
+    state.savings.forEach(function(a){
+      var r=sFind(m,a.id),io=sIO(r);
+      h+='<div class="erow s4"><span class="who">'+sIcon(a,true)+'<span>'+esc(a.name)+'<small class="muted"> · ยอดเดิม '+baht(sBalBefore(a.id,m))+'</small></span></span>'+
+        '<input type="number" inputmode="decimal" min="0" step="any" id="sd-'+a.id+'" value="'+(r&&io[0]?io[0]:"")+'" placeholder="0" aria-label="ฝากเพิ่ม '+esc(a.name)+'">'+
+        '<input type="number" inputmode="decimal" min="0" step="any" id="sw-'+a.id+'" value="'+(r&&io[1]?io[1]:"")+'" placeholder="0" aria-label="ถอนออก '+esc(a.name)+'">'+
+        '<input type="number" inputmode="decimal" min="0" step="any" id="si-'+a.id+'" value="'+(r&&r.int?r.int:"")+'" placeholder="0" aria-label="ดอกเบี้ย '+esc(a.name)+'">'+
+        '<span class="prev" id="sp-'+a.id+'"></span></div>';
+    });
+    h+='</div><div class="foot-acts"><button class="btn" data-act="s-entry-close">ปิด</button><button class="btn primary" data-act="s-entry-apply">ใส่ลงบันทึก</button></div>';
+  }
+  return h+'</section>';
+}
+function sFind(m,a){for(var i=0;i<state.srecords.length;i++){var r=state.srecords[i];if(r.m===m&&r.a===a&&!r.op)return r}return null}
+function sOpen(a){for(var i=0;i<state.srecords.length;i++){var r=state.srecords[i];if(r.a===a&&r.op)return r}return null}
+function sBalBefore(a,m){var b=0;state.srecords.forEach(function(r){if(r.a===a&&r.m<m){if(r.op){b+=+r.dep||0;return}var io=sIO(r);b+=io[0]-io[1]+(+r.int||0)}});return b}
+function sLastDep(a,m){var b=null;state.srecords.forEach(function(r){if(r.a===a&&r.m<m&&(!b||r.m>b.m))b=r});return b?b.dep:""}
+function sRead(a){var d=document.getElementById("sd-"+a).value,w=document.getElementById("sw-"+a).value,i=document.getElementById("si-"+a).value;return{dep:d===""?0:Math.abs(+d),wd:w===""?0:Math.abs(+w),int:i===""?0:+i,empty:d===""&&w===""&&i===""}}
+function updateSPreviews(){if(!ui.sEntryOpen)return;state.savings.forEach(function(a){var pv=document.getElementById("sp-"+a.id);if(!pv)return;var r=sRead(a.id);
+  if(r.empty){pv.textContent="ไม่มีความเคลื่อนไหว";return}var b0=sBalBefore(a.id,ui.sEntryMonth);pv.innerHTML=baht(b0)+(r.dep?' <span class="gain">+'+baht(r.dep)+'</span>':'')+(r.wd?' <span class="loss">−'+baht(r.wd)+'</span>':'')+(r.int?' <span class="gain">+'+baht(r.int)+' ดอกเบี้ย</span>':'')+' = ยอดใหม่ <b>'+baht(b0+r.dep-r.wd+r.int)+'</b>'})}
+function captureS(){if(!ui.sEntryOpen)return null;var o={};document.querySelectorAll("#sentry input").forEach(function(e){o[e.id]=e.value});return o}
+function restoreS(o){if(ui.sEntryOpen){if(o&&o["se-month"]===ui.sEntryMonth)Object.keys(o).forEach(function(k){var e=document.getElementById(k);if(e)e.value=o[k]});updateSPreviews()}}
+
+function drawSavings(){
+  var el=document.getElementById("chart");if(!el)return;
+  var S=CS,V=view(S,ui.sRange,ui.sStep),idx=V.idx,Yr=V.yearly;
+  var labels=idx.map(function(i){return Yr?S.months[i].slice(0,4):S.months[i]});
+  var xfmt=Yr?be:(ui.sRange!=="all"&&ui.sRange!=="12m"?mShort:mLabel);
+  function title(k){var i=idx[k];if(!Yr)return mLabel(S.months[i],true);var Y=S.years[k];return "ปี "+be(Y.y)+(Y.lastM.slice(5)!=="12"?" (ถึง "+mShort(Y.lastM)+")":" (สิ้นปี)")}
+  var f=ui.sTab;
+  function v(ai,k){var x=S.A[ai];if(f==="bal")return x.rows[idx[k]].bal;if(Yr){var Ya=S.years[k].assets[ai];return f==="dep"?Ya.dep:Ya.int}var r=x.rows[idx[k]];return f==="dep"?r.dep:r.int}
+  drawChart(el,{type:"stack",labels:labels,xfmt:xfmt,yfmt:short,aria:"กราฟเงินเก็บ",
+    series:S.A.map(function(x,ai){return{color:x.a.color,values:idx.map(function(_,k){return v(ai,k)})}}),
+    tip:function(k){var s='<b>'+esc(title(k))+'</b>',sum=0;S.A.forEach(function(x,ai){var z=v(ai,k);sum+=z;if(z)s+=tipRow(x.a.color,x.a.name,baht(z),"box")});return s+tipRow("transparent","รวม","<b>"+baht(sum)+"</b>")}});
+}
+
+/* ---------- debts ---------- */
+var DICONS=["loan","card","property","car","grad","heart"];
+var DMETHOD={reducing:"ลดต้นลดดอก",flat:"ดอกเบี้ยคงที่ (flat)"};
+var CD;
+var PEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+function dInt(d,bal){var r=(+d.rate||0)/1200;return d.method==="flat"?(+d.principal||0)*r:bal*r}
+function computeD(){
+  var list=state.debts.map(function(d){
+    var bal=+d.balance||0,rows=[],pi=0,pp=0;
+    var pays=state.dpay.filter(function(p){return p.a===d.id&&p.m>=d.asOf}),byM={};pays.forEach(function(p){var g=byM[p.m]||(byM[p.m]={m:p.m,a:p.a,amt:0,d:"",list:[]});g.amt+=+p.amt||0;g.list.push(p);if((p.d||"")>g.d)g.d=p.d||""});
+    var lastM=pays.reduce(function(a,p){return p.m>a?p.m:a},"");
+    if(lastM){var m=d.asOf;while(m<=lastM){var p=byM[m],amt=p?(+p.amt||0):0,it=dInt(d,bal);if(bal<=0)it=0;var nb=Math.max(0,bal+it-amt);
+      rows.push({m:m,amt:amt,int:Math.min(it,amt),prin:Math.max(0,amt-it),bal:nb,rec:p||null});if(amt){pi+=Math.min(it,amt);pp+=Math.max(0,amt-it)}bal=nb;m=nextMonth(m)}}
+    return{d:d,rows:rows,bal:bal,paidInt:pi,paidPrin:pp,next:lastM?nextMonth(lastM):d.asOf};
+  });
+  var tot=list.reduce(function(s,x){return s+x.bal},0),pay=list.reduce(function(s,x){return s+(x.bal>0?(+x.d.payment||0):0)},0);
+  return{list:list,bal:tot,pay:pay};
+}
+function project(d,bal,start,extra,lump){
+  var rows=[],m=start,ti=0,b=Math.max(0,bal-(lump||0)),base=(+d.payment||0)+(extra||0);
+  for(var k=0;k<720&&b>0.005;k++){var it=dInt(d,b),pay=Math.min(b+it,base);if(pay<=it+0.005)return{never:true,rows:rows};b=b+it-pay;ti+=it;rows.push({m:m,pay:pay,int:it,prin:pay-it,bal:Math.max(0,b)});m=nextMonth(m)}
+  return{rows:rows,n:rows.length,interest:ti,end:rows.length?rows[rows.length-1].m:start};
+}
+function dur(n){var y=Math.floor(n/12),m=n%12;return(y?y+" ปี ":"")+(m||!y?m+" เดือน":"")}
+function dIcon(d,sm){return '<span class="ico'+(sm?" sm":"")+'" style="background:color-mix(in srgb,'+d.color+' 15%,transparent);color:'+d.color+'">'+svgIcon(d.icon||"loan")+'</span>'}
+
+function debtHTML(){
+  var h='',L=CD;
+  if(canEdit&&ui.dEntryOpen)h+=dEntryHTML();
+  var ends=L.list.map(function(x){return x.bal>0?project(x.d,x.bal,x.next,0,0):null}).filter(Boolean);
+  var never=ends.some(function(p){return p.never}),endM=ends.reduce(function(a,p){return p.end&&p.end>a?p.end:a},""),remInt=ends.reduce(function(s,p){return s+(p.interest||0)},0);
+  h+='<section class="hero"><span class="lbl">หนี้คงเหลือรวม</span><div class="big"><span class="cur">฿</span>'+nf0.format(Math.round(L.bal))+'</div>'+
+     '<div class="row">'+(L.list.length?(never?'<span class="chip loss">ค่างวดไม่พอจ่ายดอกเบี้ย</span>':L.bal>0?'<span class="chip flat">ปลดหนี้ได้ประมาณ '+esc(mLabel(endM,true))+'</span>':'<span class="chip gain">ปลดหนี้แล้ว</span>'):'')+
+     (L.bal>0?'<span>ผ่อนรวม '+baht(L.pay)+'/เดือน</span><span class="dotsep"></span><span>ดอกเบี้ยที่ต้องจ่ายอีก ~'+baht(remInt)+'</span>':'')+'</div></section>';
+
+  h+='<section class="sec"><div class="sec-h"><h2>หนี้ที่กำลังผ่อน</h2><span class="note">'+state.debts.length+' ก้อน</span></div><div class="goals">';
+  L.list.forEach(function(x){
+    var d=x.d,pr=+d.principal||0,paidP=pr>0?Math.min(100,Math.max(0,(1-x.bal/pr)*100)):0,pj=x.bal>0?project(d,x.bal,x.next,0,0):null;
+    h+='<div class="goal"><div class="gh">'+dIcon(d)+'<div class="grow"><div class="nm">'+esc(d.name)+'</div><div class="meta">'+(d.src?'<span class="srct">'+esc(d.src)+'</span>':'')+(d.rate!=null&&d.rate!==""?nf2.format(+d.rate)+'% ต่อปี · ':'')+esc(DMETHOD[d.method]||DMETHOD.reducing)+'</div></div>'+
+       (canEdit&&ui.dEdit!==d.id?'<button class="btn sm edit" data-act="d-edit" data-id="'+d.id+'">'+PEN+'แก้ไข</button>':'')+'</div>'+
+       '<div class="gv">'+baht(x.bal)+'</div>'+
+       (pr>0?'<div class="prog"><span style="width:'+paidP.toFixed(1)+'%;background:'+d.color+'"></span></div><div class="gm"><span>จ่ายเงินต้นไปแล้ว '+nf0.format(paidP)+'% ของ '+baht(pr)+'</span></div>':'')+
+       '<div class="gm"><span>ค่างวด '+baht(+d.payment||0)+'/เดือน</span><span>'+(pj?(pj.never?'<b class="loss">ค่างวดต่ำกว่าดอกเบี้ย</b>':'อีก '+pj.n+' งวด · หมด '+esc(mLabel(pj.end))):'<b class="gain">ปิดหนี้แล้ว</b>')+'</span></div></div>';
+    if(canEdit&&ui.dEdit===d.id)h+='<div class="goal-ed">'+dEditorHTML(d.id)+'</div>';
+  });
+  if(canEdit)h+=(ui.dEdit==="new"?'<div class="goal-ed">'+dEditorHTML("new")+'</div>':'<button class="goal add" data-act="d-new">+ เพิ่มหนี้</button>');
+  if(!L.list.length&&!canEdit)h+='<div class="empty">ไม่มีหนี้ที่บันทึกไว้</div>';
+  h+='</div></section>';
+
+  if(L.list.length)h+=plannerHTML();
+
+  // history
+  var months={};state.dpay.forEach(function(p){months[p.m]=1});var ms=Object.keys(months).sort().reverse();
+  var yrs=[];ms.forEach(function(m){var y=m.slice(0,4);if(yrs.indexOf(y)<0)yrs.push(y)});
+  if(!ui.dHistYear||yrs.indexOf(ui.dHistYear)<0)ui.dHistYear=yrs[0]||null;
+  h+='<section class="sec"><div class="sec-h"><h2>ประวัติการผ่อน</h2><span class="note">แตะเพื่อดูว่าตัดเงินต้นและดอกเบี้ยเท่าไร</span></div>';
+  if(yrs.length>1)h+='<div><div class="tabs quiet" role="group" aria-label="เลือกปี">'+yrs.map(function(y){return '<button data-act="dhyear" data-v="'+y+'" aria-pressed="'+(ui.dHistYear===y)+'">'+be(y)+'</button>'}).join("")+'</div></div>';
+  h+='<div class="hist">';
+  if(!ms.length)h+='<div class="empty">ยังไม่มีการบันทึกการผ่อน'+(canEdit?' กด “+ ผ่อนหนี้” ด้านบนเพื่อบันทึกงวดแรก':'')+'</div>';
+  else h+='<div class="hh"><span>เดือน</span><span class="r c-amt">จ่าย</span><span class="r">ตัดเงินต้น</span><span class="r">ดอกเบี้ย</span><span></span></div>';
+  ms.forEach(function(m){if(ui.dHistYear&&m.slice(0,4)!==ui.dHistYear)return;
+    var amt=0,pr=0,it=0,lines='';
+    L.list.forEach(function(x){x.rows.forEach(function(r){if(r.m===m&&r.rec){amt+=r.amt;pr+=r.prin;it+=r.int;lines+='<div class="hline">'+dIcon(x.d,true)+'<span class="n">'+esc(x.d.name)+(r.rec.list.length>1?'<small class="muted"> · จ่าย '+r.rec.list.length+' ครั้ง ('+r.rec.list.map(function(q){return (q.d?esc(fmtD(q.d))+' ':'')+baht(+q.amt||0)}).join(', ')+')</small>':(r.rec.d?'<small class="muted"> · '+esc(fmtD(r.rec.d))+'</small>':''))+'<small class="muted"> · ต้น '+baht(r.prin)+' ดอก '+baht(r.int)+'</small></span><span class="r">'+baht(r.amt)+'</span><span class="r muted">เหลือ '+baht(r.bal)+'</span></div>'}})});
+    var dld=state.dpay.filter(function(r){return r.m===m}).map(function(r){return r.d||""}).sort().pop();h+='<details data-m="d'+m+'"'+(ui.open["d"+m]?" open":"")+'><summary><span>'+esc(mLabel(m,true))+(dld?'<small class="sdate">จ่าย '+esc(fmtD(dld))+'</small>':'')+'</span><span class="r c-amt">'+baht(amt)+'</span><span class="r">'+baht(pr)+'</span><span class="r loss">'+baht(it)+'</span><span class="chev">›</span></summary><div class="body">'+(lines||'<div class="muted" style="font-size:13px">บันทึกนี้อยู่ก่อนเดือนตั้งต้นของหนี้ จึงไม่ถูกนำมาคำนวณ</div>');
+    if(canEdit)h+='<div class="acts"><button class="btn sm" data-act="d-edit-month" data-m="'+m+'">แก้ไขเดือนนี้</button><button class="btn sm danger'+(ui.armed==="ddelm:"+m?" armed":"")+'" data-act="d-del-month" data-m="'+m+'">'+(ui.armed==="ddelm:"+m?"ยืนยันลบ":"ลบ")+'</button></div>';
+    h+='</div></details>';
+  });
+  h+='</div></section>';
+  return h;
+}
+
+function plannerHTML(){
+  var L=CD.list;if(!ui.dSel||!L.some(function(x){return x.d.id===ui.dSel}))ui.dSel=L[0].d.id;
+  var x=L.filter(function(z){return z.d.id===ui.dSel})[0],pay=+x.d.payment||0,mx=Math.max(10000,Math.ceil(pay*2/1000)*1000);
+  var h='<section class="panel" id="planner"><div class="panel-h"><div><h2>วางแผนผ่อนหนี้</h2><p class="intro">ลองใส่เงินโปะเพิ่ม แล้วดูว่าจะปลดหนี้ได้เร็วขึ้นแค่ไหน และประหยัดดอกเบี้ยได้เท่าไร</p></div>'+
+    (L.length>1?'<div class="tabs" role="group" aria-label="เลือกหนี้">'+L.map(function(z){return '<button data-act="dsel" data-v="'+z.d.id+'" aria-pressed="'+(ui.dSel===z.d.id)+'">'+esc(z.d.name)+'</button>'}).join("")+'</div>':'')+'</div>';
+  if(x.bal<=0)return h+'<div class="empty">หนี้ก้อนนี้ปิดแล้ว</div></section>';
+  h+='<div class="plin"><label>โปะเพิ่มทุกเดือน (฿)<span class="slide"><input type="range" id="pl-extra-r" min="0" max="'+mx+'" step="100" value="'+Math.min(ui.plExtra,mx)+'" aria-label="โปะเพิ่มทุกเดือน"><input type="number" id="pl-extra" min="0" step="100" value="'+ui.plExtra+'"></span></label>'+
+     '<label>โปะก้อนเดียว เดือนหน้า (฿)<input type="number" id="pl-lump" min="0" step="1000" value="'+(ui.plLump||"")+'" placeholder="0"></label></div>';
+  h+='<div id="planres"></div><div class="legend"><span><i class="sw dash"></i>ผ่อนตามปกติ</span><span><i class="sw" style="background:var(--sec)"></i>ตามแผนใหม่</span></div><div class="chart" id="chart"></div>';
+  h+='<p class="fine">ตัวเลขนี้เป็นการประมาณจากยอดคงเหลือ อัตราดอกเบี้ย และค่างวดที่กรอกไว้ ยอดจริงของธนาคารอาจต่างเล็กน้อย ก่อนโปะควรสอบถามธนาคารว่ามีค่าธรรมเนียมการชำระก่อนกำหนดหรือไม่</p></section>';
+  return h;
+}
+function planCalc(){var x=CD.list.filter(function(z){return z.d.id===ui.dSel})[0];if(!x||x.bal<=0)return null;
+  return{x:x,base:project(x.d,x.bal,x.next,0,0),plan:project(x.d,x.bal,x.next,+ui.plExtra||0,+ui.plLump||0)}}
+function renderPlanRes(){
+  var el=document.getElementById("planres");if(!el)return;var P=planCalc();if(!P)return;
+  var b=P.base,p=P.plan;
+  if(b.never&&p.never){el.innerHTML='<div class="banner">ค่างวดตอนนี้น้อยกว่าดอกเบี้ยรายเดือน หนี้จะไม่ลดลง ลองเพิ่มเงินโปะ หรือตรวจสอบอัตราดอกเบี้ยและค่างวดอีกครั้ง</div>';drawPlan();return}
+  function card(t,q,hl){return '<div class="cmp'+(hl?" hl":"")+'"><span class="k">'+t+'</span>'+(q.never?'<b class="loss">ไม่มีวันหมด</b>':'<b>'+dur(q.n)+'</b><span>หมด '+esc(mLabel(q.end,true))+'</span><span>ดอกเบี้ยรวม '+baht(q.interest)+'</span>')+'</div>'}
+  var h='<div class="cmps">'+card("ผ่อนตามปกติ",b,false)+card("ตามแผนใหม่",p,true)+'</div>';
+  if(!b.never&&!p.never&&(+ui.plExtra||+ui.plLump)){var sm=b.n-p.n,si=b.interest-p.interest;
+    h+='<div class="save-note">ปลดหนี้เร็วขึ้น <b>'+dur(Math.max(0,sm))+'</b> และประหยัดดอกเบี้ยได้ประมาณ <b class="gain">'+baht(Math.max(0,si))+'</b></div>'}
+  else if(b.never&&!p.never)h+='<div class="save-note">แผนใหม่ทำให้หนี้เริ่มลดลงและปิดได้ใน <b>'+dur(p.n)+'</b></div>';
+  if(!p.never)h+='<details class="sched"><summary>ดูตารางผ่อนตามแผนใหม่ ('+p.n+' งวด)</summary><div class="tbl"><table><thead><tr><th>งวด</th><th>เดือน</th><th>จ่าย</th><th>ดอกเบี้ย</th><th>ตัดต้น</th><th>คงเหลือ</th></tr></thead><tbody>'+
+    p.rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(mLabel(r.m))+'</td><td>'+nf0.format(r.pay)+'</td><td>'+nf0.format(r.int)+'</td><td>'+nf0.format(r.prin)+'</td><td>'+nf0.format(r.bal)+'</td></tr>'}).join("")+'</tbody></table></div></details>';
+  el.innerHTML=h;drawPlan();
+}
+function drawPlan(){
+  var el=document.getElementById("chart");if(!el)return;var P=planCalc();if(!P)return;
+  var cs=getComputedStyle(document.getElementById("app")),accent=cs.getPropertyValue("--sec").trim()||"#0F7A58",muted=cs.getPropertyValue("--muted").trim()||"#8A948E";
+  var b=P.base.rows,p=P.plan.rows,n=Math.max(b.length,p.length,1),labels=[],m=P.x.next;for(var i=0;i<n;i++){labels.push(m);m=nextMonth(m)}
+  var bv=labels.map(function(_,i){return i<b.length?b[i].bal:(P.base.never?null:0)}),pv=labels.map(function(_,i){return i<p.length?p[i].bal:0});
+  drawChart(el,{labels:labels,yfmt:short,areaColor:accent,aria:"กราฟยอดหนี้คงเหลือ",
+    series:[{color:muted,dash:true,width:1.5,values:bv},{color:accent,area:true,width:2.4,values:pv}],
+    tip:function(k){return '<b>'+esc(mLabel(labels[k],true))+'</b>'+tipRow(accent,"ตามแผนใหม่",baht(pv[k]))+(bv[k]!=null?tipRow(muted,"ผ่อนตามปกติ",baht(bv[k]),"dash"):'')}});
+}
+
+function dEditorHTML(id){
+  var d=ui.dDraft;
+  var h='<div class="editor"><div class="fields two"><label>ชื่อหนี้<input type="text" id="ded-name" value="'+esc(d.name)+'" placeholder="เช่น สินเชื่อธนวัฒน์"></label>'+
+    '<label>ผู้ให้กู้ / ธนาคาร<input type="text" id="ded-src" value="'+esc(d.src||"")+'" placeholder="เช่น ธนาคารกรุงไทย"></label></div>'+
+    '<div class="fields three"><label>วงเงินกู้เริ่มต้น (฿)<input type="number" min="0" step="any" id="ded-principal" value="'+(d.principal||"")+'"></label>'+
+    '<label>ยอดคงเหลือ (฿)<input type="number" min="0" step="any" id="ded-balance" value="'+(d.balance||d.balance===0?d.balance:"")+'"></label>'+
+    '<label>ยอดคงเหลือ ณ เดือน<input type="month" id="ded-asof" value="'+esc(d.asOf||thisMonth())+'"></label>'+
+    '<label>ดอกเบี้ยต่อปี (%)<input type="number" min="0" step="any" id="ded-rate" value="'+(d.rate||d.rate===0?d.rate:"")+'"></label>'+
+    '<label>วิธีคิดดอกเบี้ย<select id="ded-method">'+Object.keys(DMETHOD).map(function(k){return '<option value="'+k+'"'+(d.method===k?" selected":"")+'>'+DMETHOD[k]+'</option>'}).join("")+'</select></label>'+
+    '<label>ค่างวดต่อเดือน (฿)<input type="number" min="0" step="any" id="ded-payment" value="'+(d.payment||"")+'"></label></div>'+
+    '<small class="hint">ยอดคงเหลือให้ใส่ยอดก่อนจ่ายงวดของเดือนที่เลือก ดูได้จากแอปธนาคารหรือสลิปเงินเดือน</small>';
+  h+='<label>ไอคอน<span class="picker">'+DICONS.map(function(k){return '<button type="button" data-act="ded-icon" data-v="'+k+'" aria-pressed="'+(d.icon===k)+'" title="'+ICONS[k].t+'" aria-label="'+ICONS[k].t+'">'+svgIcon(k)+'</button>'}).join("")+'</span></label>';
+  h+='<label>สี<span class="swatches">'+PALETTE.map(function(c){return '<button type="button" data-act="ded-color" data-v="'+c+'" aria-pressed="'+(d.color===c)+'" style="background:'+c+'" aria-label="สี '+c+'"></button>'}).join("")+'</span></label>';
+  h+='<div class="acts"><span>'+(id!=="new"?'<button class="btn sm danger'+(ui.armed==="ddel:"+id?" armed":"")+'" data-act="d-del" data-id="'+id+'">'+(ui.armed==="ddel:"+id?"ยืนยันลบ พร้อมประวัติ":"ลบหนี้")+'</button>':'')+'</span><span><button class="btn sm" data-act="ded-cancel">ยกเลิก</button><button class="btn sm primary" data-act="ded-ok">'+(id==="new"?"เพิ่ม":"ตกลง")+'</button></span></div></div>';
+  return h;
+}
+function syncDDraft(){if(!ui.dDraft)return;["name","src","principal","balance","asof","rate","method","payment"].forEach(function(k){var e=document.getElementById("ded-"+k);if(e)ui.dDraft[k==="asof"?"asOf":k]=e.value})}
+
+function dEntryHTML(){
+  var m=ui.dEntryMonth;
+  var h='<section class="panel entry" id="dentry"><div><h2>บันทึกการผ่อนประจำเดือน</h2><p class="intro">ใส่ยอดที่จ่ายแต่ละครั้ง เดือนเดียวจ่ายหลายครั้งได้ (เช่น ค่างวด + โปะเพิ่ม) ยอดที่บันทึกไว้แล้วจะรวมกันให้อัตโนมัติ ระบบจะแยกให้ว่าตัดเงินต้นและดอกเบี้ยเท่าไร</p></div>';
+  h+='<div class="efields"><label class="fieldm" for="de-month">เดือน<input type="month" id="de-month" value="'+m+'"></label>'+dateField("de-date")+'</div>';
+  if(!state.debts.length)h+='<p class="muted">เพิ่มหนี้ก่อน แล้วค่อยกลับมาบันทึก</p>';
+  else{
+    h+='<div><div class="erow hd"><span>หนี้</span><span>ยอดที่จ่าย (฿)</span><span></span></div>';
+    state.debts.forEach(function(d){var ex=[];state.dpay.forEach(function(p,i){if(p.m===m&&p.a===d.id)ex.push({p:p,i:i})});
+      h+='<div class="erow"><span class="who">'+dIcon(d,true)+'<span>'+esc(d.name)+(ex.length?'<small class="muted"> · '+(ex.length>1?'จ่ายแล้ว '+ex.length+' ครั้ง รวม ':'จ่ายแล้ว ')+baht(ex.reduce(function(s2,q){return s2+(+q.p.amt||0)},0))+'</small>':'')+'</span></span><input type="number" inputmode="decimal" min="0" step="any" id="dp-'+d.id+'" value="'+(ex.length?"":(d.payment||""))+'" placeholder="'+(ex.length?"ยอดจ่ายเพิ่ม":"0")+'" aria-label="ยอดที่จ่าย '+esc(d.name)+'"><span class="prev" id="dv-'+d.id+'"></span></div>';
+      if(ex.length)h+='<div class="dpays">'+ex.map(function(q){return '<span class="dpay">'+(q.p.d?esc(fmtD(q.p.d))+' · ':'')+'<b>'+baht(+q.p.amt||0)+'</b><button type="button" data-act="d-pay-del" data-i="'+q.i+'" aria-label="ลบยอดนี้" title="ลบยอดนี้">×</button></span>'}).join("")+'</div>'});
+    h+='</div><div class="foot-acts"><button class="btn" data-act="d-entry-close">ปิด</button><button class="btn primary" data-act="d-entry-apply">เพิ่มยอดนี้</button></div>';
+  }
+  return h+'</section>';
+}
+function updateDPreviews(){if(!ui.dEntryOpen)return;var m=ui.dEntryMonth;
+  state.debts.forEach(function(d){var pv=document.getElementById("dv-"+d.id),inp=document.getElementById("dp-"+d.id);if(!pv||!inp)return;
+    if(m<d.asOf){pv.textContent="ก่อนเดือนตั้งต้นของหนี้";return}
+    var x=CD.list.filter(function(z){return z.d.id===d.id})[0],bal=+d.balance||0;x.rows.forEach(function(r){if(r.m<m)bal=r.bal});
+    var paid=0;state.dpay.forEach(function(p){if(p.m===m&&p.a===d.id)paid+=+p.amt||0});var amt=paid+(inp.value===""?0:+inp.value),it=dInt(d,bal);pv.innerHTML=!amt?"ไม่ได้จ่ายเดือนนี้":(paid&&inp.value!==""?'รวมเดือนนี้ '+baht(amt)+' · ':'')+'ดอกเบี้ย ~'+baht(Math.min(it,amt))+' · ตัดต้น ~'+baht(Math.max(0,amt-it))+' · เหลือ ~'+baht(Math.max(0,bal+it-amt))})}
+function captureD(){if(!ui.dEntryOpen)return null;var o={};document.querySelectorAll("#dentry input").forEach(function(e){o[e.id]=e.value});return o}
+function restoreD(o){if(ui.dEntryOpen){if(o&&o["de-month"]===ui.dEntryMonth)Object.keys(o).forEach(function(k){var e=document.getElementById(k);if(e)e.value=o[k]});updateDPreviews()}}
+function dSuggest(){var ms=state.dpay.map(function(r){return r.m}).sort();var last=ms[ms.length-1],now=thisMonth();if(!last)return now;return last>=now?last:(nextMonth(last)<=now?nextMonth(last):now)}
+
+/* ---------- wealth goal ---------- */
+function median(a){if(!a.length)return 0;var b=a.slice().sort(function(x,y){return x-y}),k=b.length>>1;return b.length%2?b[k]:(b[k-1]+b[k])/2}
+function goalMonths(start,target,m,r){var v=start,n=0,rr=r/1200;if(v>=target)return 0;while(v<target&&n<1200){v=v*(1+rr)+m;n++}return n>=1200?null:n}
+function addMonths(ym,n){for(var i=0;i<n;i++)ym=nextMonth(ym);return ym}
+function goalHTML(){
+  var g=state.goal||{name:"ล้านแรก",target:1000000},T=+g.target||1000000;
+  var have=C.last.val+CS.last.bal,p=Math.min(100,have/T*100),left=Math.max(0,T-have);
+  var recent=C.tot.slice(-6).map(function(t){return t.amt}).filter(function(v){return v>0});
+  if(ui.gM==null)ui.gM=Math.round(median(recent)/100)*100||5000;
+  var start=C.months[C.months.length-1]||thisMonth();
+  var n=goalMonths(have,T,+ui.gM||0,ui.gR),n2=goalMonths(have,T,(+ui.gM||0)+2000,ui.gR);
+  var streak=0;for(var i=C.tot.length-1;i>=0&&C.tot[i].amt>0;i--)streak++;
+  var steps=[.1,.25,.5,.75,1].map(function(f){return T*f}),next=steps.filter(function(s){return s>have})[0];
+  var msg=p>=100?"ทำได้แล้ว! ถึงเป้าหมายเรียบร้อย ตั้งเป้าถัดไปได้เลย":p>=75?"โค้งสุดท้ายแล้ว อีกนิดเดียวก็ถึงล้าน":p>=50?"เกินครึ่งทางแล้ว วินัยแบบนี้ไปต่อได้แน่นอน":p>=40?"ใกล้ครึ่งทางแล้ว อีกไม่ไกลจะถึงจุดกึ่งกลาง":p>=25?"มาได้หนึ่งในสี่แล้ว ทุกเดือนที่เติมคือก้าวที่นับได้":"จุดเริ่มต้นที่ดี เงินก้อนแรกคือก้อนที่ยากที่สุด";
+  var h='<section class="goalx" aria-label="เป้าหมาย"><div class="gx-top"><div><div class="gx-eye">เป้าหมายของฉัน</div>';
+  if(canEdit&&ui.gEdit)h+='<div class="gx-edit"><input type="text" id="g-name" value="'+esc(g.name||"")+'" aria-label="ชื่อเป้าหมาย"><input type="number" id="g-target" value="'+T+'" min="1" step="10000" aria-label="ยอดเป้าหมาย"><button class="btn sm" data-act="g-ok">ตกลง</button></div>';
+  else h+='<h2 class="gx-title">'+esc(g.name||"ล้านแรก")+' · '+baht(T)+(canEdit?' <button class="gx-link" data-act="g-edit">แก้เป้าหมาย</button>':'')+'</h2>';
+  h+='<div class="gx-msg">'+msg+'</div></div><div class="gx-pct"><b>'+p.toFixed(1)+'%</b><span>สำเร็จแล้ว</span></div></div>';
+  h+='<div class="gx-bar"><span class="gx-fill" style="width:'+p.toFixed(2)+'%"></span>'+steps.slice(0,4).map(function(s){var q=s/T*100;return '<i class="gx-tick'+(have>=s?" done":"")+'" style="left:'+q+'%"></i>'}).join("")+'</div>';
+  h+='<div class="gx-scale">'+steps.map(function(s){return '<span class="'+(have>=s?"done":"")+'" style="left:'+(s/T*100)+'%">'+short(s)+'</span>'}).join("")+'</div>';
+  h+='<div class="gx-stats"><div><span>มีแล้ว</span><b>'+baht(have)+'</b></div><div><span>อีก</span><b>'+baht(left)+'</b></div>'+(next&&p<100?'<div><span>หมุดถัดไป '+short(next)+'</span><b>อีก '+baht(next-have)+'</b></div>':'')+(streak>1?'<div><span>ลงทุนต่อเนื่อง</span><b>'+streak+' เดือน</b></div>':'')+'</div>';
+  if(p<100){
+    h+='<div class="gx-plan"><div class="gx-ctrl"><label>ถ้าเติมเดือนละ<span class="gx-in">฿<input type="number" id="g-m" min="0" step="500" value="'+ui.gM+'"></span></label><label>ผลตอบแทนเฉลี่ยต่อปี<span class="gx-rs">'+[3,5,7,10].concat(C.irr!=null&&C.irr>0?[Math.round(C.irr*10)/10]:[]).map(function(r){return '<button data-act="g-r" data-v="'+r+'" aria-pressed="'+(ui.gR===r)+'">'+(r===Math.round((C.irr||0)*10)/10&&[3,5,7,10].indexOf(r)<0?'ของฉัน '+r:r)+'%</button>'}).join("")+'</span></label></div>'+
+       '<div class="gx-eta" id="g-eta">'+etaHTML(n,n2,start)+'</div></div>';
+  }
+  return h+'</section>';
+}
+function etaHTML(n,n2,start){
+  if(n==null)return 'ใส่ยอดเติมต่อเดือนเพื่อดูว่าจะถึงเป้าเมื่อไร';
+  var s='<span>จะถึงเป้าประมาณ</span><b>'+esc(mLabel(addMonths(start,n),true))+'</b><small>อีก '+dur(n)+'</small>';
+  if(n2!=null&&n-n2>0)s+='<em>ถ้าเติมเพิ่มอีกเดือนละ ฿2,000 จะถึงเร็วขึ้น '+dur(n-n2)+'</em>';
+  return s;
+}
+function updateEta(){var el=document.getElementById("g-eta");if(!el)return;var g=state.goal||{},T=+g.target||1000000,have=C.last.val+CS.last.bal,start=C.months[C.months.length-1]||thisMonth();
+  el.innerHTML=etaHTML(goalMonths(have,T,+ui.gM||0,ui.gR),goalMonths(have,T,(+ui.gM||0)+2000,ui.gR),start)}
+
+/* ---------- home ---------- */
+function homeSeries(){
+  var set={};C.months.forEach(function(m){set[m]=1});CS.months.forEach(function(m){set[m]=1});
+  var ms=Object.keys(set).sort();
+  function at(M,m,f){var i=M.months.indexOf(m);if(i>=0)return f(M.tot[i]);if(!M.months.length||m<M.months[0])return 0;return f(M.tot[M.tot.length-1])}
+  return{months:ms,inv:ms.map(function(m){return at(C,m,function(t){return t.val})}),sav:ms.map(function(m){return at(CS,m,function(t){return t.bal})})};
+}
+function homeHTML(w){
+  var H=homeSeries(),n=H.months.length,last=H.months[n-1],tot=H.inv.map(function(v,i){return v+H.sav[i]});
+  var chg=n>1?tot[n-1]-tot[n-2]:0,h='';
+  h+='<section class="hero home-hero"><span class="lbl">มูลค่าทรัพย์สินรวม'+(last?' · '+esc(mLabel(last,true)):'')+'</span>'+
+     '<div class="big"><span class="cur">฿</span>'+nf0.format(Math.round(w.all))+'</div>'+
+     '<div class="row">'+(n>1?chip(chg,sbaht(chg)+' จากเดือนก่อน'):'')+'<span><i class="kdot" style="background:var(--c-inv)"></i> การลงทุน '+baht(w.inv)+'</span><span><i class="kdot" style="background:var(--c-sav)"></i> เงินเก็บ '+baht(w.sav)+'</span>'+(w.debt>0?'<span class="dotsep"></span><span>หนี้ '+baht(w.debt)+' · สุทธิ <b>'+(w.net<0?'−':'')+baht(Math.abs(w.net))+'</b></span>':'')+'</div></section>';
+  if(canEdit){
+    h+='<section class="actions" aria-label="บันทึกรายการ"><button class="act c-inv" data-act="entry-open">'+svgIcon("index")+'<span><b>บันทึกการลงทุน</b><small>เติมเงิน DCA / อัปเดตมูลค่า</small></span></button>'+
+       '<button class="act c-sav" data-act="s-entry-open">'+svgIcon("piggy")+'<span><b>บันทึกเงินเก็บ</b><small>ฝาก / ถอน / ดอกเบี้ย</small></span></button>'+
+       '<button class="act c-debt" data-act="d-entry-open">'+svgIcon("loan")+'<span><b>บันทึกผ่อนหนี้</b><small>ยอดที่จ่ายเดือนนี้</small></span></button></section>';
+    if(ui.entryOpen)h+='<div class="c-wrap v-inv-local">'+entryHTML()+'</div>';
+    if(ui.sEntryOpen)h+='<div class="c-wrap v-sav-local">'+sEntryHTML()+'</div>';
+    if(ui.dEntryOpen)h+='<div class="c-wrap v-debt-local">'+dEntryHTML()+'</div>';
+  }
+  var pendM=C.tot.filter(function(t){return t.pending}).map(function(t){return t.m});
+  if(pendM.length)h+='<div class="banner pendb"><span><b>ยังไม่ได้กรอกมูลค่าการลงทุน:</b> '+pendM.map(function(m){return esc(mLabel(m,true))}).join(", ")+'</span>'+(canEdit?pendM.map(function(m){return '<button class="btn sm" data-act="edit-month" data-m="'+m+'">กรอกมูลค่า '+esc(mLabel(m))+'</button>'}).join(""):'')+'</div>';
+  h+=goalHTML();
+  h+='<section class="sec"><div class="sec-h"><h2>แยกตามหมวด</h2><span class="note">แตะเพื่อดูรายละเอียด</span></div><div class="switch">'+w.wsw("inv","index","การลงทุน",w.inv)+w.wsw("sav","piggy","เงินเก็บ",w.sav)+w.wsw("debt","loan","หนี้สิน",w.debt)+'</div></section>';
+  // this month activity
+  var am=[];state.records.forEach(function(r){am.push(r.m)});state.srecords.forEach(function(r){if(!r.op)am.push(r.m)});state.dpay.forEach(function(r){am.push(r.m)});
+  var lm=am.sort().pop();
+  if(lm){
+    var inv=0,dep=0,wd=0,pay=0,dates=[];
+    state.records.forEach(function(r){if(r.m===lm){inv+=+r.amt||0;if(r.d)dates.push(r.d)}});
+    state.srecords.forEach(function(r){if(r.m===lm&&!r.op){var io=sIO(r);dep+=io[0];wd+=io[1];if(r.d)dates.push(r.d)}});
+    state.dpay.forEach(function(r){if(r.m===lm){pay+=+r.amt||0;if(r.d)dates.push(r.d)}});
+    h+='<section class="sec"><div class="sec-h"><h2>ความเคลื่อนไหวเดือน'+esc(mLabel(lm,true).replace(/^\S+\s/,function(x){return x}))+'</h2><span class="note">'+(dates.length?'บันทึกล่าสุด '+esc(fmtD(dates.sort().pop())):'')+'</span></div><div class="mv">'+
+       '<div class="c-inv"><span>ลงทุนเพิ่ม</span><b>'+baht(inv)+'</b></div>'+
+       '<div class="c-sav"><span>เงินเก็บ ฝาก / ถอน</span><b>+'+baht(dep)+(wd?' <small class="loss">−'+baht(wd)+'</small>':'')+'</b></div>'+
+       '<div class="c-debt"><span>ผ่อนหนี้</span><b>'+baht(pay)+'</b></div>'+
+       '<div class="c-home"><span>รวมเงินที่จัดสรรเดือนนี้</span><b>'+baht(inv+dep-wd+pay)+'</b></div></div></section>';
+  }
+  h+='<section class="panel"><div class="panel-h"><div><h2>การเติบโตของทรัพย์สินรวม</h2><p class="intro">มูลค่าการลงทุน + เงินเก็บ ณ สิ้นแต่ละเดือน</p></div></div>'+
+     '<div class="legend"><span><i class="sw box" style="background:var(--c-inv)"></i>การลงทุน</span><span><i class="sw box" style="background:var(--c-sav)"></i>เงินเก็บ</span></div><div class="chart" id="chart"></div></section>';
+  return h;
+}
+function drawHome(){
+  var el=document.getElementById("chart");if(!el)return;var H=homeSeries();
+  var cs=getComputedStyle(document.documentElement),ci=cs.getPropertyValue("--c-inv").trim()||"#0F7A58",cv=cs.getPropertyValue("--c-sav").trim()||"#2F6FD0";
+  drawChart(el,{type:"stack",labels:H.months,yfmt:short,aria:"กราฟทรัพย์สินรวม",
+    series:[{color:ci,values:H.inv},{color:cv,values:H.sav}],
+    tip:function(k){return '<b>'+esc(mLabel(H.months[k],true))+'</b>'+tipRow(ci,"การลงทุน",baht(H.inv[k]),"box")+tipRow(cv,"เงินเก็บ",baht(H.sav[k]),"box")+tipRow("transparent","รวม","<b>"+baht(H.inv[k]+H.sav[k])+"</b>")}});
+}
+
+/* ---------- sources ---------- */
+function allSrcs(){var o={};state.assets.concat(state.savings).forEach(function(a){if(a.src&&a.src.trim())o[a.src.trim()]=1});return Object.keys(o).sort()}
+function srcField(id,v){return '<label>เก็บไว้ที่ (แอป / ธนาคาร / บัญชี)<input type="text" id="'+id+'" list="srcs" value="'+esc(v||"")+'" placeholder="เช่น แอป Dime!, ออมสิน MyMo"><datalist id="srcs">'+allSrcs().map(function(x){return '<option value="'+esc(x)+'"></option>'}).join("")+'</datalist><small class="hint">ไม่ควรใส่เลขบัญชีเต็ม เพราะคนที่คุณแชร์ให้จะเห็นด้วย ใส่แค่ 4 ตัวท้ายพอ</small></label>'}
+function badgeChar(n){var t=n.replace(/^(แอปพลิเคชัน|แอป|แอพ|app|ธนาคาร|บัญชี)\s*/i,"")||n,c=Array.from(t);return((/[เแโใไ]/.test(c[0])&&c[1])?c[1]:c[0]).toUpperCase()}
+var SRC_DEF=[[/dime/i,"D","#1FAE6A"],[/gold\s*now/i,"GN","#C8901C","gold"],[/kbank|กสิกร/i,"K","#138F2D"],[/กรุงไทย|ktb|krungthai/i,"KTB","#1BA5E1"],[/ออมสิน|gsb|mymo/i,"GSB","#E0197D"],[/lh\s*bank|แลนด์/i,"LH","#6E6E6E"],[/scb|ไทยพาณิชย์/i,"SCB","#4E2A84"],[/bbl|กรุงเทพ/i,"BBL","#1E4598"],[/krungsri|กรุงศรี/i,"KS","#D9A400"],[/ttb|ทีเอ็มบี|ทหารไทย/i,"ttb","#1A3C8C"]];
+var SRC_COLORS=["#1FAE6A","#1F2A44","#138F2D","#1BA5E1","#E0197D","#C8901C","#4E2A84","#1E4598","#D9A400","#6E6E6E","#E0663A","#159A82","#C0457F"];
+function srcStyle(n){var o=state.srcStyle&&state.srcStyle[n];if(o&&o.t&&o.c)return o;var d=null;SRC_DEF.forEach(function(x){if(!d&&x[0].test(n))d={t:x[1],c:x[2],i:x[3]||""}});
+  if(!d){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))|0;d={t:badgeChar(n),c:PALETTE[Math.abs(h)%PALETTE.length],i:""}}
+  return{t:(o&&o.t)||d.t,c:(o&&o.c)||d.c,i:o&&o.i!=null?o.i:(d.i||""),img:(o&&o.img)||""}}
+var SRC_ICONS=["gold","bank","piggy","index","cash","ticket","shield","card"];
+var DEF_LOGO="icon-192.png";function curLogo(){return okImg(state.logo)?state.logo:(state.logo===""?null:DEF_LOGO)}
+function okImg(u){return typeof u==="string"&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(u)}
+function badgeHTML(st){var t=st.t||"?";if(okImg(st.img))return '<span class="sbadge lg img"><img src="'+st.img+'" alt=""></span>';return '<span class="sbadge lg'+(st.i?" ic":t.length>2?" s3":t.length>1?" s2":"")+'" style="--bc:'+st.c+'">'+(st.i?svgIcon(st.i):'<b>'+esc(t)+'</b>')+'</span>'}
+function srcEdHTML(n){var d=ui.srcDraft||srcStyle(n);
+  return '<div class="src-ed"><div class="se-prev">'+badgeHTML(d)+'<label>ตัวอักษรบนป้าย (1–3 ตัว)<input type="text" id="src-t" maxlength="3" value="'+esc(d.t)+'"></label></div>'+
+    '<div class="se-lbl">รูปบนป้าย</div><span class="picker"><button type="button" class="txtopt" data-act="src-ic" data-v="" aria-pressed="'+(!d.i)+'">Aa</button>'+SRC_ICONS.map(function(k){return '<button type="button" data-act="src-ic" data-v="'+k+'" aria-pressed="'+(d.i===k)+'" title="'+ICONS[k].t+'" aria-label="'+ICONS[k].t+'">'+svgIcon(k)+'</button>'}).join("")+'</span><div class="se-lbl">สี</div><span class="swatches">'+SRC_COLORS.map(function(c){return '<button type="button" data-act="src-col" data-v="'+c+'" aria-pressed="'+(d.c===c)+'" style="background:'+c+'" aria-label="สี '+c+'"></button>'}).join("")+'</span>'+
+    '<div class="se-lbl">หรือใช้รูปโลโก้ของคุณเอง</div><div class="se-up"><label class="btn sm up">'+svgIcon("upload")+(d.img?'เปลี่ยนรูป':'อัปโหลดรูปโลโก้')+'<input type="file" id="src-file" accept="image/*" hidden></label>'+(d.img?'<button class="btn sm" data-act="src-img-del">ไม่ใช้รูป</button>':'')+'<small class="hint">ระบบย่อรูปเป็นสี่เหลี่ยมจัตุรัสให้เอง ใช้รูปที่บันทึกไว้ในเครื่อง หรือแคปหน้าจอไอคอนแอปก็ได้</small></div>'+
+    '<div class="acts"><span><button class="btn sm" data-act="src-reset">ใช้ค่าเริ่มต้น</button></span><span><button class="btn sm" data-act="src-cancel">ยกเลิก</button><button class="btn sm primary" data-act="src-ok">ตกลง</button></span></div></div>'}
+function sourcesHTML(){
+  var g={},order=[],all=0;
+  function add(src,it,v){var k=(src||"").trim()||"ไม่ระบุ";if(!g[k]){g[k]={name:k,items:[],v:0};order.push(k)}g[k].items.push(it);g[k].v+=v;all+=v}
+  C.A.forEach(function(x){add(x.a.src,x.a,x.val)});
+  CS.A.forEach(function(x){add(x.a.src,x.a,x.bal)});
+  if(!order.length||(order.length===1&&order[0]==="ไม่ระบุ"&&!canEdit))return "";
+  var list=order.map(function(k){return g[k]}).sort(function(a,b){return(a.name==="ไม่ระบุ")-(b.name==="ไม่ระบุ")||b.v-a.v});
+  var h='<section class="sec"><div class="sec-h"><h2>เงินอยู่ที่ไหนบ้าง</h2><span class="note">รวมการลงทุนและเงินเก็บ</span></div><div class="list">';
+  if(order.length===1&&order[0]==="ไม่ระบุ")h+='<div class="empty">ยังไม่ได้ระบุแหล่ง กด “แก้ไข” ที่สินทรัพย์หรือบัญชีเงินเก็บ แล้วใส่ว่าเก็บไว้ที่แอปหรือธนาคารไหน</div>';
+  else list.forEach(function(s){
+    var p=all>0?s.v/all*100:0,un=s.name==="ไม่ระบุ";
+    var bs=un?null:srcStyle(s.name);h+='<div class="srow">'+(un?'<span class="sbadge un">?</span>':badgeHTML(bs))+'<div style="min-width:0"><div class="nm">'+esc(s.name)+(canEdit&&!un&&ui.srcEdit!==s.name?' <button class="btn text sbe" data-act="src-ed" data-v="'+esc(s.name)+'">แต่งป้าย</button>':'')+'</div><div class="sits">'+s.items.map(function(a){return '<span title="'+esc(a.name)+'"><i class="kdot" style="background:'+a.color+'"></i>'+esc(a.name)+'</span>'}).join("")+'</div></div>'+
+       '<div class="val"><span class="v">'+baht(s.v)+'</span><span class="p muted">'+nf2.format(p)+'%</span></div><div class="sbar"><span style="width:'+p.toFixed(1)+'%"></span></div></div>'+(canEdit&&!un&&ui.srcEdit!==s.name?'':'')+(canEdit&&!un&&ui.srcEdit===s.name?srcEdHTML(s.name):'');
+  });
+  return h+'</div></section>';
+}
+
+/* ---------- entry form ---------- */
+function entryHTML(){
+  var m=ui.entryMonth;
+  var h='<section class="panel entry" id="entry"><div><h2>บันทึกการลงทุนประจำเดือน</h2><p class="intro">ใส่เงินที่เติมได้เลย ส่วน “มูลค่ารวม” ถ้ายังไม่รู้ยอดให้เว้นว่างไว้ แล้วกลับมากรอกทีหลังได้ (กด “กรอกมูลค่า” ที่แจ้งเตือนด้านบน)</p></div>';
+  h+='<div class="efields"><label class="fieldm" for="e-month">เดือน<input type="month" id="e-month" value="'+m+'"></label>'+dateField("e-date")+'</div>';
+  if(!state.assets.length)h+='<p class="muted">เพิ่มสินทรัพย์ก่อน แล้วค่อยกลับมาบันทึก</p>';
+  else{
+    h+='<div><div class="erow hd"><span>สินทรัพย์</span><span>เงินที่เติม (฿)</span><span>มูลค่ารวม ณ สิ้นเดือน (ใส่ทีหลังได้)</span></div>';
+    state.assets.forEach(function(a){
+      var r=findRec(m,a.id),amt=r?r.amt:"";
+      var stat=r&&r.val!=null?r.val:"";
+      h+='<div class="erow"><span class="who">'+assetIcon(a,true)+'<span>'+esc(a.name)+'</span></span>'+
+        '<input type="number" inputmode="decimal" min="0" step="any" id="amt-'+a.id+'" value="'+(amt||amt===0?amt:"")+'" placeholder="'+(lastAmount(a.id,m)||0)+'" aria-label="เงินที่เติม '+esc(a.name)+'">'+
+        '<span class="stat"><input type="number" inputmode="decimal" step="any" id="st-'+a.id+'" value="'+stat+'" placeholder="ยังไม่รู้ เว้นไว้ก่อน" aria-label="มูลค่ารวม '+esc(a.name)+'"><select id="u-'+a.id+'" aria-label="หน่วย"><option value="baht" selected>฿</option><option value="pct">%</option></select></span>'+
+        '<span class="prev" id="pv-'+a.id+'"></span></div>';
+    });
+    h+='</div><div class="foot-acts"><button class="btn" data-act="entry-close">ปิด</button><button class="btn primary" data-act="entry-apply">ใส่ลงบันทึก</button></div>';
+  }
+  return h+'</section>';
+}
+function findRec(m,a){for(var i=0;i<state.records.length;i++){var r=state.records[i];if(r.m===m&&r.a===a)return r}return null}
+function costBefore(a,m){var c=0;state.records.forEach(function(r){if(r.a===a&&r.m<m)c+=+r.amt||0});return c}
+function valBefore(a,m){var b=null;state.records.forEach(function(r){if(r.a===a&&r.m<m&&r.val!=null&&(!b||r.m>b.m))b=r});return b?+b.val:0}
+function lastAmount(a,m){var b=null;state.records.forEach(function(r){if(r.a===a&&r.m<m&&(!b||r.m>b.m))b=r});return b?b.amt:""}
+function readRow(a){
+  var m=ui.entryMonth,amtS=document.getElementById("amt-"+a).value,stS=document.getElementById("st-"+a).value,u=document.getElementById("u-"+a).value;
+  var amt=amtS===""?0:Math.max(0,+amtS),cost=costBefore(a,m)+amt;
+  var val=stS===""?null:(u==="pct"?cost*(1+(+stS)/100):+stS);
+  return{amt:amt,cost:cost,val:val,empty:amtS===""&&stS===""};
+}
+function updatePreviews(){
+  if(!ui.entryOpen)return;
+  state.assets.forEach(function(a){var pv=document.getElementById("pv-"+a.id);if(!pv)return;var r=readRow(a.id);
+    if(r.empty){pv.textContent="ข้ามเดือนนี้";return}
+    if(r.val==null){pv.innerHTML='เงินต้นสะสม '+baht(r.cost)+' · <span class="pend">รอกรอกมูลค่า</span>';return}
+    var p=r.cost>0?(r.val/r.cost-1)*100:0;pv.innerHTML='เงินต้นสะสม '+baht(r.cost)+' → มูลค่า '+baht(r.val)+' <span class="'+cls(p)+'">'+pct(p)+'</span>'});
+}
+function captureEntry(){if(!ui.entryOpen)return null;var o={};document.querySelectorAll("#entry input,#entry select").forEach(function(e){o[e.id]=e.value});return o}
+function restoreEntry(o){if(ui.entryOpen){if(o&&o["e-month"]===ui.entryMonth)Object.keys(o).forEach(function(k){var e=document.getElementById(k);if(e)e.value=o[k]});updatePreviews()}}
+
+/* ---------- login ---------- */
+function loginHTML(){
+  var wait=ui.lockUntil&&Date.now()<ui.lockUntil;
+  return '<section class="panel login" id="login"><div><h2>เข้าสู่ระบบเพื่อแก้ไข</h2><p class="intro">ใส่รหัสผ่านของเจ้าของพอร์ต เครื่องนี้จะจำไว้ 30 วัน หรือจนกว่าจะกดออกจากระบบ</p></div>'+
+    '<div class="lg-row"><input type="password" id="pin-in" inputmode="numeric" autocomplete="current-password" placeholder="รหัสผ่าน" aria-label="รหัสผ่าน"'+(wait?' disabled':'')+'><button class="btn primary" data-act="login"'+(wait?' disabled':'')+'>เข้าสู่ระบบ</button><button class="btn" data-act="login-close">ยกเลิก</button></div>'+
+    (ui.loginErr?'<p class="lg-err" role="alert">'+esc(ui.loginErr)+'</p>':'')+'</section>';
+}
+function pinHTML(){
+  return '<section class="panel login" id="pinbox"><div><h2>เปลี่ยนรหัสผ่าน</h2><p class="intro">อย่างน้อย 4 ตัว ตัวเลขหรือตัวอักษรก็ได้ เปลี่ยนแล้วมีผลทันที เครื่องอื่นที่เข้าสู่ระบบค้างไว้จะต้องเข้าใหม่</p></div>'+
+    '<div class="lg-row"><input type="password" id="pin-new" autocomplete="new-password" placeholder="รหัสใหม่" aria-label="รหัสใหม่"><input type="password" id="pin-new2" autocomplete="new-password" placeholder="พิมพ์อีกครั้ง" aria-label="ยืนยันรหัสใหม่"><button class="btn primary" data-act="pin-ok">ตั้งรหัส</button><button class="btn" data-act="pin-close">ยกเลิก</button></div>'+
+    (ui.pinErr?'<p class="lg-err" role="alert">'+esc(ui.pinErr)+'</p>':'')+'</section>';
+}
+function doLogin(){
+  var inp=document.getElementById("pin-in");if(!inp)return;var v=inp.value.trim();if(!v){inp.focus();return}
+  ui.loginErr="กำลังตรวจสอบ…";var pe=document.querySelector(".lg-err");if(pe)pe.textContent=ui.loginErr;
+  gs("login",[v]).then(function(r){
+    if(r&&r.ok){token=r.token;lsSet("dca-token",token);ui.loginOpen=false;ui.loginErr="";setEdit();render();return}
+    ui.loginErr=r&&r.code==="locked"?"ใส่รหัสผิดหลายครั้ง ลองใหม่ได้ในอีก "+r.min+" นาที":"รหัสไม่ถูกต้อง";render();var i2=document.getElementById("pin-in");if(i2)i2.focus();
+  },function(){ui.loginErr="เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง";render()});
+}
+function setPin(){
+  var a=(document.getElementById("pin-new")||{}).value||"",b=(document.getElementById("pin-new2")||{}).value||"";
+  if(a.trim().length<4){ui.pinErr="รหัสต้องมีอย่างน้อย 4 ตัว";render();return}
+  if(a!==b){ui.pinErr="รหัสสองช่องไม่ตรงกัน";render();return}
+  gs("changePassword",[token,a.trim()]).then(function(r){
+    if(r&&r.ok){token=r.token;lsSet("dca-token",token);ui.pinOpen=false;ui.pinErr="";ui.msg="เปลี่ยนรหัสผ่านแล้ว";render()}
+    else if(r&&r.code==="auth")authLost();else{ui.pinErr="เปลี่ยนรหัสไม่สำเร็จ";render()}
+  },function(){ui.pinErr="เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง";render()});
+}
+function authLost(){token=null;lsSet("dca-token",null);ui.saving=false;setEdit();ui.loginOpen=true;ui.loginErr="หมดเวลาเข้าสู่ระบบ ใส่รหัสอีกครั้ง (สิ่งที่แก้ไว้ยังอยู่)";render()}
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="pin-in")doLogin();if(e.key==="Enter"&&e.target.id==="pin-new2")setPin()});
+
+function loadLogo(file,size,cb){
+  if(!file||!/^image\//.test(file.type)){ui.msg="ไฟล์นี้ไม่ใช่รูปภาพ";render();return}
+  var url=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){var c=document.createElement("canvas");c.width=c.height=size;var x=c.getContext("2d"),w=im.naturalWidth,h=im.naturalHeight,k=Math.max(size/w,size/h);
+    x.imageSmoothingQuality="high";x.drawImage(im,(size-w*k)/2,(size-h*k)/2,w*k,h*k);URL.revokeObjectURL(url);
+    var d=c.toDataURL("image/webp",.86);if(d.indexOf("data:image/webp")!==0)d=c.toDataURL("image/png");cb(d)};
+  im.onerror=function(){URL.revokeObjectURL(url);ui.msg="เปิดรูปนี้ไม่ได้ ลองใช้ไฟล์ PNG หรือ JPG";render()};
+  im.src=url;
+}
+document.addEventListener("change",function(e){
+  if(e.target.id==="src-file"&&e.target.files[0]){var tv=document.getElementById("src-t");if(tv&&ui.srcDraft)ui.srcDraft.t=tv.value.trim()||ui.srcDraft.t;loadLogo(e.target.files[0],128,function(d){if(!ui.srcDraft)return;ui.srcDraft.img=d;render()})}
+  if(e.target.id==="logo-file"&&e.target.files[0])loadLogo(e.target.files[0],128,function(d){state.logo=d;change()});
+});
+
+/* ---------- actions ---------- */
+function change(){dirty=true;ui.armed=null;render()}
+document.addEventListener("input",function(e){var tid=e.target.id;
+  if(tid==="src-t"){var pb=document.querySelector(".src-ed .sbadge");if(pb&&!pb.classList.contains("ic")&&!pb.classList.contains("img")){var tv=e.target.value.trim();pb.innerHTML="<b></b>";pb.firstChild.textContent=tv||"?";pb.className="sbadge lg"+(tv.length>2?" s3":tv.length>1?" s2":"")}return}
+  if(tid==="g-m"){ui.gM=Math.max(0,+e.target.value||0);updateEta();return}
+  if(tid==="pl-extra"||tid==="pl-extra-r"){ui.plExtra=Math.max(0,+e.target.value||0);var o=document.getElementById(tid==="pl-extra"?"pl-extra-r":"pl-extra");if(o)o.value=ui.plExtra;renderPlanRes();return}
+  if(tid==="pl-lump"){ui.plLump=Math.max(0,+e.target.value||0);renderPlanRes();return}
+  if(e.target.closest&&e.target.closest("#dentry")&&tid!=="de-month")updateDPreviews();if(e.target.closest&&e.target.closest("#sentry")&&e.target.id!=="se-month")updateSPreviews();if(e.target.closest&&e.target.closest("#entry")&&e.target.id!=="e-month")updatePreviews();if(e.target.id==="ed-name"&&ui.draft)ui.draft.name=e.target.value;if(e.target.id==="ed-src"&&ui.draft)ui.draft.src=e.target.value});
+document.addEventListener("change",function(e){
+  if(e.target.id==="de-month"&&e.target.value){ui.dEntryMonth=e.target.value;ui.noRestore=true;render();var el3=document.getElementById("de-month");if(el3)el3.focus();return}
+  if(e.target.id==="se-month"&&e.target.value){ui.sEntryMonth=e.target.value;ui.noRestore=true;render();var el2=document.getElementById("se-month");if(el2)el2.focus();return}
+  if(e.target.id==="e-month"&&e.target.value){ui.entryMonth=e.target.value;ui.noRestore=true;render();var el=document.getElementById("e-month");if(el)el.focus()}
+  else if(e.target.closest&&e.target.closest("#entry"))updatePreviews();
+});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="ed-name")act("ed-ok");if(e.key==="Enter"&&e.target.id==="title-in")act("title-ok")});
+document.addEventListener("click",function(e){var b=e.target.closest("[data-act]");if(!b)return;e.preventDefault();act(b.dataset.act,b)});
+function act(a,b){
+  var armedBefore=ui.armed;
+  if(a!=="del-asset"&&a!=="del-month"&&a!=="clear-sample"&&a!=="s-del"&&a!=="s-del-month"&&a!=="d-del"&&a!=="d-del-month")ui.armed=null;
+  switch(a){
+  case "src-ed":ui.srcEdit=b.dataset.v;ui.srcDraft=clone(srcStyle(b.dataset.v));render();break;
+  case "src-img-del":ui.srcDraft.img="";render();break;
+  case "logo-del":state.logo="";change();break;
+  case "src-ic":var stv2=document.getElementById("src-t");if(stv2)ui.srcDraft.t=stv2.value.trim()||ui.srcDraft.t;ui.srcDraft.i=b.dataset.v;ui.srcDraft.img="";render();break;
+  case "src-col":var stv=document.getElementById("src-t");if(stv)ui.srcDraft.t=stv.value.trim();ui.srcDraft.c=b.dataset.v;render();break;
+  case "src-cancel":ui.srcEdit=null;ui.srcDraft=null;render();break;
+  case "src-reset":if(state.srcStyle)delete state.srcStyle[ui.srcEdit];ui.srcEdit=null;ui.srcDraft=null;change();break;
+  case "src-ok":var stt=(document.getElementById("src-t")||{}).value||"";ui.srcDraft.t=stt.trim()||srcStyle(ui.srcEdit).t;if(!state.srcStyle)state.srcStyle={};state.srcStyle[ui.srcEdit]={t:ui.srcDraft.t,c:ui.srcDraft.c,i:ui.srcDraft.i||""};if(okImg(ui.srcDraft.img))state.srcStyle[ui.srcEdit].img=ui.srcDraft.img;ui.srcEdit=null;ui.srcDraft=null;change();break;
+  case "login-open":ui.loginOpen=true;ui.loginErr="";render();var pi=document.getElementById("pin-in");if(pi)pi.focus();break;
+  case "login-close":ui.loginOpen=false;render();break;
+  case "login":doLogin();break;
+  case "logout":if(dirty){ui.msg="มีการแก้ไขที่ยังไม่บันทึก กด “บันทึก” หรือ “ยกเลิก” ก่อนออกจากระบบ";render();break}
+    if(token)gs("logout",[token]).catch(function(){});token=null;lsSet("dca-token",null);ui.msg="";ui.entryOpen=ui.sEntryOpen=ui.dEntryOpen=false;ui.editAsset=ui.sEdit=ui.dEdit=null;ui.pinOpen=false;ui.gEdit=false;ui.editingTitle=false;setEdit();render();break;
+  case "pin-open":ui.pinOpen=true;ui.pinErr="";render();var pn=document.getElementById("pin-new");if(pn)pn.focus();break;
+  case "pin-close":ui.pinOpen=false;render();break;
+  case "pin-ok":setPin();break;
+  case "tab":ui.tab=b.dataset.v;render();break;
+  case "lm":ui.lmIdx=Math.max(0,Math.min(C.months.length-1,ui.lmIdx+(+b.dataset.v)));render();break;
+  case "view":ui.view=b.dataset.v;ui.entryOpen=ui.sEntryOpen=ui.dEntryOpen=false;render();window.scrollTo({top:0});break;
+  case "g-r":ui.gR=+b.dataset.v;render();break;
+  case "g-edit":ui.gEdit=true;render();var gn=document.getElementById("g-name");if(gn)gn.focus();break;
+  case "g-ok":var gnm=(document.getElementById("g-name").value||"").trim()||"ล้านแรก",gt=+document.getElementById("g-target").value||1000000;ui.gEdit=false;state.goal={name:gnm,target:gt};change();break;
+  case "dsel":ui.dSel=b.dataset.v;ui.plExtra=0;ui.plLump=0;render();break;
+  case "dhyear":ui.dHistYear=b.dataset.v;render();break;
+  case "d-entry-open":if(ui.view!=="home")ui.view="debt";ui.dEntryOpen=true;ui.dEntryMonth=dSuggest();render();var de=document.getElementById("dentry");if(de)de.scrollIntoView({block:"start"});break;
+  case "d-edit-month":ui.dEntryOpen=true;ui.dEntryMonth=b.dataset.m;render();var de2=document.getElementById("dentry");if(de2)de2.scrollIntoView({block:"start"});break;
+  case "d-pay-del":var di=+b.dataset.i;if(state.dpay[di]){state.dpay.splice(di,1);change()}break;
+  case "d-entry-close":ui.dEntryOpen=false;render();break;
+  case "d-entry-apply":
+    var dm=ui.dEntryMonth;if(!dm)return;
+    var ddate=(document.getElementById("de-date")||{}).value||today();
+    state.debts.forEach(function(dd){var inp=document.getElementById("dp-"+dd.id);
+      if(inp&&inp.value!==""&&+inp.value>0)state.dpay.push({m:dm,a:dd.id,amt:round2(+inp.value),d:ddate})});
+    ui.dEntryOpen=false;change();break;
+  case "d-del-month":
+    if(armedBefore==="ddelm:"+b.dataset.m){var ddm=b.dataset.m;state.dpay=state.dpay.filter(function(r){return r.m!==ddm});change()}
+    else{ui.armed="ddelm:"+b.dataset.m;ui.open["d"+b.dataset.m]=true;render()}break;
+  case "d-new":ui.dEdit="new";ui.dDraft={name:"",src:"",principal:"",balance:"",asOf:thisMonth(),rate:"",method:"reducing",payment:"",icon:"loan",color:PALETTE[(state.debts.length+5)%PALETTE.length]};render();var dn=document.getElementById("ded-name");if(dn)dn.focus();break;
+  case "d-edit":var d0=state.debts.find(function(x){return x.id===b.dataset.id});ui.dEdit=d0.id;ui.dDraft=clone(d0);render();break;
+  case "ded-icon":syncDDraft();ui.dDraft.icon=b.dataset.v;render();break;
+  case "ded-color":syncDDraft();ui.dDraft.color=b.dataset.v;render();break;
+  case "ded-cancel":ui.dEdit=null;render();break;
+  case "ded-ok":
+    syncDDraft();var dd0=ui.dDraft,dnm=(dd0.name||"").trim();if(!dnm){var dne=document.getElementById("ded-name");if(dne)dne.focus();return}
+    var num=function(v){return v===""||v==null?null:+v};
+    var dobj={name:dnm,src:(dd0.src||"").trim(),principal:num(dd0.principal),balance:num(dd0.balance)||0,asOf:dd0.asOf||thisMonth(),rate:num(dd0.rate),method:dd0.method||"reducing",payment:num(dd0.payment)||0,icon:dd0.icon,color:dd0.color};
+    if(ui.dEdit==="new"){dobj.id=uid();state.debts.push(dobj)}else{var dt=state.debts.find(function(x){return x.id===ui.dEdit});for(var dk in dobj)dt[dk]=dobj[dk]}
+    ui.dEdit=null;change();break;
+  case "d-del":
+    if(armedBefore==="ddel:"+b.dataset.id){var did=b.dataset.id;state.debts=state.debts.filter(function(x){return x.id!==did});state.dpay=state.dpay.filter(function(r){return r.a!==did});ui.dEdit=null;change()}
+    else{syncDDraft();ui.armed="ddel:"+b.dataset.id;render()}break;
+  case "stab":ui.sTab=b.dataset.v;render();break;
+  case "srange":ui.sRange=b.dataset.v;render();break;
+  case "sstep":ui.sStep=b.dataset.v;render();break;
+  case "shyear":ui.sHistYear=b.dataset.v;render();break;
+  case "s-entry-open":if(ui.view!=="home")ui.view="sav";ui.sEntryOpen=true;ui.sEntryMonth=sSuggest();render();sScroll();break;
+  case "s-edit-month":ui.sEntryOpen=true;ui.sEntryMonth=b.dataset.m;ui.sHistYear=b.dataset.m.slice(0,4);render();sScroll();break;
+  case "s-entry-close":ui.sEntryOpen=false;render();break;
+  case "s-entry-apply":
+    var sm=ui.sEntryMonth;if(!sm)return;
+    var sdate=(document.getElementById("se-date")||{}).value||today();
+    state.savings.forEach(function(sa){var r=sRead(sa.id),old=sFind(sm,sa.id);state.srecords=state.srecords.filter(function(x){return x.op||!(x.m===sm&&x.a===sa.id)});
+      if(r.empty)return;var rec={m:sm,a:sa.id,dep:round2(r.dep),wd:round2(r.wd),int:round2(r.int)};var oi=sIO(old);
+      rec.d=old&&old.d&&oi[0]===rec.dep&&oi[1]===rec.wd&&(+old.int||0)===rec.int?old.d:sdate;state.srecords.push(rec)});
+    ui.sEntryOpen=false;change();break;
+  case "s-del-month":
+    if(armedBefore==="sdelm:"+b.dataset.m){var sdm=b.dataset.m;state.srecords=state.srecords.filter(function(r){return r.op||r.m!==sdm});change()}
+    else{ui.armed="sdelm:"+b.dataset.m;ui.open["s"+b.dataset.m]=true;render()}break;
+  case "s-new":ui.sEdit="new";ui.sDraft={src:"",name:"",kind:"deposit",rate:"",target:"",icon:"shield",color:PALETTE[(state.savings.length+3)%PALETTE.length]};render();var sn=document.getElementById("sed-name");if(sn)sn.focus();break;
+  case "s-edit":var sa0=state.savings.find(function(x){return x.id===b.dataset.id});ui.sEdit=sa0.id;var op0=sOpen(sa0.id);ui.sDraft={open:op0?op0.dep:"",src:sa0.src||"",name:sa0.name,kind:sa0.kind||"deposit",rate:sa0.rate,target:sa0.target,icon:sa0.icon||"piggy",color:sa0.color};render();break;
+  case "sed-icon":syncSDraft();ui.sDraft.icon=b.dataset.v;render();break;
+  case "sed-color":syncSDraft();ui.sDraft.color=b.dataset.v;render();break;
+  case "sed-cancel":ui.sEdit=null;render();break;
+  case "sed-ok":
+    syncSDraft();var sd=ui.sDraft,snm=(sd.name||"").trim();if(!snm){var se=document.getElementById("sed-name");if(se)se.focus();return}
+    var obj={name:snm,src:(sd.src||"").trim(),kind:sd.kind,rate:sd.rate===""||sd.rate==null?null:+sd.rate,target:sd.target===""||sd.target==null?null:+sd.target,icon:sd.icon,color:sd.color};
+    if(ui.sEdit==="new"){obj.id=uid();state.savings.push(obj)}else{var st0=state.savings.find(function(x){return x.id===ui.sEdit});for(var kk in obj)st0[kk]=obj[kk];obj.id=st0.id}
+    var ov=+sd.open||0,orec=sOpen(obj.id);
+    if(ov>0){if(orec)orec.dep=round2(ov);else{var fm=state.srecords.filter(function(r){return r.a===obj.id}).map(function(r){return r.m}).sort()[0]||thisMonth();state.srecords.push({m:prevMonth(fm),a:obj.id,dep:round2(ov),op:true})}}
+    else if(orec)state.srecords=state.srecords.filter(function(r){return r!==orec});
+    ui.sEdit=null;change();break;
+  case "s-del":
+    if(armedBefore==="sdel:"+b.dataset.id){var sid=b.dataset.id;state.savings=state.savings.filter(function(x){return x.id!==sid});state.srecords=state.srecords.filter(function(r){return r.a!==sid});ui.sEdit=null;change()}
+    else{syncSDraft();ui.armed="sdel:"+b.dataset.id;render()}break;
+  case "unit":ui.unit=b.dataset.v;render();break;
+  case "range":ui.range=b.dataset.v;render();break;
+  case "step":ui.step=b.dataset.v;render();break;
+  case "hyear":ui.histYear=b.dataset.v;render();break;
+  case "entry-open":if(ui.view!=="home")ui.view="inv";ui.entryOpen=true;ui.entryMonth=suggestMonth();render();scrollToEntry();break;
+  case "edit-month":ui.entryOpen=true;ui.entryMonth=b.dataset.m;ui.histYear=b.dataset.m.slice(0,4);render();scrollToEntry();break;
+  case "entry-close":ui.entryOpen=false;render();break;
+  case "entry-apply":
+    var m=ui.entryMonth;if(!m)return;
+    var edate=(document.getElementById("e-date")||{}).value||today();
+    state.assets.forEach(function(as){var r=readRow(as.id),old=findRec(m,as.id);
+      state.records=state.records.filter(function(x){return!(x.m===m&&x.a===as.id)});
+      if(r.empty)return;var amt=round2(r.amt),val=r.val==null?null:round2(r.val);
+      var rec={m:m,a:as.id,amt:amt,val:val};
+      rec.d=old&&old.amt===amt&&old.d?old.d:(amt>0?edate:(old&&old.d)||null);
+      rec.vd=val==null?null:(old&&old.val===val&&old.vd?old.vd:edate);
+      state.records.push(rec)});
+    ui.entryOpen=false;change();break;
+  case "asset-new":ui.editAsset="new";ui.draft={src:"",name:"",icon:"index",color:PALETTE[state.assets.length%PALETTE.length]};render();focusName();break;
+  case "asset-edit":var as=state.assets.find(function(x){return x.id===b.dataset.id});ui.editAsset=as.id;ui.draft={src:as.src||"",name:as.name,icon:as.icon||guessIcon(as.name),color:as.color};render();focusName();break;
+  case "ed-icon":ui.draft.icon=b.dataset.v;render();break;
+  case "ed-color":ui.draft.color=b.dataset.v;render();break;
+  case "ed-cancel":ui.editAsset=null;render();break;
+  case "ed-ok":
+    var d=ui.draft,nm=(d.name||"").trim();if(!nm){focusName();return}
+    var dsrc=(d.src||"").trim();if(ui.editAsset==="new")state.assets.push({id:uid(),name:nm,src:dsrc,icon:d.icon,color:d.color});
+    else{var t=state.assets.find(function(x){return x.id===ui.editAsset});t.name=nm;t.src=dsrc;t.icon=d.icon;t.color=d.color}
+    ui.editAsset=null;change();break;
+  case "del-asset":
+    if(armedBefore==="del:"+b.dataset.id){var id=b.dataset.id;state.assets=state.assets.filter(function(x){return x.id!==id});state.records=state.records.filter(function(r){return r.a!==id});ui.editAsset=null;change()}
+    else{ui.armed="del:"+b.dataset.id;render()}break;
+  case "del-month":
+    if(armedBefore==="delm:"+b.dataset.m){var mm=b.dataset.m;state.records=state.records.filter(function(r){return r.m!==mm});change()}
+    else{ui.armed="delm:"+b.dataset.m;ui.open[b.dataset.m]=true;render()}break;
+  case "clear-sample":
+    if(armedBefore==="clear"){state.assets=[];state.records=[];state.savings=[];state.srecords=[];state.debts=[];state.dpay=[];state.sample=false;ui.entryOpen=false;ui.sEntryOpen=false;change()}
+    else{ui.armed="clear";render()}break;
+  case "title-edit":ui.editingTitle=true;render();var ti=document.getElementById("title-in");if(ti){ti.focus();ti.select()}break;
+  case "title-ok":var tv=(document.getElementById("title-in").value||"").trim();ui.editingTitle=false;if(tv&&tv!==state.title){state.title=tv;change()}else render();break;
+  case "discard":state=clone(saved);dirty=false;ui.entryOpen=false;ui.editAsset=null;ui.sEntryOpen=false;ui.sEdit=null;ui.dEntryOpen=false;ui.dEdit=null;render();break;
+  case "save":save();break;
+  }
+}
+function sSuggest(){var ms=state.srecords.map(function(r){return r.m}).sort();var last=ms[ms.length-1],now=thisMonth();if(!last)return now;return last>=now?last:(nextMonth(last)<=now?nextMonth(last):now)}
+function sScroll(){var e=document.getElementById("sentry");if(e)e.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
+function focusName(){var e=document.getElementById("ed-name");if(e)e.focus()}
+function round2(v){return Math.round(v*100)/100}
+function suggestMonth(){var ms=state.records.map(function(r){return r.m}).sort();var last=ms[ms.length-1],now=thisMonth();if(!last)return now;return last>=now?last:(nextMonth(last)<=now?nextMonth(last):now)}
+function scrollToEntry(){var e=document.getElementById("entry");if(e)e.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
+
+/* ---------- publish ---------- */
+function buildDoc(s){
+  var css=document.getElementById("app-css").textContent,js=document.getElementById("app-js").textContent;
+  var json=JSON.stringify(s).replace(/</g,"\\u003c");
+  return "<!doctype html>\n<html lang=\"th\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><title>"+PAGE_TITLE+"</title>"+
+    "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"stylesheet\" href=\""+FONT_HREF+"\">"+
+    "<style id=\"app-css\">"+css+"</style></head><body><div id=\"app\"></div>"+
+    "<script type=\"application/json\" id=\"state\">"+json+"<\/script><script id=\"app-js\">"+js+"<\/script></body></html>";
+}
+function save(){
+  if(!token||ui.saving)return;
+  ui.saving=true;ui.msg="";render();
+  gs("save",[token,JSON.stringify(state),DATA_VER]).then(function(r){
+    ui.saving=false;
+    if(r&&r.ok){DATA_VER=r.ver;saved=clone(state);dirty=false;fromSeed=false;ui.msg="";render();return}
+    if(r&&r.code==="auth"){authLost();return}
+    if(r&&r.code==="conflict")ui.msg="มีการบันทึกจากเครื่องอื่นหลังจากเปิดหน้านี้ รีเฟรชหน้าเพื่อโหลดข้อมูลล่าสุด แล้วค่อยบันทึกใหม่";
+    else ui.msg="บันทึกไม่สำเร็จ ("+((r&&r.code)||"ไม่ทราบสาเหตุ")+") ลองกดบันทึกอีกครั้ง";
+    render();
+  },function(e){ui.saving=false;ui.msg="บันทึกไม่สำเร็จ เชื่อมต่อไม่ได้ ลองกดบันทึกอีกครั้ง";render()});
+}
+
+/* ---------- boot ---------- */
+function loadData(){var el=document.getElementById("app");el.innerHTML='<div class="empty" style="padding:80px 0">กำลังโหลดข้อมูล…</div>';
+  return fetch(API+"?api=state").then(function(r){return r.json()}).then(function(r){if(!r||!r.ok)throw 0;setData(r.state,r.ver);render()})
+  .catch(function(){el.innerHTML='<div class="empty" style="padding:80px 0">โหลดข้อมูลไม่สำเร็จ <button class="btn sm" onclick="location.reload()">ลองอีกครั้ง</button></div>'})}
+var booted=loadData();
+var rt;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(drawAll,120)});
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",drawAll)}catch(e){}
+new MutationObserver(drawAll).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+booted.then(function(){var t=lsGet("dca-token");if(!t)return;gs("check",[t]).then(function(r){if(r&&r.ok){token=t;setEdit();render()}else lsSet("dca-token",null)},function(){})});
+window.addEventListener("beforeunload",function(e){if(dirty&&token){e.preventDefault();e.returnValue=""}});
+})();
+</script>
+
+</body></html>
