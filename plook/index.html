@@ -351,7 +351,7 @@ function suggestMonth() { const p = ymAdd(thisYm(), -1); return db.months[p]?.do
 
 /* ====================== กราฟ (SVG) ====================== */
 function lineChart(series, labels, opts = {}) {
-  const W = 640, H = opts.h || 220, L = 52, R = 12, T = 14, B = 30;
+  const W = 640, H = opts.h || 220, L = 52, R = 30, T = 14, B = 30;
   const all = series.flatMap(s => s.v.filter(x => x != null));
   if (!all.length) return '<div class="hint">ยังไม่มีข้อมูลพอวาดกราฟ</div>';
   let lo = Math.min(0, ...all), hi = Math.max(...all); if (hi === lo) hi = lo + 1;
