@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#13734a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ปลูกเงิน">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>ปลูกเงิน</title>
+<style>
+@font-face{font-family:"TH Sarabun New";src:url(fonts/thsarabunnew-webfont.ttf) format("truetype");font-weight:400}
+@font-face{font-family:"TH Sarabun New";src:url(fonts/thsarabunnew_bold-webfont.ttf) format("truetype");font-weight:700}
+:root{--g:#13734a;--g2:#0d5c3b;--leaf:#2fae74;--soil:#7a5a3a;--gold:#e7b23a;--text:#1d2e25;--mute:#62746a;--line:#d6e6dc;--paper:#f1f6f2;--card:#fff;
+  --inc:#2f8f5b;--inv:#2f6fd0;--sav:#159a82;--debt:#d0573a;--exp:#c8901c;--left:#9aa8a0;--red:#c8323f}
+*{box-sizing:border-box}
+html,body{margin:0;overflow-x:hidden;color:var(--text);font-family:"TH Sarabun New",sans-serif;font-size:21px;line-height:1.3;-webkit-text-size-adjust:100%;background:var(--paper)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #8fd8b2;outline-offset:2px}
+header{position:sticky;top:0;z-index:5;background:var(--g);color:#fff;padding:calc(env(safe-area-inset-top) + 8px) 14px 8px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 0 var(--g2)}
+header img{width:40px;height:40px;border-radius:11px;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+header h1{font-size:31px;margin:0;flex:1;line-height:1}
+#sync{font-size:16px;white-space:nowrap;background:rgba(255,255,255,.14);border-radius:999px;padding:1px 12px}
+.iconbtn{border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:12px;width:42px;height:40px;cursor:pointer;font-size:22px;display:grid;place-items:center}
+main{max-width:860px;margin:0 auto;padding:14px 14px calc(110px + env(safe-area-inset-bottom))}
+h2{font-size:25px;margin:22px 2px 8px;color:var(--g2)}
+h2 .sub{font-size:18px;color:var(--mute);font-weight:400;margin-left:6px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:12px 16px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.hint{font-size:18px;color:var(--mute)}
+.num{font-variant-numeric:tabular-nums}
+.pos{color:var(--inc)}.neg{color:var(--red)}
+.btn{white-space:nowrap;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:5px 14px;cursor:pointer;font-size:20px}
+.btn.primary{background:var(--g);border-color:var(--g);color:#fff;font-weight:700}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.danger{color:var(--red)}
+.btn.sm{font-size:17px;padding:2px 10px;border-radius:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);border-radius:999px;padding:2px 14px;cursor:pointer;background:#fff;font-size:20px}
+.chip.on{border-color:var(--g);background:var(--g);color:#fff;font-weight:700}
+
+/* แถบเมนูล่าง */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;border-top:1.5px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(4px + env(safe-area-inset-bottom))}
+nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:19px;color:var(--mute);cursor:pointer;min-width:74px;padding:0}
+nav.tabs .ti{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#f1f4f2;transition:background .15s}
+nav.tabs .ti svg{width:32px;height:32px}
+nav.tabs button.on{color:var(--g);font-weight:700}
+nav.tabs button.on .ti{background:#d9f0e2;box-shadow:inset 0 0 0 2px #9fd6b5}
+
+/* หน้าแรก: ต้นเงิน */
+.hero{display:flex;gap:6px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:14px 16px 10px;overflow:hidden}
+.hero .plant{width:130px;height:150px;flex:none}
+.hero .k{font-size:20px;color:var(--mute)}
+.hero .v{font-size:52px;font-weight:700;line-height:1;color:var(--g2)}
+.hero .d{font-size:20px;margin-top:4px}
+.hero .parts{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:18px;color:var(--mute)}
+.hero .parts b{color:var(--text);font-size:21px}
+.banner{display:flex;align-items:center;gap:10px;background:#e8f5ee;border:1.5px dashed var(--leaf);border-radius:16px;padding:8px 14px;margin-bottom:12px}
+.banner .t{flex:1}
+.flowbar{display:flex;height:26px;border-radius:8px;overflow:hidden;margin:8px 0 6px;background:#eef1ef}
+.flowbar span{display:block;height:100%}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:2px 14px}
+.legend div{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;flex:none}
+.legend b{margin-left:auto}
+.goalbar{height:16px;border-radius:99px;background:#e6efe9;overflow:hidden;margin:6px 0 2px}
+.goalbar span{display:block;height:100%;background:linear-gradient(90deg,var(--leaf),var(--g));border-radius:99px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.mini{display:flex;align-items:center;gap:10px}
+.ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none}
+.ico svg{width:26px;height:26px}
+.ico.sm{width:32px;height:32px;border-radius:9px}.ico.sm svg{width:20px;height:20px}
+.emo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#f3efe4;font-size:24px;flex:none}
+.nm{font-size:23px;font-weight:700;line-height:1.1}
+.meta{font-size:17px;color:var(--mute)}
+.big{font-size:26px;font-weight:700}
+.chart svg{width:100%;height:auto;display:block}
+
+/* รดน้ำ */
+.monthpick{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 6px}
+.monthpick button{border:1.5px solid var(--line);background:#fff;border-radius:999px;width:42px;height:38px;font-size:24px;cursor:pointer}
+.monthpick .m{font-size:30px;font-weight:700;min-width:200px;text-align:center;color:var(--g2)}
+.step{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:8px 14px 12px;margin-bottom:12px}
+.step>h3{margin:2px 0 4px;font-size:25px;display:flex;align-items:center;gap:8px}
+.step>h3 .dot{width:14px;height:14px;border-radius:50%}
+.step>h3 .tot{margin-left:auto;font-size:22px}
+.fl{display:flex;align-items:center;gap:8px 10px;padding:6px 0;border-top:1px dashed var(--line);flex-wrap:wrap}
+.fl:first-of-type{border-top:0}
+.fl .lab{flex:1;min-width:130px}
+.fl.o .in.name{min-width:0}.fl.o .in.num{width:120px}
+.fl .lab .meta{line-height:1.15}
+.in{width:150px;flex:none;text-align:right;font-size:24px;border:1.5px solid var(--line);border-radius:12px;padding:3px 10px;background:#fbfdfb}
+.in:focus{border-color:var(--leaf);background:#fff}
+.in.name{width:auto;flex:1;min-width:0;text-align:left;font-size:21px}
+.pair{display:flex;gap:6px;flex:none;margin-left:auto}
+.pair label{display:flex;flex-direction:column;font-size:15px;color:var(--mute);text-align:right}
+.pair .in{width:122px}
+.sugg{display:inline-block;border:0;background:#e8f5ee;color:var(--g);border-radius:8px;padding:0 8px;font-size:17px;cursor:pointer;margin-top:2px}
+.sumbar{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom));z-index:4;background:var(--g2);color:#fff;border-radius:18px;padding:8px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 10px 24px -10px rgba(13,92,59,.7)}
+.sumbar .c{display:flex;flex-direction:column;line-height:1.05;font-size:16px;opacity:.9}
+.sumbar .c b{font-size:23px;opacity:1}
+.sumbar .btn{margin-left:auto;background:#ffd966;border-color:#ffd966;color:#3a2b05;font-weight:700;font-size:22px}
+.prefill{font-size:18px;color:var(--mute);text-align:center;margin-bottom:8px}
+
+/* พอร์ต */
+.acard{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:10px 14px;cursor:pointer;text-align:left;width:100%}
+.acard .vals{display:flex;justify-content:space-between;margin-top:6px;gap:8px}
+.acard .vals div{display:flex;flex-direction:column;font-size:16px;color:var(--mute)}
+.acard .vals b{font-size:22px;color:var(--text)}
+.tbl{width:100%;border-collapse:collapse;font-size:19px}
+.tbl th{font-weight:400;color:var(--mute);text-align:right;padding:2px 6px;border-bottom:1.5px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{text-align:right;padding:3px 6px;border-bottom:1px dashed var(--line)}
+.tbl tr.tot td{font-weight:700;border-top:1.5px solid var(--line)}
+.scroll{overflow-x:auto}
+
+/* ย้อนหลัง */
+.cal{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mcell{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:4px 6px 6px;cursor:pointer;text-align:center;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mcell .mn{font-size:22px;font-weight:700}
+.mcell .mv{font-size:16px;color:var(--mute)}
+.mcell.done{background:#e3f4ea;border-color:#9fd6b5}
+.mcell.done .mn{color:var(--g2)}
+.mcell.old{background:#f3f7f4;border-style:dashed}
+.mcell.future{opacity:.4;cursor:default}
+.mcell.cur{box-shadow:0 0 0 2.5px var(--gold)}
+
+dialog{border:0;border-radius:22px;padding:0;width:min(600px,94vw);max-height:90vh;box-shadow:0 24px 70px rgba(13,92,59,.35);color:var(--text)}
+dialog::backdrop{background:rgba(13,60,40,.45)}
+@media (max-width:600px){dialog{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:22px 22px 0 0;max-height:92vh}.sheet{padding-bottom:calc(18px + env(safe-area-inset-bottom))}}
+.sheet{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;overflow:auto;max-height:90vh}
+.sheet h3{margin:0;font-size:30px;color:var(--g2)}
+label.f{display:flex;flex-direction:column;gap:2px;font-size:18px;color:var(--mute)}
+label.f input,label.f select,label.f textarea{color:var(--text);font-size:22px;border:1.5px solid var(--line);border-radius:12px;padding:4px 12px;background:#fff}
+.pick{display:flex;flex-wrap:wrap;gap:6px}
+.pick button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:#fff;font-size:23px;cursor:pointer;padding:0;display:grid;place-items:center}
+.pick button svg{width:24px;height:24px}
+.pick button.on{border-color:var(--g);box-shadow:0 0 0 3px #bfe6cf}
+.pick.colors button{border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line)}
+.pick.colors button.on{box-shadow:0 0 0 3px var(--g)}
+.setrow{display:flex;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line)}
+.setrow.hid{opacity:.5}
+.toast{white-space:nowrap;position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--g2);color:#fff;border-radius:999px;padding:6px 22px;z-index:99;font-size:21px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+.empty{background:#fff;border:2px dashed #b9d6c4;border-radius:18px;padding:26px 18px;text-align:center;color:var(--mute)}
+.grow-anim{animation:growup .9s ease-out}
+@keyframes growup{from{transform:scale(.85);transform-origin:bottom center}60%{transform:scale(1.06)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.grow-anim{animation:none}}
+#print{display:none}
+@media print{
+  header,nav.tabs,main,.toast,dialog{display:none!important}
+  #print{display:block;font-size:18px;padding:0}
+  #print h1{font-size:30px;margin:0 0 6px}
+  #print .tbl{font-size:17px}
+  #print .credit{margin-top:14px;font-size:16px;color:#555;text-align:right}
+}
+@media (max-width:520px){
+  header h1{font-size:27px} #sync{font-size:0;padding:0 4px;background:none} #sync::first-letter{font-size:20px}
+  main{padding-left:10px;padding-right:10px}
+  .hero .v{font-size:42px} .hero .plant{width:96px;height:120px}
+  .in{width:124px;font-size:22px} .pair .in{width:100px}
+  .monthpick .m{min-width:0;font-size:27px}
+}
+</style>
+</head>
+<body>
+<header>
+  <img src="icon-192.png" alt="">
+  <h1>ปลูกเงิน</h1>
+  <span id="sync"></span>
+  <button class="iconbtn" id="btnSettings" title="ตั้งค่า" aria-label="ตั้งค่า">⚙️</button>
+</header>
+<main id="view"></main>
+<nav class="tabs" id="tabs"></nav>
+<dialog id="dlg"><div class="sheet" id="sheet"></div></dialog>
+<div class="toast" id="toast"></div>
+<div id="print"></div>
+
+<script type="module">
+/* ====================== ค่าคงที่ ====================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB5jzaZiPGq0oYPqB9MCljXAKzs05rhPBg",
+  authDomain: "sirearth-tutor.firebaseapp.com",
+  projectId: "sirearth-tutor",
+  storageBucket: "sirearth-tutor.firebasestorage.app",
+  messagingSenderId: "472071806564",
+  appId: "1:472071806564:web:88e1ac2575318a320dc971",
+};
+const FIREBASE_VER = '10.12.2';
+const APP = 'ปลูกเงิน';
+const CREDIT = 'พัฒนาระบบโดย นายศาสตราวุฒิ อาชนะชัย';
+// ที่อยู่ข้อมูลของแอปพอร์ตเอิ๊ตเดิม (Google Sheet) ใช้ตอนย้ายข้อมูลครั้งแรก
+const OLD_URL = 'https://script.google.com/macros/s/AKfycbyumAJi2UK_ZZV9MUu8eN0lvHqNhAf5XO8bOfeLWpL_8XogVs44DdiOj-KXA-ZhF_5f_Q/exec';
+const MONTHS_COL = 'plook_months', SET_DOC = 'plook_settings';
+const TH_MONTH_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const TH_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const PALETTE = ["#2F6FD0","#C8901C","#C0457F","#159A82","#7B5CD6","#E0663A","#5E8A2A","#3A8FC0"];
+const DEFAULT_CATS = [
+  { id: 'home', name: 'ค่าบ้าน / หอ', emoji: '🏠' },
+  { id: 'util', name: 'ค่าน้ำ ค่าไฟ', emoji: '💡' },
+  { id: 'phone', name: 'โทรศัพท์ / อินเทอร์เน็ต', emoji: '📱' },
+  { id: 'apps', name: 'ค่าแอป / สตรีมมิ่ง', emoji: '🎬', link: 'split' },
+  { id: 'food', name: 'ค่ากิน', emoji: '🍚' },
+  { id: 'travel', name: 'เดินทาง / น้ำมัน', emoji: '⛽' },
+  { id: 'family', name: 'ให้ครอบครัว', emoji: '👪' },
+  { id: 'insure', name: 'ประกัน', emoji: '🛡️' },
+  { id: 'misc', name: 'อื่น ๆ', emoji: '🧾' },
+];
+const CAT_EMOJI = ['🏠','💡','📱','🎬','🍚','⛽','👪','🛡️','🧾','🛒','👕','💊','🎁','✈️','📚','🐶','🚗','💇','☕','🎮'];
+const DEFAULT_SET = { assets: [], savings: [], debts: [], cats: DEFAULT_CATS, goal: { name: 'ล้านแรก', target: 1000000 }, link: { tutor: true, split: true } };
+
+/* ไอคอนพอร์ต/บัญชี/หนี้ (ชุดเดียวกับแอปเดิม) */
+const ICONS={
+  index:{t:"กองทุนหุ้น / ดัชนี",d:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>'},
+  gold:{t:"ทองคำ",d:'<path d="M3 19h8l-1.6-5H4.6z"/><path d="M13 19h8l-1.6-5h-4.8z"/><path d="M8 11h8l-1.6-5H9.6z"/>'},
+  crypto:{t:"คริปโต",d:'<circle cx="12" cy="12" r="9"/><path d="M9.5 7.5v9M9.5 7.5h3.2a2 2 0 010 4H9.5M9.5 11.5h3.8a2.25 2.25 0 010 4.5H9.5M11.2 6v1.5M11.2 16v1.5"/>'},
+  property:{t:"อสังหาฯ / REIT",d:'<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/>'},
+  bond:{t:"ตราสารหนี้",d:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h6"/>'},
+  global:{t:"หุ้นต่างประเทศ",d:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>'},
+  tech:{t:"เทคโนโลยี",d:'<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>'},
+  green:{t:"พลังงาน / ESG",d:'<path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14z"/><path d="M5 19l7-7"/>'},
+  cash:{t:"เงินฝาก / เงินสด",d:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v.01M17.5 14.5v.01"/>'},
+  shield:{t:"เงินสำรองฉุกเฉิน",d:'<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>'},
+  grad:{t:"การศึกษา",d:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/><path d="M22 9v6"/>'},
+  piggy:{t:"เงินออมทั่วไป",d:'<path d="M4.5 11.5A7 6 0 0118 10h1.5v3.5H18l-1.5 3V19h-3v-2h-3v2h-3v-2.5A6 6 0 014.5 11.5z"/><path d="M10 7.2h3.5"/>'},
+  bank:{t:"บัญชีธนาคาร",d:'<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/>'},
+  heart:{t:"สุขภาพ / ครอบครัว",d:'<path d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z"/>'},
+  loan:{t:"สินเชื่อ / เงินกู้",d:'<path d="M7 3h10v18l-2.5-1.5L12 21l-2.5-1.5L7 21z"/><path d="M10 8h4M10 12h4M10 16h2"/>'},
+  card:{t:"บัตรเครดิต",d:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>'},
+  car:{t:"รถยนต์",d:'<path d="M4 16l1.8-5.2A2 2 0 017.7 9.5h8.6a2 2 0 011.9 1.3L20 16"/><rect x="3" y="15" width="18" height="4" rx="1.5"/><path d="M6 19v1.5M18 19v1.5"/>'},
+};
+const ICON_SETS = { assets: ['index','gold','crypto','property','bond','global','tech','green','cash'], savings: ['piggy','shield','bank','cash','grad','heart'], debts: ['loan','card','property','car','grad','heart'] };
+const svgIcon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${(ICONS[k] || ICONS.index).d}</svg>`;
+const icoHTML = (x, sm) => `<span class="ico${sm ? ' sm' : ''}" style="background:color-mix(in srgb,${x.color} 15%,transparent);color:${x.color}">${svgIcon(x.icon)}</span>`;
+
+/* ไอคอนเมนูล่าง: มาจากโลโก้ชุดเดียวกัน */
+const TAB_SVG = {
+  home: '<svg viewBox="0 0 200 200"><path d="M100 124 C100 90 82 70 52 68 C52 98 70 118 100 124Z" fill="#2fae74"/><path d="M100 114 C100 76 122 54 156 52 C156 88 134 110 100 114Z" fill="#7fd3a5"/><rect x="94" y="108" width="12" height="44" rx="6" fill="#1f8a5b"/><ellipse cx="100" cy="158" rx="46" ry="13" fill="#e7b23a"/></svg>',
+  water: '<svg viewBox="0 0 200 200"><path d="M24 100 H74" stroke="#e7b23a" stroke-width="18" stroke-linecap="round"/><path d="M74 100 C106 100 108 52 152 52" stroke="#2fae74" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M74 100 H152" stroke="#2f6fd0" stroke-width="16" stroke-linecap="round"/><path d="M74 100 C106 100 108 148 152 148" stroke="#d0573a" stroke-width="16" fill="none" stroke-linecap="round"/><circle cx="160" cy="52" r="15" fill="#2fae74"/><circle cx="160" cy="100" r="15" fill="#2f6fd0"/><circle cx="160" cy="148" r="15" fill="#d0573a"/><circle cx="28" cy="100" r="18" fill="#e7b23a"/></svg>',
+  port: '<svg viewBox="0 0 200 200"><rect x="26" y="122" width="28" height="44" rx="6" fill="#f2a541"/><rect x="62" y="102" width="28" height="64" rx="6" fill="#ee8c2b"/><rect x="98" y="80" width="28" height="86" rx="6" fill="#e2701c"/><rect x="134" y="54" width="28" height="112" rx="6" fill="#c9530f"/><path d="M32 100 L74 80 L110 58 L152 32" stroke="#5a2a07" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M134 28 L156 30 L154 52" stroke="#5a2a07" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  hist: '<svg viewBox="0 0 200 200"><rect x="30" y="44" width="140" height="126" rx="20" fill="#fff" stroke="#3a2a78" stroke-width="10"/><path d="M30 64 a20 20 0 0 1 20 -20 h100 a20 20 0 0 1 20 20 v20 h-140z" fill="#ffb84d"/><rect x="58" y="28" width="12" height="32" rx="6" fill="#3a2a78"/><rect x="130" y="28" width="12" height="32" rx="6" fill="#3a2a78"/><g stroke="#3a2a78" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M86 102h22a10 10 0 010 20H86M86 122h25a11 11 0 010 22H86V102"/><path d="M100 94v58"/></g></svg>',
+};
+const TABS = [['home', 'ภาพรวม'], ['water', 'รดน้ำ'], ['port', 'พอร์ต'], ['hist', 'ย้อนหลัง']];
+
+/* ====================== ตัวช่วย ====================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)).slice(0, 12);
+const pad = n => String(n).padStart(2, '0');
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const thisYm = () => todayISO().slice(0, 7);
+const ymAdd = (ym, k) => { let [y, m] = ym.split('-').map(Number); m += k; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; } return `${y}-${pad(m)}`; };
+const ymLabel = ym => { const [y, m] = ym.split('-').map(Number); return `${TH_MONTH_FULL[m - 1]} ${y + 543}`; };
+const ymShort = ym => { const [y, m] = ym.split('-').map(Number); return `${TH_MONTHS[m - 1]} ${String(y + 543).slice(2)}`; };
+const mShort = ym => TH_MONTHS[+ym.slice(5) - 1];
+const r2 = n => Math.round((+n || 0) * 100) / 100;
+const money = (n, dec = 0) => (+n || 0).toLocaleString('th-TH', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const baht = n => money(n) + ' บาท';
+const kfmt = n => { const a = Math.abs(n); return a >= 1e6 ? (n / 1e6).toLocaleString('th-TH', { maximumFractionDigits: 2 }) + ' ล.' : a >= 1e3 ? Math.round(n / 1e3).toLocaleString('th-TH') + 'k' : Math.round(n).toString(); };
+const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + money(Math.abs(n));
+const pct = (a, b) => b ? (a / b * 100).toLocaleString('th-TH', { maximumFractionDigits: 1 }) + '%' : '–';
+const numOrNull = v => v === '' || v == null || isNaN(+v) ? null : +v;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2400); }
+
+/* ====================== ข้อมูล ======================
+   ตั้งค่า (รายชื่อพอร์ต บัญชี หนี้ หมวด เป้าหมาย): users/{uid}/meta/plook_settings
+   รายเดือน: users/{uid}/plook_months/{YYYY-MM}
+     { m, inc:{salary,tutor}, other:[{n,a}], inv:{id:{amt,val}}, sav:{id:{dep,wd,int}}, debt:{id:amt}, exp:{id:amt}, note, done, old } */
+const db = { set: structuredClone(DEFAULT_SET), months: {} };
+const LOCAL_KEY = 'plook-local-v1', MIRROR_KEY = 'plook-cloud-mirror-v1';
+let cloud = null, syncState = 'local', ready = false;
+function loadFrom(key) {
+  try { const d = JSON.parse(localStorage.getItem(key) || 'null'); if (d) { db.set = { ...structuredClone(DEFAULT_SET), ...(d.set || {}) }; db.months = d.months || {}; } } catch (e) { console.warn(e); }
+}
+function saveSnapshot() { try { localStorage.setItem(cloud ? MIRROR_KEY : LOCAL_KEY, JSON.stringify(db)); } catch (e) { console.warn(e); } }
+function putMonth(obj) {
+  db.months[obj.m] = obj; saveSnapshot(); render();
+  if (cloud) cloud.fs.setDoc(cloud.fs.doc(cloud.fsdb, 'users', cloud.uid, MONTHS_COL, obj.m), obj).catch(e => toast('ซิงก์ไม่สำเร็จ: ' + e.code));
+}
+function delMonth(m) {
+  delete db.months[m]; saveSnapshot(); render();
+  if (cloud) cloud.fs.deleteDoc(cloud.fs.doc(cloud.fsdb, 'users', cloud.uid, MONTHS_COL, m)).catch(e => toast('ซิงก์ไม่สำเร็จ: ' + e.code));
+}
+function putSet(patch) {
+  db.set = { ...db.set, ...patch }; saveSnapshot(); render();
+  if (cloud) cloud.fs.setDoc(cloud.fs.doc(cloud.fsdb, 'users', cloud.uid, 'meta', SET_DOC), JSON.parse(JSON.stringify(db.set))).catch(e => toast('ซิงก์ไม่สำเร็จ: ' + e.code));
+}
+
+/* ====================== คำนวณ ====================== */
+const S = () => db.set;
+const live = list => list.filter(x => !x.hidden);
+const monthKeys = () => Object.keys(db.months).sort();
+const firstYm = () => { const ks = monthKeys(); const cands = [...ks, ...S().debts.map(d => d.asOf).filter(Boolean)]; return cands.sort()[0] || thisYm(); };
+function rangeYm(a, b) { const out = []; for (let m = a; m <= b; m = ymAdd(m, 1)) out.push(m); return out; }
+
+// พอร์ต: เงินที่ใส่สะสม และมูลค่าล่าสุด ณ สิ้นเดือน m
+function assetAt(a, m) {
+  let inv = 0, val = null, after = 0, last = null;
+  for (const k of monthKeys()) { if (k > m) break; const r = db.months[k].inv?.[a.id]; if (!r) continue;
+    const amt = +r.amt || 0; inv += amt;
+    if (r.val != null && r.val !== '') { val = +r.val; after = 0; last = k; } else after += amt; }
+  const value = val == null ? inv : val + after;
+  return { inv: r2(inv), value: r2(value), lastVal: last };
+}
+function savAt(s, m) {
+  let b = +s.open || 0;
+  for (const k of monthKeys()) { if (k > m) break; const r = db.months[k].sav?.[s.id]; if (!r) continue; b += (+r.dep || 0) - (+r.wd || 0) + (+r.int || 0); }
+  return r2(b);
+}
+const dInt = (d, bal) => { const r = (+d.rate || 0) / 1200; return d.method === 'flat' ? (+d.principal || 0) * r : bal * r; };
+// หนี้: ยอดคงเหลือ (คิดดอกเบี้ยรายเดือนแบบแอปเดิม) จาก asOf ถึงเดือนที่จ่ายล่าสุด ไม่เกิน m
+function debtAt(d, m) {
+  let bal = +d.balance || 0, paidInt = 0, paidPrin = 0, rows = [];
+  const pays = monthKeys().filter(k => k >= (d.asOf || '0000-00') && k <= m && +(db.months[k].debt?.[d.id]) > 0);
+  const lastM = pays[pays.length - 1];
+  if (lastM) for (let k = d.asOf; k <= lastM; k = ymAdd(k, 1)) {
+    const amt = +(db.months[k]?.debt?.[d.id]) || 0; let it = bal > 0 ? dInt(d, bal) : 0; const nb = Math.max(0, bal + it - amt);
+    rows.push({ m: k, amt, int: Math.min(it, amt), prin: Math.max(0, amt - it), bal: nb }); if (amt) { paidInt += Math.min(it, amt); paidPrin += Math.max(0, amt - it); } bal = nb;
+  }
+  return { bal: r2(bal), paidInt, paidPrin, rows, next: lastM ? ymAdd(lastM, 1) : (d.asOf || thisYm()) };
+}
+function project(d, bal, start, extra = 0) {
+  let b = bal, ti = 0, n = 0, m = start; const base = (+d.payment || 0) + extra;
+  for (; n < 720 && b > 0.005; n++) { const it = dInt(d, b), pay = Math.min(b + it, base); if (pay <= it + 0.005) return { never: true }; b = b + it - pay; ti += it; m = ymAdd(m, 1); }
+  return { n, interest: ti, end: ymAdd(m, -1) };
+}
+function totalsAt(m) {
+  const A = live(S().assets).map(a => assetAt(a, m)), Sv = live(S().savings).map(s => savAt(s, m)), D = live(S().debts).map(d => debtAt(d, m).bal);
+  const port = A.reduce((t, x) => t + x.value, 0), inv = A.reduce((t, x) => t + x.inv, 0), sav = Sv.reduce((t, x) => t + x, 0), debt = D.reduce((t, x) => t + x, 0);
+  return { port, inv, sav, debt, net: port + sav - debt };
+}
+// กระแสเงินของเดือน
+function flowOf(md) {
+  if (!md) return null;
+  const otherT = (md.other || []).reduce((t, o) => t + (+o.a || 0), 0);
+  const income = (+md.inc?.salary || 0) + (+md.inc?.tutor || 0) + otherT;
+  const inv = Object.values(md.inv || {}).reduce((t, r) => t + (+r.amt || 0), 0);
+  const sav = Object.values(md.sav || {}).reduce((t, r) => t + (+r.dep || 0) - (+r.wd || 0), 0);
+  const debt = Object.values(md.debt || {}).reduce((t, v) => t + (+v || 0), 0);
+  const exp = Object.values(md.exp || {}).reduce((t, v) => t + (+v || 0), 0);
+  return { income, salary: +md.inc?.salary || 0, tutor: +md.inc?.tutor || 0, otherT, inv, sav, debt, exp, left: income - inv - sav - debt - exp, hasIncome: income > 0 };
+}
+const FLOW_PARTS = [['inv', 'ลงทุน', 'var(--inv)'], ['sav', 'เงินเก็บ', 'var(--sav)'], ['debt', 'ใช้หนี้', 'var(--debt)'], ['exp', 'ค่าใช้จ่าย', 'var(--exp)'], ['left', 'เหลือ / ใช้ทั่วไป', 'var(--left)']];
+const lastDone = () => monthKeys().filter(k => db.months[k].done).pop();
+// เดือนที่ควรรดน้ำ: เดือนก่อนถ้ายังไม่ทำ ไม่งั้นเดือนนี้
+function suggestMonth() { const p = ymAdd(thisYm(), -1); return db.months[p]?.done ? thisYm() : p; }
+
+/* ====================== กราฟ (SVG) ====================== */
+function lineChart(series, labels, opts = {}) {
+  const W = 640, H = opts.h || 220, L = 52, R = 12, T = 14, B = 30;
+  const all = series.flatMap(s => s.v.filter(x => x != null));
+  if (!all.length) return '<div class="hint">ยังไม่มีข้อมูลพอวาดกราฟ</div>';
+  let lo = Math.min(0, ...all), hi = Math.max(...all); if (hi === lo) hi = lo + 1;
+  const n = labels.length, x = i => L + (n === 1 ? (W - L - R) / 2 : i * (W - L - R) / (n - 1)), y = v => T + (hi - v) * (H - T - B) / (hi - lo);
+  let g = '';
+  for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4; g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#e3ece6"/><text x="${L - 6}" y="${y(v) + 5}" text-anchor="end" font-size="16" fill="#7c8c83">${kfmt(v)}</text>`; }
+  const step = Math.ceil(n / 8);
+  labels.forEach((lb, i) => { if (i % step === 0 || i === n - 1) g += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle" font-size="16" fill="#7c8c83">${lb}</text>`; });
+  series.forEach(s => {
+    const pts = s.v.map((v, i) => v == null ? null : [x(i), y(v)]).filter(Boolean);
+    if (!pts.length) return;
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
+    if (s.fill) g += `<path d="${d}L${pts[pts.length - 1][0]} ${y(Math.max(lo, 0))}L${pts[0][0]} ${y(Math.max(lo, 0))}Z" fill="${s.color}" opacity=".12"/>`;
+    g += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.w || 3}" ${s.dash ? 'stroke-dasharray="6 5"' : ''} stroke-linejoin="round" stroke-linecap="round"/>`;
+    const lp = pts[pts.length - 1]; g += `<circle cx="${lp[0]}" cy="${lp[1]}" r="4.5" fill="${s.color}"/>`;
+  });
+  const leg = series.length > 1 ? `<div class="legend" style="margin-top:4px">${series.map(s => `<div><i style="background:${s.color}"></i>${esc(s.name)}</div>`).join('')}</div>` : '';
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.label || 'กราฟ')}">${g}</svg>${leg}</div>`;
+}
+function donut(parts) {
+  const tot = parts.reduce((t, p) => t + Math.max(0, p.v), 0); if (!tot) return '';
+  let a = -Math.PI / 2, g = ''; const R = 70, r = 44, cx = 80, cy = 80;
+  parts.forEach(p => { if (p.v <= 0) return; const da = p.v / tot * Math.PI * 2, b = a + Math.min(da, Math.PI * 2 - 1e-4);
+    const P = (ang, rad) => `${(cx + rad * Math.cos(ang)).toFixed(2)} ${(cy + rad * Math.sin(ang)).toFixed(2)}`, lg = da > Math.PI ? 1 : 0;
+    g += `<path d="M${P(a, R)}A${R} ${R} 0 ${lg} 1 ${P(b, R)}L${P(b, r)}A${r} ${r} 0 ${lg} 0 ${P(a, r)}Z" fill="${p.color}" stroke="#fff" stroke-width="2"/>`; a += da; });
+  return `<div class="row" style="align-items:center;gap:16px"><svg viewBox="0 0 160 160" style="width:150px;flex:none">${g}</svg><div class="legend grow" style="grid-template-columns:1fr">${parts.filter(p => p.v > 0).map(p => `<div><i style="background:${p.color}"></i>${esc(p.name)}<b class="num">${pct(p.v, tot)}</b></div>`).join('')}</div></div>`;
+}
+// ต้นเงิน: โตตามความคืบหน้าของเป้าหมาย
+function plantSVG(p) {
+  p = Math.max(0, Math.min(1, p || 0));
+  const h = 34 + 70 * p, top = 128 - h, leaves = 2 + Math.floor(p * 6);
+  let lv = '';
+  for (let i = 0; i < leaves; i++) {
+    const t = (i + 1) / (leaves + 0.5), yy = 128 - h * t, side = i % 2 ? 1 : -1, s = 0.7 + 0.5 * (1 - t) + 0.3 * p;
+    lv += `<path transform="translate(65 ${yy.toFixed(1)}) scale(${(side * s).toFixed(2)} ${s.toFixed(2)})" d="M0 0 C6 -16 20 -22 34 -20 C30 -6 16 2 0 0Z" fill="${i % 2 ? '#7fd3a5' : '#2fae74'}"/>`;
+  }
+  const coins = 1 + Math.floor(p * 4);
+  let cn = ''; for (let i = 0; i < coins; i++) cn += `<ellipse cx="65" cy="${140 - i * 5}" rx="30" ry="8" fill="${i % 2 ? '#ffd966' : '#f5c542'}" stroke="#d9a520" stroke-width="1"/>`;
+  return `<svg class="plant grow-anim" viewBox="0 0 130 150" aria-hidden="true">${cn}<rect x="62" y="${top.toFixed(1)}" width="6" height="${(h + 4).toFixed(1)}" rx="3" fill="#1f8a5b"/>${lv}${p >= 1 ? '<circle cx="65" cy="' + (top - 4).toFixed(1) + '" r="9" fill="#ffd966" stroke="#d9a520"/>' : ''}</svg>`;
+}
+
+/* ====================== หน้าจอ ====================== */
+let tab = localStorage.getItem('plook-tab') || 'home', portTab = 'inv', histYear = thisYm().slice(0, 4), chartRange = '12';
+function renderTabs() {
+  $('#tabs').innerHTML = TABS.map(([k, t]) => `<button data-tab="${k}" class="${tab === k ? 'on' : ''}" aria-label="${t}"><span class="ti">${TAB_SVG[k]}</span>${t}</button>`).join('');
+  $('#tabs').querySelectorAll('button').forEach(b => b.onclick = () => go(b.dataset.tab));
+}
+function go(t) { tab = t; localStorage.setItem('plook-tab', t); if (t === 'water' && !draft) draft = makeDraft(suggestMonth()); render(); window.scrollTo(0, 0); }
+
+let pendingRender = false;
+function render() {
+  // ระหว่างพิมพ์ในหน้า รดน้ำ ไม่วาดใหม่ (ข้อมูลที่พิมพ์อยู่จะได้ไม่หาย)
+  const ae = document.activeElement;
+  if (tab === 'water' && ae && ae.closest && ae.closest('#view') && /INPUT|TEXTAREA|SELECT/.test(ae.tagName)) { pendingRender = true; return; }
+  pendingRender = false;
+  renderTabs();
+  const v = $('#view');
+  v.innerHTML = tab === 'home' ? homeHTML() : tab === 'water' ? waterHTML() : tab === 'port' ? portHTML() : histHTML();
+  bindView();
+}
+document.addEventListener('focusout', () => setTimeout(() => { if (pendingRender) render(); }, 50));
+
+/* ---------- ภาพรวม ---------- */
+function homeHTML() {
+  const set = S();
+  if (!set.assets.length && !set.savings.length && !set.debts.length && !monthKeys().length) return `
+    <div class="hero">${plantSVG(0)}<div class="grow"><div class="v" style="font-size:38px">เริ่มปลูกเงินกัน</div>
+    <div class="d hint">ย้ายข้อมูลจากแอปพอร์ตเอิ๊ตเดิม หรือเริ่มรดน้ำเดือนแรกได้เลย</div></div></div>
+    <div class="row" style="margin-top:14px;justify-content:center"><button class="btn primary" data-act="import">ย้ายข้อมูลจากพอร์ตเอิ๊ต</button><button class="btn" data-act="go-water">รดน้ำเดือนแรก</button></div>`;
+  const now = thisYm(), T = totalsAt(now), ref = monthKeys().filter(k => k <= now).pop() || now, dNet = totalsAt(ref).net - totalsAt(ymAdd(ref, -1)).net;
+  const g = set.goal || {}, gp = g.target ? T.net / g.target : 0;
+  const sm = suggestMonth(), need = !db.months[sm]?.done && (sm < now || +todayISO().slice(8) >= 25);
+  let h = '';
+  if (need) h += `<div class="banner"><span style="font-size:30px">💧</span><div class="t"><b>ยังไม่ได้รดน้ำเดือน ${ymLabel(sm)}</b><div class="hint">ใช้เวลาประมาณ 2 นาที</div></div><button class="btn primary" data-act="go-water">รดน้ำ</button></div>`;
+  h += `<div class="hero">${plantSVG(gp)}<div class="grow"><div class="k">ทรัพย์สินสุทธิ</div><div class="v num">${money(T.net)}</div>
+    <div class="d num ${dNet >= 0 ? 'pos' : 'neg'}">${signed(dNet)} บาท ในเดือน${ymLabel(ref)}</div>
+    <div class="parts"><span>พอร์ต <b class="num">${money(T.port)}</b></span><span>เงินเก็บ <b class="num">${money(T.sav)}</b></span><span>หนี้ <b class="num" style="color:var(--debt)">−${money(T.debt)}</b></span></div></div></div>`;
+  // กราฟ
+  const end = now, start = chartRange === 'all' ? firstYm() : ymAdd(end, -11), ms = rangeYm(start < firstYm() ? firstYm() : start, end);
+  h += `<h2>การเติบโต <span class="sub"><span class="chips" style="display:inline-flex;vertical-align:middle">${[['12', '12 เดือน'], ['all', 'ทั้งหมด']].map(([k, t]) => `<button class="chip ${chartRange === k ? 'on' : ''}" data-range="${k}">${t}</button>`).join('')}</span></span></h2>
+    <div class="card">${lineChart([{ name: 'ทรัพย์สินสุทธิ', color: '#13734a', v: ms.map(m => totalsAt(m).net), fill: true }, { name: 'เงินลงทุนที่ใส่ไป', color: '#2f6fd0', v: ms.map(m => totalsAt(m).inv), dash: true, w: 2 }], ms.map(ymShort), { label: 'กราฟทรัพย์สินสุทธิ' })}</div>`;
+  // เงินไหลไปไหน
+  const lm = lastDone(), f = flowOf(db.months[lm]);
+  h += `<h2>เงินไปไหน <span class="sub">${lm ? ymLabel(lm) : ''}</span></h2><div class="card">`;
+  if (!f || !f.hasIncome) h += `<div class="hint">รดน้ำครั้งแรกแล้ว จะเห็นว่าเงินเดือนไหลไปไหนบ้าง</div><button class="btn primary" data-act="go-water" style="margin-top:6px">รดน้ำ</button>`;
+  else {
+    const base = Math.max(f.income, f.inv + f.sav + f.debt + f.exp);
+    h += `<div class="row"><span>เงินเข้า</span><b class="big num grow" style="text-align:right">${money(f.income)}</b></div>
+      <div class="flowbar">${FLOW_PARTS.map(([k, , c]) => f[k] > 0 ? `<span style="width:${f[k] / base * 100}%;background:${c}"></span>` : '').join('')}</div>
+      <div class="legend">${FLOW_PARTS.map(([k, t, c]) => `<div><i style="background:${c}"></i>${t}<b class="num ${k === 'left' && f.left < 0 ? 'neg' : ''}">${money(f[k])}</b></div>`).join('')}</div>
+      <div class="hint" style="margin-top:6px">ออม + ลงทุน ${pct(f.inv + f.sav, f.income)} ของรายได้${f.left < 0 ? ' · <span class="neg">ใช้เกินรายได้เดือนนี้</span>' : ''}</div>`;
+  }
+  h += `</div>`;
+  // เป้าหมาย
+  if (g.target) {
+    const eta = goalEta(T.net, g.target);
+    h += `<h2>เป้าหมาย</h2><div class="card"><div class="row"><b class="grow" style="font-size:23px">${esc(g.name)}</b><span class="num">${money(T.net)} / ${money(g.target)}</span></div>
+      <div class="goalbar"><span style="width:${Math.min(100, Math.max(0, gp * 100))}%"></span></div><div class="hint">${pct(T.net, g.target)}${eta ? ' · ' + eta : ''}</div></div>`;
+  }
+  // หนี้
+  const ds = live(set.debts);
+  if (ds.length) {
+    h += `<h2>หนี้ที่กำลังผ่อน</h2><div class="grid2">`;
+    ds.forEach(d => { const c = debtAt(d, now), pj = c.bal > 0 ? project(d, c.bal, c.next) : null;
+      h += `<div class="card mini">${icoHTML(d)}<div class="grow"><div class="nm">${esc(d.name)}</div><div class="meta">${c.bal <= 0 ? '🎉 ปิดหนี้แล้ว' : pj?.never ? 'ยอดผ่อนน้อยกว่าดอกเบี้ย' : pj ? `คาดว่าหมด ${ymLabel(pj.end)}` : ''}</div></div><div class="big num" style="color:var(--debt)">${money(c.bal)}</div></div>`; });
+    h += `</div>`;
+  }
+  return h;
+}
+function goalEta(net, target) {
+  if (net >= target) return '🎉 ถึงเป้าแล้ว';
+  const now = thisYm(), a = totalsAt(ymAdd(now, -6)).net, rate = (net - a) / 6;
+  if (rate <= 0) return '';
+  const n = Math.ceil((target - net) / rate);
+  return n > 600 ? '' : `ถ้าโตแบบ 6 เดือนที่ผ่านมา (เดือนละ ~${money(rate)}) จะถึงประมาณ ${ymLabel(ymAdd(now, n))}`;
+}
+
+/* ---------- รดน้ำ ---------- */
+let draft = null, linkData = { tutor: null, split: null, loading: false };
+const sv = v => v == null ? '' : String(v);
+function makeDraft(m) {
+  const cur = db.months[m], prevK = monthKeys().filter(k => k < m).reverse(), prev = prevK.map(k => db.months[k]).find(x => x.done) || null;
+  const set = S(), d = { m, inc: {}, other: [], inv: {}, sav: {}, debt: {}, exp: {}, note: '', from: null };
+  const src = cur?.done ? cur : prev;
+  if (!cur?.done && prev) d.from = prev.m;
+  d.inc.salary = sv(src?.inc?.salary); d.inc.tutor = sv(cur?.done ? cur.inc?.tutor : '');
+  d.other = (src?.other || []).map(o => ({ n: o.n, a: sv(o.a) }));
+  live(set.assets).forEach(a => { const c = cur?.inv?.[a.id]; d.inv[a.id] = { amt: sv(c ? c.amt : prev?.inv?.[a.id]?.amt), val: sv(c?.val) }; });
+  live(set.savings).forEach(s => { const c = cur?.sav?.[s.id]; d.sav[s.id] = c ? { dep: sv(c.dep), wd: sv(c.wd), int: sv(c.int) } : { dep: sv(prev?.sav?.[s.id]?.dep), wd: '', int: '' }; });
+  live(set.debts).forEach(x => { const c = cur?.debt?.[x.id]; d.debt[x.id] = sv(c != null ? c : (debtAt(x, ymAdd(m, -1)).bal > 0 ? (prev?.debt?.[x.id] ?? x.payment) : '')); });
+  set.cats.forEach(c => { d.exp[c.id] = sv(cur?.done ? cur.exp?.[c.id] : prev?.exp?.[c.id]); });
+  d.note = cur?.note || '';
+  if (!cur?.done) loadLinks(m);
+  return d;
+}
+async function loadLinks(m) {
+  if (!cloud) return;
+  const set = S(); linkData = { m, tutor: null, split: null };
+  try {
+    if (set.link?.tutor) { const snap = await cloud.fs.getDocs(cloud.fs.collection(cloud.fsdb, 'users', cloud.uid, 'invoices'));
+      let t = 0, n = 0; snap.forEach(x => { const iv = x.data(); if (iv.status === 'paid' && (iv.paidAt || '').startsWith(m)) { t += +iv.amount || 0; n++; } }); linkData.tutor = { t, n }; }
+    if (set.link?.split) { const snap = await cloud.fs.getDocs(cloud.fs.collection(cloud.fsdb, 'users', cloud.uid, 'split_services'));
+      let t = 0; snap.forEach(x => { const s = x.data(); if (s.paused || (s.startYm || '0000-00') > m || (s.endYm && m > s.endYm)) return;
+        const head = (s.members || []).length + (s.includeMe ? 1 : 0); if (!s.includeMe) return;
+        t += s.share != null && s.share !== '' ? +s.share : Math.ceil((+s.price || 0) / Math.max(1, head)); }); linkData.split = { t }; }
+  } catch (e) { console.warn('links', e); }
+  if (draft && draft.m === m) {
+    // ช่องที่ยังว่าง: ใส่ยอดจากแอปอื่นให้เลย
+    if (linkData.tutor && draft.inc.tutor === '' && linkData.tutor.t) draft.inc.tutor = String(linkData.tutor.t);
+    const sc = S().cats.find(c => c.link === 'split'); if (sc && linkData.split?.t && draft.exp[sc.id] === '') draft.exp[sc.id] = String(linkData.split.t);
+    render();
+  }
+}
+function draftFlow(d) {
+  const n = v => +v || 0;
+  const income = n(d.inc.salary) + n(d.inc.tutor) + d.other.reduce((t, o) => t + n(o.a), 0);
+  const inv = Object.values(d.inv).reduce((t, r) => t + n(r.amt), 0);
+  const sav = Object.values(d.sav).reduce((t, r) => t + n(r.dep) - n(r.wd), 0);
+  const debt = Object.values(d.debt).reduce((t, v) => t + n(v), 0);
+  const exp = Object.values(d.exp).reduce((t, v) => t + n(v), 0);
+  return { income, inv, sav, debt, exp, left: income - inv - sav - debt - exp };
+}
+const inp = (k, v, ph = '') => `<input class="in num" type="text" inputmode="decimal" data-k="${k}" value="${esc(v)}" placeholder="${esc(ph)}" autocomplete="off">`;
+function waterHTML() {
+  if (!draft) draft = makeDraft(suggestMonth());
+  const d = draft, set = S(), f = draftFlow(d), cur = db.months[d.m], prevM = ymAdd(d.m, -1);
+  let h = `<div class="monthpick"><button data-mv="-1" aria-label="เดือนก่อน">‹</button><div class="m">${ymLabel(d.m)}</div><button data-mv="1" aria-label="เดือนถัดไป">›</button></div>`;
+  h += `<div class="prefill">${cur?.done ? '✓ รดน้ำเดือนนี้แล้ว แก้ไขแล้วกดบันทึกใหม่ได้' : d.from ? `เติมยอดจาก ${ymLabel(d.from)} ไว้ให้ ตรวจแล้วแก้ได้` : 'กรอกเฉพาะช่องที่มี ช่องที่เว้นไว้ไม่นับ'}</div>`;
+  const tot = (v, c) => `<span class="tot num" style="color:${c}">${money(v)}</span>`;
+  // เงินเข้า
+  h += `<div class="step"><h3><span class="dot" style="background:var(--inc)"></span>เงินเข้า${tot(f.income, 'var(--inc)')}</h3>
+    <div class="fl"><div class="lab">💼 เงินเดือน</div>${inp('inc.salary', d.inc.salary)}</div>
+    <div class="fl"><div class="lab">📒 สอนพิเศษ${linkData.m === d.m && linkData.tutor ? `<div class="meta">แอปสอนพิเศษ: รับเงินเดือนนี้ ${money(linkData.tutor.t)} บาท (${linkData.tutor.n} ใบ)${+d.inc.tutor !== linkData.tutor.t ? ` <button class="sugg" data-fill="inc.tutor" data-v="${linkData.tutor.t}">ใช้ยอดนี้</button>` : ''}</div>` : ''}</div>${inp('inc.tutor', d.inc.tutor)}</div>
+    ${d.other.map((o, i) => `<div class="fl o"><input class="in name" data-o="${i}" data-f="n" value="${esc(o.n)}" placeholder="เงินอื่น ๆ เช่น ค่าตรวจข้อสอบ"><input class="in num" type="text" inputmode="decimal" data-o="${i}" data-f="a" value="${esc(o.a)}"><button class="btn ghost sm" data-odel="${i}" aria-label="ลบ">✕</button></div>`).join('')}
+    <button class="btn sm" data-act="other-add" style="margin-top:6px">+ เงินอื่น ๆ</button></div>`;
+  // ลงทุน
+  const as = live(set.assets);
+  h += `<div class="step"><h3><span class="dot" style="background:var(--inv)"></span>ลงทุน${tot(f.inv, 'var(--inv)')}</h3>`;
+  if (!as.length) h += `<div class="hint">ยังไม่มีพอร์ต <button class="sugg" data-act="settings">เพิ่มในตั้งค่า</button></div>`;
+  as.forEach(a => { const p = assetAt(a, prevM);
+    h += `<div class="fl">${icoHTML(a, 1)}<div class="lab"><div>${esc(a.name)}</div><div class="meta">มูลค่าเดือนก่อน ${money(p.value)}</div></div>
+      <div class="pair"><label>ใส่เงินเพิ่ม${inp(`inv.${a.id}.amt`, d.inv[a.id]?.amt ?? '')}</label><label>มูลค่าสิ้นเดือน${inp(`inv.${a.id}.val`, d.inv[a.id]?.val ?? '', money(p.value + (+d.inv[a.id]?.amt || 0)))}</label></div></div>`; });
+  h += `</div>`;
+  // ใช้หนี้
+  const ds = live(set.debts);
+  if (ds.length) {
+    h += `<div class="step"><h3><span class="dot" style="background:var(--debt)"></span>ใช้หนี้${tot(f.debt, 'var(--debt)')}</h3>`;
+    ds.forEach(x => { const b = debtAt(x, prevM).bal;
+      h += `<div class="fl">${icoHTML(x, 1)}<div class="lab"><div>${esc(x.name)}</div><div class="meta">${b > 0 ? `คงเหลือ ${money(b)} · ผ่อนเดือนละ ${money(x.payment)}` : 'ปิดหนี้แล้ว'}</div></div>${inp(`debt.${x.id}`, d.debt[x.id] ?? '')}</div>`; });
+    h += `</div>`;
+  }
+  // เงินเก็บ
+  const ss = live(set.savings);
+  if (ss.length) {
+    h += `<div class="step"><h3><span class="dot" style="background:var(--sav)"></span>เงินเก็บ${tot(f.sav, 'var(--sav)')}</h3>`;
+    ss.forEach(s => { const b = savAt(s, prevM);
+      h += `<div class="fl">${icoHTML(s, 1)}<div class="lab"><div>${esc(s.name)}</div><div class="meta">ยอดเดือนก่อน ${money(b)}</div></div>
+        <div class="pair"><label>ฝาก${inp(`sav.${s.id}.dep`, d.sav[s.id]?.dep ?? '')}</label><label>ถอน${inp(`sav.${s.id}.wd`, d.sav[s.id]?.wd ?? '')}</label></div></div>`; });
+    h += `</div>`;
+  }
+  // ค่าใช้จ่าย
+  h += `<div class="step"><h3><span class="dot" style="background:var(--exp)"></span>ค่าใช้จ่าย${tot(f.exp, 'var(--exp)')}</h3>`;
+  set.cats.forEach(c => { const hasSplit = c.link === 'split' && linkData.m === d.m && linkData.split;
+    h += `<div class="fl"><span class="emo">${esc(c.emoji)}</span><div class="lab"><div>${esc(c.name)}</div>${hasSplit ? `<div class="meta">ส่วนของฉันในแอปหาร ${money(linkData.split.t)}${+d.exp[c.id] !== linkData.split.t ? ` <button class="sugg" data-fill="exp.${c.id}" data-v="${linkData.split.t}">ใช้ยอดนี้</button>` : ''}</div>` : ''}</div>${inp(`exp.${c.id}`, d.exp[c.id] ?? '')}</div>`; });
+  h += `<div class="hint" style="margin-top:6px">ไม่ต้องกรอกครบทุกหมวด เงินที่เหลือจากทุกกลุ่มจะนับเป็น "เหลือ / ใช้ทั่วไป"</div></div>`;
+  h += `<div class="step"><h3>📝 บันทึกเพิ่มเติม</h3><textarea class="in name" data-k="note" rows="2" style="width:100%;font-size:21px" placeholder="เช่น เดือนนี้จ่ายค่าเทอมลูก">${esc(d.note)}</textarea></div>`;
+  h += `<div class="sumbar" id="sumbar">${sumbarHTML(f)}</div>`;
+  if (cur) h += `<div class="row" style="justify-content:center;margin-top:12px"><button class="btn danger sm" data-act="month-del">ลบข้อมูลเดือนนี้</button></div>`;
+  return h;
+}
+const sumbarHTML = f => `<div class="c">เข้า<b class="num">${money(f.income)}</b></div><div class="c">ออก<b class="num">${money(f.inv + f.sav + f.debt + f.exp)}</b></div><div class="c">เหลือ<b class="num" style="color:${f.left < 0 ? '#ffb3a8' : '#bff0d2'}">${money(f.left)}</b></div><button class="btn" data-act="save">รดน้ำ ✓</button>`;
+function setDraftVal(k, v) {
+  const p = k.split('.');
+  if (p[0] === 'inc') draft.inc[p[1]] = v;
+  else if (p[0] === 'inv') (draft.inv[p[1]] ||= { amt: '', val: '' })[p[2]] = v;
+  else if (p[0] === 'sav') (draft.sav[p[1]] ||= { dep: '', wd: '', int: '' })[p[2]] = v;
+  else if (p[0] === 'debt') draft.debt[p[1]] = v;
+  else if (p[0] === 'exp') draft.exp[p[1]] = v;
+  else if (p[0] === 'note') draft.note = v;
+}
+function saveDraft() {
+  const d = draft, n = numOrNull, out = { m: d.m, inc: {}, other: [], inv: {}, sav: {}, debt: {}, exp: {}, note: d.note.trim(), done: true, savedAt: Date.now() };
+  for (const k of ['salary', 'tutor']) if (n(d.inc[k]) != null) out.inc[k] = r2(d.inc[k]);
+  out.other = d.other.filter(o => n(o.a)).map(o => ({ n: o.n.trim() || 'เงินอื่น ๆ', a: r2(o.a) }));
+  for (const [id, r] of Object.entries(d.inv)) { const amt = n(r.amt), val = n(r.val); if (amt != null || val != null) out.inv[id] = { amt: r2(amt), val: val == null ? null : r2(val) }; }
+  for (const [id, r] of Object.entries(d.sav)) { const o = { dep: r2(r.dep), wd: r2(r.wd), int: r2(r.int) }; if (o.dep || o.wd || o.int) out.sav[id] = o; }
+  for (const [id, v] of Object.entries(d.debt)) if (n(v)) out.debt[id] = r2(v);
+  for (const [id, v] of Object.entries(d.exp)) if (n(v)) out.exp[id] = r2(v);
+  // เก็บข้อมูลของพอร์ต/บัญชีที่ซ่อนไว้ (ไม่ได้แสดงในฟอร์ม) ไม่ให้หาย
+  const old = db.months[d.m];
+  if (old) for (const sec of ['inv', 'sav', 'debt']) for (const [id, v] of Object.entries(old[sec] || {})) if (!(id in d[sec])) out[sec][id] = v;
+  putMonth(out);
+  toast(`รดน้ำ ${ymLabel(d.m)} แล้ว 🌱`);
+  draft = null; tab = 'home'; localStorage.setItem('plook-tab', 'home'); render(); window.scrollTo(0, 0);
+}
+
+/* ---------- พอร์ต ---------- */
+function portHTML() {
+  const now = thisYm(), set = S();
+  let h = `<div class="chips" style="justify-content:center;margin:4px 0 10px">${[['inv', 'ลงทุน'], ['sav', 'เงินเก็บ'], ['debt', 'หนี้'], ['year', 'รายปี']].map(([k, t]) => `<button class="chip ${portTab === k ? 'on' : ''}" data-ptab="${k}">${t}</button>`).join('')}</div>`;
+  if (portTab === 'inv') {
+    const as = live(set.assets), rows = as.map(a => ({ a, ...assetAt(a, now) })), inv = rows.reduce((t, r) => t + r.inv, 0), val = rows.reduce((t, r) => t + r.value, 0);
+    h += `<div class="card"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"><div><div class="hint">มูลค่ารวม</div><div class="big num">${money(val)}</div></div><div><div class="hint">เงินที่ใส่ไป</div><div class="big num">${money(inv)}</div></div><div><div class="hint">กำไร</div><div class="big num ${val - inv >= 0 ? 'pos' : 'neg'}">${signed(val - inv)}<div style="font-size:18px">(${pct(val - inv, inv)})</div></div></div></div></div>`;
+    h += `<h2>แต่ละพอร์ต</h2><div class="grid2">`;
+    if (!rows.length) h += `<div class="empty">ยังไม่มีพอร์ต<br><button class="btn primary" data-act="settings" style="margin-top:8px">เพิ่มพอร์ต</button></div>`;
+    rows.forEach(r => { const g = r.value - r.inv;
+      h += `<button class="acard" data-asset="${r.a.id}"><div class="mini">${icoHTML(r.a)}<div class="grow"><div class="nm">${esc(r.a.name)}</div><div class="meta">${esc(r.a.src || ICONS[r.a.icon]?.t || '')}</div></div></div>
+        <div class="vals"><div>ใส่ไป<b class="num">${money(r.inv)}</b></div><div>มูลค่า<b class="num">${money(r.value)}</b></div><div>กำไร<b class="num ${g >= 0 ? 'pos' : 'neg'}">${pct(g, r.inv)}</b></div></div></button>`; });
+    h += `</div>`;
+    const sv2 = live(set.savings).map(s => ({ name: s.name, v: savAt(s, now), color: s.color }));
+    h += `<h2>เงินอยู่ที่ไหนบ้าง</h2><div class="card">${donut([...rows.map(r => ({ name: r.a.name, v: r.value, color: r.a.color })), ...sv2]) || '<div class="hint">ยังไม่มีข้อมูล</div>'}</div>`;
+  } else if (portTab === 'sav') {
+    const ss = live(set.savings);
+    h += `<div class="grid2">`;
+    if (!ss.length) h += `<div class="empty">ยังไม่มีบัญชีเงินเก็บ<br><button class="btn primary" data-act="settings" style="margin-top:8px">เพิ่มบัญชี</button></div>`;
+    ss.forEach(s => { const b = savAt(s, now);
+      h += `<div class="card"><div class="mini">${icoHTML(s)}<div class="grow"><div class="nm">${esc(s.name)}</div><div class="meta">${esc(s.src || '')}${s.rate ? ` · ดอกเบี้ย ${s.rate}%` : ''}</div></div><div class="big num">${money(b)}</div></div>
+        ${s.target ? `<div class="goalbar"><span style="width:${Math.min(100, b / s.target * 100)}%"></span></div><div class="hint">เป้า ${money(s.target)} (${pct(b, s.target)})</div>` : ''}</div>`; });
+    h += `</div>`;
+    const ms = rangeYm(ymAdd(now, -11), now);
+    if (ss.length) h += `<h2>ยอดรวมเงินเก็บ</h2><div class="card">${lineChart([{ name: 'เงินเก็บ', color: '#159a82', v: ms.map(m => totalsAt(m).sav), fill: true }], ms.map(ymShort))}</div>`;
+  } else if (portTab === 'debt') {
+    const ds = live(set.debts);
+    if (!ds.length) h += `<div class="empty">ไม่มีหนี้ 🎉<br><button class="btn" data-act="settings" style="margin-top:8px">เพิ่มหนี้</button></div>`;
+    ds.forEach(d => { const c = debtAt(d, now), pj = c.bal > 0 ? project(d, c.bal, c.next) : null, ex = +(debtExtra[d.id] || 0), pj2 = ex && c.bal > 0 ? project(d, c.bal, c.next, ex) : null;
+      h += `<div class="card" style="margin-bottom:10px"><div class="mini">${icoHTML(d)}<div class="grow"><div class="nm">${esc(d.name)}</div><div class="meta">${d.rate != null && d.rate !== '' ? d.rate + '% ต่อปี · ' : ''}${d.method === 'flat' ? 'ดอกเบี้ยคงที่' : 'ลดต้นลดดอก'} · ผ่อน ${money(d.payment)}/เดือน</div></div><div class="big num" style="color:var(--debt)">${money(c.bal)}</div></div>
+        <div class="hint" style="margin-top:4px">จ่ายไปแล้ว: เงินต้น ${money(c.paidPrin)} · ดอกเบี้ย ${money(c.paidInt)}</div>
+        ${c.bal <= 0 ? '<div class="pos">🎉 ปิดหนี้แล้ว</div>' : pj?.never ? '<div class="neg">ยอดผ่อนน้อยกว่าดอกเบี้ย หนี้จะไม่ลด</div>' : `<div>ผ่อนต่อแบบนี้ หมด <b>${ymLabel(pj.end)}</b> (อีก ${dur(pj.n)}) ดอกเบี้ยอีก ${money(pj.interest)}</div>
+        <div class="row" style="margin-top:4px"><span class="hint">ลองโปะเพิ่มเดือนละ</span><input class="in num" style="width:120px" type="text" inputmode="decimal" data-extra="${d.id}" value="${ex || ''}" placeholder="0"></div>
+        ${pj2 && !pj2.never ? `<div class="pos">หมดเร็วขึ้น ${dur(pj.n - pj2.n)} · ประหยัดดอกเบี้ย ${money(pj.interest - pj2.interest)} (หมด ${ymLabel(pj2.end)})</div>` : ''}`}</div>`; });
+  } else {
+    h += yearTable();
+  }
+  return h;
+}
+const debtExtra = {};
+const dur = n => { const y = Math.floor(n / 12), m = n % 12; return (y ? y + ' ปี ' : '') + (m || !y ? m + ' เดือน' : ''); };
+function yearTable() {
+  const ys = [...new Set([...monthKeys().map(k => k.slice(0, 4)), thisYm().slice(0, 4)])].sort();
+  let h = `<div class="card scroll"><table class="tbl"><tr><th>ปี</th><th>ใส่ลงทุน</th><th>มูลค่าพอร์ตสิ้นปี</th><th>เงินเก็บ</th><th>หนี้คงเหลือ</th><th>สุทธิ</th></tr>`;
+  ys.forEach(y => { const end = y === thisYm().slice(0, 4) ? thisYm() : y + '-12', T = totalsAt(end), put = monthKeys().filter(k => k.startsWith(y)).reduce((t, k) => t + flowOf(db.months[k]).inv, 0);
+    h += `<tr><td>${+y + 543}</td><td class="num">${money(put)}</td><td class="num">${money(T.port)}</td><td class="num">${money(T.sav)}</td><td class="num">${money(T.debt)}</td><td class="num"><b>${money(T.net)}</b></td></tr>`; });
+  return h + `</table></div>`;
+}
+function showAsset(id) {
+  const a = S().assets.find(x => x.id === id), ks = monthKeys().filter(k => db.months[k].inv?.[id]);
+  const ms = ks.length ? rangeYm(ks[0], thisYm()) : [thisYm()], pts = ms.map(m => assetAt(a, m));
+  openSheet(`<div class="row"><div class="mini grow">${icoHTML(a)}<h3>${esc(a.name)}</h3></div><button class="btn ghost" data-close>ปิด</button></div>
+    ${lineChart([{ name: 'มูลค่า', color: a.color, v: pts.map(p => p.value), fill: true }, { name: 'เงินที่ใส่ไป', color: '#7c8c83', v: pts.map(p => p.inv), dash: true, w: 2 }], ms.map(ymShort))}
+    <div class="scroll"><table class="tbl"><tr><th>เดือน</th><th>ใส่เพิ่ม</th><th>มูลค่า</th><th>สะสม</th></tr>
+    ${ks.slice().reverse().map(k => { const r = db.months[k].inv[id], p = assetAt(a, k); return `<tr><td>${ymShort(k)}</td><td class="num">${money(r.amt)}</td><td class="num">${r.val != null ? money(r.val) : '–'}</td><td class="num">${money(p.inv)}</td></tr>`; }).join('')}</table></div>`);
+}
+
+/* ---------- ย้อนหลัง ---------- */
+function histHTML() {
+  const y = histYear, now = thisYm(), years = [...new Set([...monthKeys().map(k => k.slice(0, 4)), now.slice(0, 4)])].sort();
+  let h = `<div class="chips" style="justify-content:center;margin:4px 0 10px">${years.map(k => `<button class="chip ${k === y ? 'on' : ''}" data-year="${k}">${+k + 543}</button>`).join('')}</div><div class="cal">`;
+  for (let i = 1; i <= 12; i++) { const m = `${y}-${pad(i)}`, md = db.months[m], f = flowOf(md), fut = m > now;
+    h += `<button class="mcell ${md?.done ? 'done' : md ? 'old' : ''} ${fut ? 'future' : ''} ${m === now ? 'cur' : ''}" data-month="${m}" ${fut ? 'disabled' : ''}><span class="mn">${TH_MONTHS[i - 1]}</span><span class="mv num">${md?.done ? (f.hasIncome ? '+' + kfmt(f.left) : '✓') : md ? 'ข้อมูลเก่า' : fut ? '' : '–'}</span></button>`; }
+  h += `</div><div class="hint" style="margin-top:6px">สีเขียว = รดน้ำแล้ว · เส้นประ = ข้อมูลย้ายมาจากพอร์ตเอิ๊ต (มีแค่พอร์ต เงินเก็บ หนี้)</div>`;
+  const Y = yearSum(y);
+  h += `<h2>สรุปปี ${+y + 543} <span class="sub">เฉพาะเดือนที่รดน้ำแล้ว ${Y.ks.length} เดือน</span></h2><div class="card">${yearSumHTML(Y)}</div>
+    <div class="row" style="margin-top:10px;justify-content:center"><button class="btn" data-act="print">🖨️ พิมพ์ / PDF</button><button class="btn" data-act="csv">📊 ส่งออก Excel</button></div>`;
+  return h;
+}
+function yearSum(y) {
+  const ks = monthKeys().filter(k => k.startsWith(y) && db.months[k].done), Z = { salary: 0, tutor: 0, otherT: 0, income: 0, inv: 0, sav: 0, debt: 0, exp: 0, left: 0, cats: {}, n: 0, ks };
+  ks.forEach(k => { const md = db.months[k], f = flowOf(md); for (const x of ['salary', 'tutor', 'otherT', 'income', 'inv', 'sav', 'debt', 'exp']) Z[x] += f[x]; if (f.hasIncome) { Z.left += f.left; Z.n++; }
+    for (const [c, v] of Object.entries(md.exp || {})) Z.cats[c] = (Z.cats[c] || 0) + (+v || 0); });
+  return Z;
+}
+function yearSumHTML(Z) {
+  const set = S(), line = (t, v, c = '') => `<tr><td>${t}</td><td class="num ${c}">${money(v)}</td></tr>`;
+  let h = `<table class="tbl"><tr><th>รายการ</th><th>บาท</th></tr>`;
+  h += line('เงินเดือน', Z.salary) + line('สอนพิเศษ', Z.tutor) + line('เงินอื่น ๆ', Z.otherT) + `<tr class="tot"><td>รายได้รวม</td><td class="num">${money(Z.income)}</td></tr>`;
+  h += line('ลงทุน', Z.inv) + line('เงินเก็บ (ฝาก − ถอน)', Z.sav) + line('ใช้หนี้', Z.debt);
+  set.cats.forEach(c => { if (Z.cats[c.id]) h += line(`${c.emoji} ${esc(c.name)}`, Z.cats[c.id]); });
+  h += `<tr class="tot"><td>ค่าใช้จ่ายรวม</td><td class="num">${money(Z.exp)}</td></tr>`;
+  h += `<tr class="tot"><td>เหลือ / ใช้ทั่วไป</td><td class="num ${Z.left < 0 ? 'neg' : 'pos'}">${money(Z.left)}</td></tr></table>`;
+  if (Z.income) h += `<div class="hint" style="margin-top:6px">ออม + ลงทุน ${pct(Z.inv + Z.sav, Z.income)} ของรายได้</div>`;
+  return h;
+}
+function showMonth(m) {
+  const md = db.months[m], set = S();
+  if (!md) { draft = makeDraft(m); go('water'); return; }
+  const f = flowOf(md), name = (list, id) => list.find(x => x.id === id)?.name || '(ลบแล้ว)';
+  let h = `<div class="row"><h3 class="grow">${ymLabel(m)}</h3><button class="btn ghost" data-close>ปิด</button></div>`;
+  if (!md.done) h += `<div class="hint">ข้อมูลเก่าที่ย้ายมา มีเฉพาะพอร์ต เงินเก็บ และหนี้ กด "รดน้ำเดือนนี้" เพื่อเติมรายได้และค่าใช้จ่ายได้</div>`;
+  h += `<table class="tbl">`;
+  if (f.hasIncome) { h += `<tr><td>💼 เงินเดือน</td><td class="num">${money(f.salary)}</td></tr><tr><td>📒 สอนพิเศษ</td><td class="num">${money(f.tutor)}</td></tr>`; (md.other || []).forEach(o => h += `<tr><td>➕ ${esc(o.n)}</td><td class="num">${money(o.a)}</td></tr>`); h += `<tr class="tot"><td>เงินเข้า</td><td class="num">${money(f.income)}</td></tr>`; }
+  Object.entries(md.inv || {}).forEach(([id, r]) => h += `<tr><td>📈 ${esc(name(set.assets, id))}</td><td class="num">${money(r.amt)}${r.val != null ? `<div class="meta">มูลค่า ${money(r.val)}</div>` : ''}</td></tr>`);
+  Object.entries(md.sav || {}).forEach(([id, r]) => h += `<tr><td>🐷 ${esc(name(set.savings, id))}</td><td class="num">${r.dep ? '+' + money(r.dep) : ''}${r.wd ? ' −' + money(r.wd) : ''}${r.int ? ` <span class="meta">ดอก ${money(r.int)}</span>` : ''}</td></tr>`);
+  Object.entries(md.debt || {}).forEach(([id, v]) => h += `<tr><td>🧾 ${esc(name(set.debts, id))}</td><td class="num">${money(v)}</td></tr>`);
+  Object.entries(md.exp || {}).forEach(([id, v]) => { const c = set.cats.find(x => x.id === id); h += `<tr><td>${c ? esc(c.emoji + ' ' + c.name) : '(หมวดที่ลบแล้ว)'}</td><td class="num">${money(v)}</td></tr>`; });
+  if (f.hasIncome) h += `<tr class="tot"><td>เหลือ / ใช้ทั่วไป</td><td class="num ${f.left < 0 ? 'neg' : 'pos'}">${money(f.left)}</td></tr>`;
+  h += `</table>${md.note ? `<div class="hint">📝 ${esc(md.note)}</div>` : ''}<button class="btn primary" data-editm="${m}">${md.done ? 'แก้ไขเดือนนี้' : 'รดน้ำเดือนนี้'}</button>`;
+  openSheet(h);
+  $('#sheet [data-editm]').onclick = () => { closeSheet(); draft = makeDraft(m); go('water'); };
+}
+function doPrint() {
+  const y = histYear, Z = yearSum(y);
+  let rows = Z.ks.map(k => { const f = flowOf(db.months[k]); return `<tr><td>${ymLabel(k)}</td><td class="num">${money(f.income)}</td><td class="num">${money(f.inv)}</td><td class="num">${money(f.sav)}</td><td class="num">${money(f.debt)}</td><td class="num">${money(f.exp)}</td><td class="num">${f.hasIncome ? money(f.left) : '–'}</td></tr>`; }).join('');
+  $('#print').innerHTML = `<h1>ปลูกเงิน · สรุปปี ${+y + 543}</h1><table class="tbl"><tr><th>เดือน</th><th>เงินเข้า</th><th>ลงทุน</th><th>เงินเก็บ</th><th>ใช้หนี้</th><th>ค่าใช้จ่าย</th><th>เหลือ</th></tr>${rows}</table>
+    <h2>รวมทั้งปี</h2>${yearSumHTML(Z)}<div class="credit">${CREDIT} · พิมพ์เมื่อ ${todayISO()}</div>`;
+  setTimeout(() => window.print(), 100);
+}
+function doCSV() {
+  const y = histYear, set = S(), q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const head = ['เดือน', 'เงินเดือน', 'สอนพิเศษ', 'เงินอื่น ๆ', 'รวมเงินเข้า', ...live(set.assets).map(a => 'ลงทุน: ' + a.name), ...live(set.savings).map(s => 'เงินเก็บ: ' + s.name), ...live(set.debts).map(d => 'ใช้หนี้: ' + d.name), ...set.cats.map(c => c.name), 'เหลือ', 'หมายเหตุ'];
+  const lines = [head.map(q).join(',')];
+  monthKeys().filter(k => k.startsWith(y)).forEach(k => { const md = db.months[k], f = flowOf(md);
+    lines.push([ymLabel(k), f.salary, f.tutor, f.otherT, f.income, ...live(set.assets).map(a => md.inv?.[a.id]?.amt || 0), ...live(set.savings).map(s => (md.sav?.[s.id]?.dep || 0) - (md.sav?.[s.id]?.wd || 0)), ...live(set.debts).map(d => md.debt?.[d.id] || 0), ...set.cats.map(c => md.exp?.[c.id] || 0), f.hasIncome ? f.left : '', md.note || ''].map(q).join(',')); });
+  lines.push(''); lines.push(q(CREDIT));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' })); a.download = `ปลูกเงิน-${+y + 543}.csv`; a.click();
+}
+
+/* ---------- ผูกเหตุการณ์ ---------- */
+function bindView() {
+  const v = $('#view');
+  v.querySelectorAll('[data-act]').forEach(b => b.onclick = () => ACT[b.dataset.act]?.(b));
+  v.querySelectorAll('[data-range]').forEach(b => b.onclick = () => { chartRange = b.dataset.range; render(); });
+  v.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { portTab = b.dataset.ptab; render(); });
+  v.querySelectorAll('[data-year]').forEach(b => b.onclick = () => { histYear = b.dataset.year; render(); });
+  v.querySelectorAll('[data-month]').forEach(b => b.onclick = () => showMonth(b.dataset.month));
+  v.querySelectorAll('[data-asset]').forEach(b => b.onclick = () => showAsset(b.dataset.asset));
+  v.querySelectorAll('[data-extra]').forEach(i => i.onchange = () => { debtExtra[i.dataset.extra] = i.value; render(); });
+  if (tab !== 'water') return;
+  v.querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { draft = makeDraft(ymAdd(draft.m, +b.dataset.mv)); render(); });
+  v.querySelectorAll('[data-k]').forEach(i => i.oninput = () => { setDraftVal(i.dataset.k, i.value); updateSums(); });
+  v.querySelectorAll('[data-o]').forEach(i => i.oninput = () => { draft.other[+i.dataset.o][i.dataset.f] = i.value; updateSums(); });
+  v.querySelectorAll('[data-odel]').forEach(b => b.onclick = () => { draft.other.splice(+b.dataset.odel, 1); render(); });
+  v.querySelectorAll('[data-fill]').forEach(b => b.onclick = () => { setDraftVal(b.dataset.fill, b.dataset.v); render(); });
+}
+function updateSums() {
+  const f = draftFlow(draft);
+  const sb = $('#sumbar'); if (sb) { sb.innerHTML = sumbarHTML(f); sb.querySelector('[data-act]').onclick = ACT.save; }
+  const map = { 'var(--inc)': f.income, 'var(--inv)': f.inv, 'var(--debt)': f.debt, 'var(--sav)': f.sav, 'var(--exp)': f.exp };
+  document.querySelectorAll('.step .tot').forEach(t => { const c = t.style.color; if (c in map) t.textContent = money(map[c]); });
+}
+const ACT = {
+  'go-water': () => { draft = makeDraft(suggestMonth()); go('water'); },
+  'other-add': () => { draft.other.push({ n: '', a: '' }); render(); const ins = document.querySelectorAll('[data-o][data-f="n"]'); ins[ins.length - 1]?.focus(); },
+  save: () => { document.activeElement?.blur?.(); saveDraft(); },
+  'month-del': () => { if (confirm(`ลบข้อมูลทั้งหมดของ ${ymLabel(draft.m)}?`)) { const m = draft.m; delMonth(m); draft = makeDraft(m); render(); } },
+  settings: () => showSettings(),
+  import: () => importOld(),
+  print: () => doPrint(),
+  csv: () => doCSV(),
+};
+
+/* ====================== หน้าต่างล่าง ====================== */
+function openSheet(html) { $('#sheet').innerHTML = html; const d = $('#dlg'); if (!d.open) d.showModal(); $('#sheet').querySelectorAll('[data-close]').forEach(b => b.onclick = closeSheet); }
+function closeSheet() { $('#dlg').close(); }
+$('#dlg').addEventListener('click', e => { if (e.target === $('#dlg')) closeSheet(); });
+
+/* ---------- ตั้งค่า ---------- */
+function showSettings() {
+  const set = S(), sec = (title, kind, list, meta) => `<h2 style="margin:8px 0 0">${title}</h2>${list.map(x => `<div class="setrow ${x.hidden ? 'hid' : ''}">${kind === 'cats' ? `<span class="emo">${esc(x.emoji)}</span>` : icoHTML(x, 1)}<div class="grow"><div>${esc(x.name)}${x.hidden ? ' <span class="meta">(ซ่อน)</span>' : ''}</div><div class="meta">${meta(x)}</div></div><button class="btn sm" data-edit="${kind}:${x.id}">แก้ไข</button></div>`).join('')}<button class="btn sm" data-edit="${kind}:new" style="align-self:flex-start">+ เพิ่ม</button>`;
+  openSheet(`<div class="row"><h3 class="grow">ตั้งค่า</h3><button class="btn ghost" data-close>ปิด</button></div>
+    ${sec('พอร์ตลงทุน', 'assets', set.assets, a => esc(a.src || ICONS[a.icon]?.t || ''))}
+    ${sec('บัญชีเงินเก็บ', 'savings', set.savings, s => `ยอดตั้งต้น ${money(s.open)}`)}
+    ${sec('หนี้', 'debts', set.debts, d => `ยอด ${money(d.balance)} ณ ${d.asOf ? ymShort(d.asOf) : '-'} · ผ่อน ${money(d.payment)}`)}
+    ${sec('หมวดค่าใช้จ่าย', 'cats', set.cats, c => c.link === 'split' ? 'ดึงยอดจากแอปหาร' : '')}
+    <h2 style="margin:8px 0 0">เป้าหมาย</h2>
+    <div class="row"><label class="f grow">ชื่อ<input id="gName" value="${esc(set.goal?.name || '')}"></label><label class="f grow">จำนวน (บาท)<input id="gTarget" type="text" inputmode="decimal" value="${esc(set.goal?.target || '')}"></label></div>
+    <h2 style="margin:8px 0 0">เชื่อมกับแอปอื่น</h2>
+    <label class="row"><input type="checkbox" id="lTutor" ${set.link?.tutor ? 'checked' : ''}> ดึงยอดรับเงินจากแอปสอนพิเศษ</label>
+    <label class="row"><input type="checkbox" id="lSplit" ${set.link?.split ? 'checked' : ''}> ดึงค่าแอปส่วนของฉันจากแอปหาร</label>
+    <button class="btn primary" id="xSave">บันทึกเป้าหมายและการเชื่อม</button>
+    <h2 style="margin:8px 0 0">ข้อมูลเก่า</h2>
+    <button class="btn" id="xImport">ย้ายข้อมูลจากพอร์ตเอิ๊ต (Google Sheet)</button>
+    <h2 style="margin:8px 0 0">ซิงก์ข้ามเครื่อง</h2><div id="cloudBox"></div>
+    <h2 style="margin:8px 0 0">สำรองข้อมูล</h2>
+    <div class="hint">สำรองลง Google Drive อัตโนมัติวันละครั้ง (โฟลเดอร์ ปลูกเงิน/สำรองข้อมูล)</div>
+    <div class="row"><button class="btn" id="xExport">ส่งออกไฟล์ (.json)</button><label class="btn">นำเข้าไฟล์<input type="file" id="xFile" accept=".json,application/json" hidden></label></div>
+    <div class="hint" style="text-align:center;margin-top:8px">${CREDIT}</div>`);
+  $('#sheet').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { const [k, id] = b.dataset.edit.split(':'); editItem(k, id); });
+  $('#xSave').onclick = () => { putSet({ goal: { name: $('#gName').value.trim() || 'เป้าหมาย', target: +$('#gTarget').value || 0 }, link: { tutor: $('#lTutor').checked, split: $('#lSplit').checked } }); toast('บันทึกแล้ว'); };
+  $('#xImport').onclick = importOld;
+  $('#xExport').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: APP, date: todayISO(), ...db }, null, 1)], { type: 'application/json' })); a.download = `ปลูกเงิน-สำรอง-${todayISO()}.json`; a.click(); };
+  $('#xFile').onchange = async e => { const f = e.target.files[0]; if (!f) return;
+    try { const d = JSON.parse(await f.text()); const src = d.data || d; if (!src.set || !src.months) throw 0;
+      if (!confirm(`นำเข้า ${Object.keys(src.months).length} เดือน แทนข้อมูลปัจจุบัน?`)) return; await replaceAll(src.set, src.months); toast('นำเข้าแล้ว'); closeSheet();
+    } catch (err) { alert('ไฟล์ไม่ถูกต้อง'); } };
+  renderCloudBox();
+}
+function editItem(kind, id) {
+  const set = S(), isNew = id === 'new', list = set[kind];
+  const x = isNew ? (kind === 'cats' ? { id: uid(), name: '', emoji: '🧾' } : { id: uid(), name: '', src: '', icon: ICON_SETS[kind][0], color: PALETTE[list.length % PALETTE.length], ...(kind === 'debts' ? { asOf: thisYm(), method: 'reducing' } : {}) }) : structuredClone(list.find(i => i.id === id));
+  const titles = { assets: 'พอร์ตลงทุน', savings: 'บัญชีเงินเก็บ', debts: 'หนี้', cats: 'หมวดค่าใช้จ่าย' };
+  const draw = () => {
+    let h = `<div class="row"><h3 class="grow">${isNew ? 'เพิ่ม' : 'แก้ไข'}${titles[kind]}</h3><button class="btn ghost" id="eBack">กลับ</button></div>
+      <label class="f">ชื่อ<input id="eName" value="${esc(x.name)}"></label>`;
+    if (kind === 'cats') h += `<div class="pick">${CAT_EMOJI.map(e => `<button class="${x.emoji === e ? 'on' : ''}" data-emo="${e}">${e}</button>`).join('')}</div>`;
+    else {
+      h += `<label class="f">ที่อยู่ / แพลตฟอร์ม (ไม่ใส่ก็ได้)<input id="eSrc" value="${esc(x.src || '')}" placeholder="เช่น Dime, KBank"></label>
+        <div class="pick">${ICON_SETS[kind].map(k => `<button class="${x.icon === k ? 'on' : ''}" data-icon="${k}" title="${ICONS[k].t}" style="color:${x.color}">${svgIcon(k)}</button>`).join('')}</div>
+        <div class="pick colors">${PALETTE.map(c => `<button class="${x.color === c ? 'on' : ''}" data-color="${c}" style="background:${c}" aria-label="สี"></button>`).join('')}</div>`;
+    }
+    if (kind === 'savings') h += `<div class="row"><label class="f grow">ยอดตั้งต้น (ก่อนเริ่มบันทึก)<input id="eOpen" inputmode="decimal" value="${esc(x.open ?? '')}"></label><label class="f grow">ดอกเบี้ย %/ปี<input id="eRate" inputmode="decimal" value="${esc(x.rate ?? '')}"></label><label class="f grow">เป้า (บาท)<input id="eTarget" inputmode="decimal" value="${esc(x.target ?? '')}"></label></div>`;
+    if (kind === 'debts') h += `<div class="row"><label class="f grow">ยอดคงเหลือ<input id="eBal" inputmode="decimal" value="${esc(x.balance ?? '')}"></label><label class="f grow">ณ ต้นเดือน<input id="eAsOf" type="month" value="${esc(x.asOf || '')}"></label></div>
+      <div class="row"><label class="f grow">ผ่อนเดือนละ<input id="ePay" inputmode="decimal" value="${esc(x.payment ?? '')}"></label><label class="f grow">ดอกเบี้ย %/ปี<input id="eRate" inputmode="decimal" value="${esc(x.rate ?? '')}"></label></div>
+      <div class="row"><label class="f grow">วิธีคิดดอก<select id="eMethod"><option value="reducing" ${x.method !== 'flat' ? 'selected' : ''}>ลดต้นลดดอก</option><option value="flat" ${x.method === 'flat' ? 'selected' : ''}>ดอกเบี้ยคงที่ (flat)</option></select></label><label class="f grow">เงินต้นตอนกู้ (สำหรับ flat)<input id="ePrin" inputmode="decimal" value="${esc(x.principal ?? '')}"></label></div>`;
+    h += `<button class="btn primary" id="eOk">บันทึก</button>`;
+    if (!isNew) h += `<div class="row">${kind !== 'cats' ? `<button class="btn" id="eHide">${x.hidden ? 'แสดงอีกครั้ง' : 'ซ่อน (เลิกใช้แล้ว แต่เก็บประวัติ)'}</button>` : ''}<button class="btn danger" id="eDel">ลบ</button></div>`;
+    openSheet(h);
+    const sync = () => { x.name = $('#eName').value; if ($('#eSrc')) x.src = $('#eSrc').value; };
+    $('#sheet').querySelectorAll('[data-emo]').forEach(b => b.onclick = () => { sync(); x.emoji = b.dataset.emo; draw(); });
+    $('#sheet').querySelectorAll('[data-icon]').forEach(b => b.onclick = () => { sync(); x.icon = b.dataset.icon; draw(); });
+    $('#sheet').querySelectorAll('[data-color]').forEach(b => b.onclick = () => { sync(); x.color = b.dataset.color; draw(); });
+    $('#eBack').onclick = showSettings;
+    $('#eOk').onclick = () => {
+      sync(); x.name = x.name.trim(); if (!x.name) { $('#eName').focus(); return; }
+      if (kind === 'savings') { x.open = numOrNull($('#eOpen').value) || 0; x.rate = numOrNull($('#eRate').value); x.target = numOrNull($('#eTarget').value); }
+      if (kind === 'debts') { x.balance = numOrNull($('#eBal').value) || 0; x.asOf = $('#eAsOf').value || thisYm(); x.payment = numOrNull($('#ePay').value) || 0; x.rate = numOrNull($('#eRate').value); x.method = $('#eMethod').value; x.principal = numOrNull($('#ePrin').value); }
+      const nl = isNew ? [...list, x] : list.map(i => i.id === x.id ? x : i);
+      putSet({ [kind]: nl }); draft = null; showSettings();
+    };
+    if ($('#eHide')) $('#eHide').onclick = () => { x.hidden = !x.hidden; putSet({ [kind]: list.map(i => i.id === x.id ? x : i) }); draft = null; showSettings(); };
+    if ($('#eDel')) $('#eDel').onclick = () => { if (!confirm(`ลบ "${x.name}"? ${kind === 'cats' ? '' : 'ประวัติรายเดือนของรายการนี้จะไม่ถูกนับอีก (ถ้าแค่เลิกใช้ ให้กด "ซ่อน" แทน)'}`)) return; putSet({ [kind]: list.filter(i => i.id !== x.id) }); draft = null; showSettings(); };
+  };
+  draw();
+}
+function renderCloudBox() {
+  const box = $('#cloudBox'); if (!box) return;
+  if (cloud) {
+    box.innerHTML = `<div>เชื่อมต่อแล้ว: <b>${esc(cloud.email)}</b></div><div class="hint">บัญชีเดียวกับแอป สอนพิเศษ / หาร / วันนี้</div><button class="btn" id="cOut">ออกจากระบบ</button>`;
+    $('#cOut').onclick = async () => { if (confirm('ออกจากระบบ?')) { await cloud.authApi.signOut(cloud.auth); localStorage.removeItem('plook-signed-in'); location.reload(); } };
+    return;
+  }
+  box.innerHTML = `<div class="hint">${syncState === 'error' ? 'โหลด Firebase ไม่สำเร็จ (ตรวจอินเทอร์เน็ต)' : 'ล็อกอินด้วยอีเมลและรหัสผ่านเดียวกับแอปสอนพิเศษ'}</div>
+    <label class="f">อีเมล<input id="cEmail" type="email" autocomplete="username"></label>
+    <label class="f">รหัสผ่าน<input id="cPass" type="password" autocomplete="current-password"></label>
+    <button class="btn primary" id="cIn">เข้าสู่ระบบ</button>`;
+  $('#cIn').onclick = async () => {
+    try { const api = await loadFirebase(); await api.authApi.signInWithEmailAndPassword(api.auth, $('#cEmail').value.trim(), $('#cPass').value); }
+    catch (e) { alert('เข้าสู่ระบบไม่สำเร็จ: ' + (e.code || e.message)); }
+  };
+}
+
+/* ====================== ย้ายข้อมูลจากพอร์ตเอิ๊ต ====================== */
+function convertOld(st) {
+  const set = { ...structuredClone(DEFAULT_SET), ...structuredClone({ cats: S().cats, link: S().link }) }, months = {};
+  const M = m => months[m] ||= { m, inc: {}, other: [], inv: {}, sav: {}, debt: {}, exp: {}, note: '', done: false, old: true };
+  set.assets = (st.assets || []).map(a => ({ id: a.id, name: a.name, src: a.src || '', icon: a.icon || 'index', color: a.color || PALETTE[0] }));
+  (st.records || []).forEach(r => { const o = M(r.m).inv; const p = o[r.a] || { amt: 0, val: null }; p.amt = r2(p.amt + (+r.amt || 0)); if (r.val != null) p.val = r2(r.val); o[r.a] = p; });
+  set.savings = (st.savings || []).map(s => { const op = (st.srecords || []).find(r => r.a === s.id && r.op); return { id: s.id, name: s.name, src: s.src || '', kind: s.kind, rate: s.rate ?? null, target: s.target ?? null, icon: s.icon || 'piggy', color: s.color || PALETTE[3], open: op ? +op.dep || 0 : 0 }; });
+  (st.srecords || []).forEach(r => { if (r.op) return; let d = +r.dep || 0, w = +r.wd || 0; if (d < 0) { w += -d; d = 0; } const o = M(r.m).sav, p = o[r.a] || { dep: 0, wd: 0, int: 0 }; p.dep = r2(p.dep + d); p.wd = r2(p.wd + w); p.int = r2(p.int + (+r.int || 0)); o[r.a] = p; });
+  set.debts = (st.debts || []).map(d => ({ id: d.id, name: d.name, src: d.src || '', principal: d.principal ?? null, balance: +d.balance || 0, asOf: d.asOf || thisYm(), rate: d.rate ?? null, method: d.method || 'reducing', payment: +d.payment || 0, icon: d.icon || 'loan', color: d.color || PALETTE[5] }));
+  (st.dpay || []).forEach(p => { const o = M(p.m).debt; o[p.a] = r2((o[p.a] || 0) + (+p.amt || 0)); });
+  if (st.goal?.target) set.goal = { name: st.goal.name || 'ล้านแรก', target: +st.goal.target };
+  return { set, months };
+}
+async function replaceAll(set, months) {
+  db.set = { ...structuredClone(DEFAULT_SET), ...set };
+  const oldKeys = Object.keys(db.months);
+  db.months = months; saveSnapshot(); draft = null; render();
+  if (!cloud) return;
+  const { fs, fsdb } = cloud; let b = fs.writeBatch(fsdb), n = 0;
+  const flush = async () => { if (n) { await b.commit(); b = fs.writeBatch(fsdb); n = 0; } };
+  b.set(fs.doc(fsdb, 'users', cloud.uid, 'meta', SET_DOC), JSON.parse(JSON.stringify(db.set))); n++;
+  for (const k of oldKeys) if (!months[k]) { b.delete(fs.doc(fsdb, 'users', cloud.uid, MONTHS_COL, k)); if (++n >= 400) await flush(); }
+  for (const [k, v] of Object.entries(months)) { b.set(fs.doc(fsdb, 'users', cloud.uid, MONTHS_COL, k), v); if (++n >= 400) await flush(); }
+  await flush();
+}
+async function importOld() {
+  toast('กำลังดึงข้อมูลจากพอร์ตเอิ๊ต…');
+  let st;
+  try { const r = await fetch(OLD_URL + '?api=state'); const j = await r.json(); if (!j.ok || !j.state) throw new Error('ไม่พบข้อมูล'); st = j.state; }
+  catch (e) { alert('ดึงข้อมูลไม่สำเร็จ: ' + e.message + '\nตรวจอินเทอร์เน็ตแล้วลองใหม่'); return; }
+  const { set, months } = convertOld(st), mine = monthKeys().filter(k => db.months[k].done);
+  // เดือนที่รดน้ำในแอปใหม่ไปแล้ว: เก็บของใหม่ไว้ เติมเฉพาะส่วนที่ขาด
+  mine.forEach(k => { const cur = db.months[k], o = months[k]; months[k] = o ? { ...cur, inv: { ...o.inv, ...cur.inv }, sav: { ...o.sav, ...cur.sav }, debt: { ...o.debt, ...cur.debt } } : cur; });
+  const nm = Object.keys(months).length, ks = Object.keys(months).sort();
+  if (!confirm(`พบข้อมูล: พอร์ต ${set.assets.length} · บัญชีเงินเก็บ ${set.savings.length} · หนี้ ${set.debts.length}\nรวม ${nm} เดือน (${ks.length ? ymShort(ks[0]) + ' – ' + ymShort(ks[ks.length - 1]) : '-'})\n\nย้ายเข้าแอปปลูกเงินเลยไหม? (ข้อมูลใน Google Sheet เดิมไม่ถูกลบหรือแก้ไข)`)) return;
+  const prevSet = db.set, prevMonths = db.months;
+  try { await replaceAll(set, months); } catch (e) { db.set = prevSet; db.months = prevMonths; render(); alert('บันทึกไม่สำเร็จ: ' + (e.code || e.message)); return; }
+  try { $('#dlg').open && closeSheet(); } catch (e) {}
+  showImportCheck(st);
+}
+// ให้เทียบตัวเลขกับแอปเดิม
+function showImportCheck(st) {
+  const now = thisYm(), T = totalsAt(now);
+  const rows = live(S().assets).map(a => { const p = assetAt(a, now); return `<tr><td>${esc(a.name)}</td><td class="num">${money(p.inv, 2)}</td><td class="num">${money(p.value, 2)}</td></tr>`; }).join('');
+  openSheet(`<div class="row"><h3 class="grow">ย้ายข้อมูลเรียบร้อย ✓</h3><button class="btn ghost" data-close>ปิด</button></div>
+    <div class="hint">เทียบตัวเลขกับแอปพอร์ตเอิ๊ตเดิมได้เลย</div>
+    <table class="tbl"><tr><th>พอร์ต</th><th>เงินที่ใส่ไป</th><th>มูลค่าล่าสุด</th></tr>${rows}<tr class="tot"><td>รวม</td><td class="num">${money(T.inv, 2)}</td><td class="num">${money(T.port, 2)}</td></tr></table>
+    <table class="tbl"><tr><td>เงินเก็บรวม</td><td class="num">${money(T.sav, 2)}</td></tr><tr><td>หนี้คงเหลือรวม</td><td class="num">${money(T.debt, 2)}</td></tr><tr class="tot"><td>ทรัพย์สินสุทธิ</td><td class="num">${money(T.net, 2)}</td></tr></table>`);
+}
+
+/* ====================== Google Drive (สำรองข้อมูล) ======================
+   ที่อยู่และรหัสลับของประตู Drive เก็บใน Firebase: users/{uid}/meta/drive (ไม่อยู่ในโค้ดสาธารณะนี้) */
+let driveCfg = null;
+async function loadDriveCfg() {
+  if (!cloud) return null;
+  try { const s = await cloud.fs.getDoc(cloud.fs.doc(cloud.fsdb, 'users', cloud.uid, 'meta', 'drive')); driveCfg = s.exists() ? s.data() : null; } catch (e) { console.warn(e); }
+  return driveCfg;
+}
+async function driveCall(body) {
+  if (!driveCfg) await loadDriveCfg();
+  if (!driveCfg?.url) throw new Error('ยังไม่ได้เชื่อม Google Drive');
+  const r = await fetch(driveCfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ ...body, key: driveCfg.key }) });
+  const j = await r.json(); if (!j.ok) throw new Error(j.error || 'drive-error'); return j;
+}
+const blobToB64 = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(b); });
+async function dailyBackup(appName, getData) {
+  if (!cloud) return;
+  const today = todayISO(), ref = cloud.fs.doc(cloud.fsdb, 'users', cloud.uid, 'meta', 'drive_backups');
+  try {
+    const s = await cloud.fs.getDoc(ref); if (s.exists() && s.data()[appName] === today) return;
+    if (!(await loadDriveCfg())?.url) return;
+    const blob = new Blob([JSON.stringify({ app: appName, date: today, data: getData() }, null, 1)], { type: 'application/json' });
+    await driveCall({ action: 'upload', path: [appName, 'สำรองข้อมูล', String(+today.slice(0, 4) + 543)], name: `${appName}-สำรอง-${today}.json`, mime: 'application/json', data: await blobToB64(blob), replace: true });
+    await cloud.fs.setDoc(ref, { [appName]: today }, { merge: true });
+  } catch (e) { console.warn('backup', e); }
+}
+
+/* ====================== Firebase ====================== */
+let fbApi = null;
+async function loadFirebase() {
+  if (fbApi) return fbApi;
+  const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VER}/`;
+  const [app, authApi, fs] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+  const a = app.initializeApp(FIREBASE_CONFIG), auth = authApi.getAuth(a);
+  let fsdb; try { fsdb = fs.initializeFirestore(a, { localCache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() }) }); } catch (e) { fsdb = fs.getFirestore(a); }
+  fbApi = { auth, authApi, fs, fsdb };
+  authApi.onAuthStateChanged(auth, user => { if (user) startCloud(user); else { syncState = 'local'; showSync(); } });
+  return fbApi;
+}
+function startCloud(user) {
+  if (cloud && cloud.uid === user.uid) return;
+  const { fs, fsdb, auth, authApi } = fbApi;
+  const localData = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null');
+  cloud = { fs, fsdb, auth, authApi, uid: user.uid, email: user.email };
+  localStorage.setItem('plook-signed-in', '1');
+  loadFrom(MIRROR_KEY);
+  const seen = new Set();
+  const mark = (k, snap) => {
+    seen.add(k); syncState = snap.metadata.fromCache ? 'offline' : (snap.metadata.hasPendingWrites ? 'pending' : 'synced'); showSync(); saveSnapshot();
+    if (seen.size === 2 && !ready) { ready = true; draft = null;
+      setTimeout(() => dailyBackup(APP, () => db), 3000);
+      if (localData && Object.keys(localData.months || {}).length && !Object.keys(db.months).length && confirm('พบข้อมูลในเครื่องนี้ อัปโหลดขึ้นคลาวด์ไหม?')) replaceAll(localData.set, localData.months);
+    }
+    if (tab !== 'water' || !draft) render(); else { renderTabs(); }
+  };
+  fs.onSnapshot(fs.collection(fsdb, 'users', user.uid, MONTHS_COL), { includeMetadataChanges: true }, snap => {
+    const o = {}; snap.forEach(d => o[d.id] = d.data()); db.months = o; mark('months', snap);
+  }, e => { syncState = 'error'; showSync(); toast('ซิงก์ผิดพลาด: ' + e.code); });
+  fs.onSnapshot(fs.doc(fsdb, 'users', user.uid, 'meta', SET_DOC), { includeMetadataChanges: true }, snap => {
+    if (snap.exists()) db.set = { ...structuredClone(DEFAULT_SET), ...snap.data() }; mark('set', snap);
+  }, e => { syncState = 'error'; showSync(); });
+  showSync(); renderCloudBox();
+}
+function showSync() {
+  $('#sync').textContent = cloud ? ({ synced: '☁️ ซิงก์แล้ว', pending: '☁️ กำลังซิงก์', offline: '☁️ ออฟไลน์', error: '⚠️ ซิงก์ไม่ได้' }[syncState] || '☁️') : '🔑 ยังไม่ล็อกอิน';
+}
+
+/* ====================== เริ่มต้น ====================== */
+window.addEventListener('error', e => toast('เกิดข้อผิดพลาด: ' + (e.message || '')));
+$('#btnSettings').onclick = showSettings;
+loadFrom(localStorage.getItem('plook-signed-in') ? MIRROR_KEY : LOCAL_KEY);
+render(); showSync();
+document.fonts.ready.then(() => { if (tab !== 'water') render(); });
+loadFirebase().catch(e => { console.warn(e); syncState = 'error'; showSync(); });
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
+window.__plook = { db, render, convertOld, replaceAll, totalsAt, putMonth, putSet, get draft() { return draft; } };
+</script>
+</body>
+</html>
