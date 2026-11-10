@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="2026-11-10b">
+<meta name="app-ver" content="2026-11-10c">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#13734a">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -92,7 +92,7 @@ nav.tabs button.on .ti{background:#d9f0e2;box-shadow:inset 0 0 0 2px #9fd6b5}
 .fl{display:flex;align-items:center;gap:8px 10px;padding:6px 0;border-top:1px dashed var(--line);flex-wrap:wrap}
 .fl:first-of-type{border-top:0}
 .fl .lab{flex:1;min-width:130px}
-.fl.o .in.name{min-width:0}.fl.o .in.num{width:120px}
+.fl.o .in.name{min-width:0}.fl.sub{padding-left:6px;border-top:0;gap:6px}.fl.sub .in.num{width:100px}.fl.sub .btn{padding:2px 4px}.fl.o .in.num{width:120px}
 .fl .lab .meta{line-height:1.15}
 .in{width:150px;flex:none;text-align:right;font-size:24px;border:1.5px solid var(--line);border-radius:12px;padding:3px 10px;background:#fbfdfb}
 .in:focus{border-color:var(--leaf);background:#fff}
@@ -548,19 +548,23 @@ function goalEta(net, target) {
 /* ---------- รดน้ำ ---------- */
 let draft = null, linkData = { tutor: null, split: null, loading: false };
 const sv = v => v == null ? '' : String(v);
+const dShort = iso => { const [y, m, d] = iso.split('-').map(Number); return `${d} ${TH_MONTHS[m - 1]}`; };
+const tutorMissing = () => (linkData.tutor?.list || []).filter(t => !draft.tutor.some(x => x.iv === t.iv));
 function makeDraft(m) {
   const cur = db.months[m], prevK = monthKeys().filter(k => k < m).reverse(), prev = prevK.map(k => db.months[k]).find(x => x.done) || null;
   const set = S(), d = { m, inc: {}, other: [], inv: {}, sav: {}, debt: {}, exp: {}, note: '', from: null };
   const src = cur?.done ? cur : prev;
   if (!cur?.done && prev) d.from = prev.m;
-  d.inc.salary = sv(src?.inc?.salary); d.inc.tutor = sv(cur?.done ? cur.inc?.tutor : '');
+  d.inc.salary = sv(src?.inc?.salary);
+  // เงินสอนพิเศษ: เข้าได้หลายครั้งต่อเดือน (หลายคน) เก็บเป็นรายการ
+  d.tutor = cur?.tutor ? cur.tutor.map(t => ({ n: t.n, dt: t.d || '', a: sv(t.a), iv: t.iv || null })) : (+cur?.inc?.tutor ? [{ n: 'สอนพิเศษ', dt: '', a: sv(cur.inc.tutor), iv: null }] : []);
   d.other = (src?.other || []).map(o => ({ n: o.n, a: sv(o.a) }));
   live(set.assets).forEach(a => { const c = cur?.inv?.[a.id]; d.inv[a.id] = { amt: sv(c ? c.amt : prev?.inv?.[a.id]?.amt), val: sv(c?.val) }; });
   live(set.savings).forEach(s => { const c = cur?.sav?.[s.id]; d.sav[s.id] = c ? { dep: sv(c.dep), wd: sv(c.wd), int: sv(c.int) } : { dep: sv(prev?.sav?.[s.id]?.dep), wd: '', int: '' }; });
   live(set.debts).forEach(x => { const c = cur?.debt?.[x.id]; d.debt[x.id] = sv(c != null ? c : (debtAt(x, ymAdd(m, -1)).bal > 0 ? (prev?.debt?.[x.id] ?? x.payment) : '')); });
   set.cats.forEach(c => { d.exp[c.id] = sv(cur?.done ? cur.exp?.[c.id] : prev?.exp?.[c.id]); });
   d.note = cur?.note || '';
-  if (!cur?.done) loadLinks(m);
+  loadLinks(m);
   return d;
 }
 async function loadLinks(m) {
@@ -568,7 +572,8 @@ async function loadLinks(m) {
   const set = S(); linkData = { m, tutor: null, split: null };
   try {
     if (set.link?.tutor) { const snap = await cloud.fs.getDocs(cloud.fs.collection(cloud.fsdb, 'users', cloud.uid, 'invoices'));
-      let t = 0, n = 0; snap.forEach(x => { const iv = x.data(); if (iv.status === 'paid' && (iv.paidAt || '').startsWith(m)) { t += +iv.amount || 0; n++; } }); linkData.tutor = { t, n }; }
+      const list = []; snap.forEach(x => { const iv = x.data(); if (iv.status === 'paid' && (iv.paidAt || '').startsWith(m)) list.push({ n: iv.studentName || 'สอนพิเศษ', dt: iv.paidAt, a: String(+iv.amount || 0), iv: iv.id || x.id }); });
+      list.sort((a, b) => a.dt.localeCompare(b.dt)); linkData.tutor = { list }; }
     if (set.link?.split) { const snap = await cloud.fs.getDocs(cloud.fs.collection(cloud.fsdb, 'users', cloud.uid, 'split_services'));
       let t = 0; snap.forEach(x => { const s = x.data(); if (s.paused || (s.startYm || '0000-00') > m || (s.endYm && m > s.endYm)) return;
         const head = (s.members || []).length + (s.includeMe ? 1 : 0); if (!s.includeMe) return;
@@ -576,14 +581,15 @@ async function loadLinks(m) {
   } catch (e) { console.warn('links', e); }
   if (draft && draft.m === m) {
     // ช่องที่ยังว่าง: ใส่ยอดจากแอปอื่นให้เลย
-    if (linkData.tutor && draft.inc.tutor === '' && linkData.tutor.t) draft.inc.tutor = String(linkData.tutor.t);
+    // เดือนที่ยังไม่ได้รด: ใส่ทุกรายการที่รับเงินแล้วจากแอปสอนพิเศษให้เลย
+    if (linkData.tutor && !db.months[m]?.done) tutorMissing().forEach(t => draft.tutor.push({ ...t }));
     const sc = S().cats.find(c => c.link === 'split'); if (sc && linkData.split?.t && draft.exp[sc.id] === '') draft.exp[sc.id] = String(linkData.split.t);
     render();
   }
 }
 function draftFlow(d) {
   const n = v => +v || 0;
-  const income = n(d.inc.salary) + n(d.inc.tutor) + d.other.reduce((t, o) => t + n(o.a), 0);
+  const income = n(d.inc.salary) + d.tutor.reduce((t, o) => t + n(o.a), 0) + d.other.reduce((t, o) => t + n(o.a), 0);
   const inv = Object.values(d.inv).reduce((t, r) => t + n(r.amt), 0);
   const sav = Object.values(d.sav).reduce((t, r) => t + n(r.dep) - n(r.wd), 0);
   const debt = Object.values(d.debt).reduce((t, v) => t + n(v), 0);
@@ -600,7 +606,9 @@ function waterHTML() {
   // เงินเข้า
   h += `<div class="step"><h3><span class="dot" style="background:var(--inc)"></span>เงินเข้า${tot(f.income, 'var(--inc)')}</h3>
     <div class="fl"><div class="lab">💼 เงินเดือน</div>${inp('inc.salary', d.inc.salary)}</div>
-    <div class="fl"><div class="lab">📒 สอนพิเศษ${linkData.m === d.m && linkData.tutor ? `<div class="meta">แอปสอนพิเศษ: รับเงินเดือนนี้ ${money(linkData.tutor.t)} บาท (${linkData.tutor.n} ใบ)${+d.inc.tutor !== linkData.tutor.t ? ` <button class="sugg" data-fill="inc.tutor" data-v="${linkData.tutor.t}">ใช้ยอดนี้</button>` : ''}</div>` : ''}</div>${inp('inc.tutor', d.inc.tutor)}</div>
+    <div class="fl" style="border-bottom:0"><div class="lab">📒 สอนพิเศษ <span class="meta">${d.tutor.length} รายการ</span></div><b class="num" id="tutorTot" style="font-size:23px;padding-right:12px">${money(d.tutor.reduce((t, o) => t + (+o.a || 0), 0))}</b></div>
+    ${d.tutor.map((o, i) => `<div class="fl o sub"><span class="meta" style="width:46px;flex:none;white-space:nowrap;font-size:16px">${o.dt ? dShort(o.dt) : ''}</span><input class="in name" data-t="${i}" data-f="n" value="${esc(o.n)}" placeholder="ชื่อนักเรียน"><input class="in num" type="text" inputmode="decimal" data-t="${i}" data-f="a" value="${esc(o.a)}"><button class="btn ghost sm" data-tdel="${i}" aria-label="ลบ">✕</button></div>`).join('')}
+    <div class="row" style="margin:4px 0 4px 6px"><button class="btn sm" data-act="tutor-add">+ รายการสอนพิเศษ</button>${linkData.m === d.m && linkData.tutor && tutorMissing().length ? `<button class="sugg" data-act="tutor-pull">เพิ่ม ${tutorMissing().length} รายการที่รับเงินแล้วจากแอปสอนพิเศษ</button>` : ''}</div>
     ${d.other.map((o, i) => `<div class="fl o"><input class="in name" data-o="${i}" data-f="n" value="${esc(o.n)}" placeholder="เงินอื่น ๆ เช่น ค่าตรวจข้อสอบ"><input class="in num" type="text" inputmode="decimal" data-o="${i}" data-f="a" value="${esc(o.a)}"><button class="btn ghost sm" data-odel="${i}" aria-label="ลบ">✕</button></div>`).join('')}
     <button class="btn sm" data-act="other-add" style="margin-top:6px">+ เงินอื่น ๆ</button></div>`;
   // ลงทุน
@@ -650,7 +658,9 @@ function setDraftVal(k, v) {
 }
 function saveDraft() {
   const d = draft, n = numOrNull, out = { m: d.m, inc: {}, other: [], inv: {}, sav: {}, debt: {}, exp: {}, note: d.note.trim(), done: true, savedAt: Date.now() };
-  for (const k of ['salary', 'tutor']) if (n(d.inc[k]) != null) out.inc[k] = r2(d.inc[k]);
+  if (n(d.inc.salary) != null) out.inc.salary = r2(d.inc.salary);
+  out.tutor = d.tutor.filter(o => n(o.a)).map(o => ({ n: o.n.trim() || 'สอนพิเศษ', d: o.dt || '', a: r2(o.a), iv: o.iv || null }));
+  if (out.tutor.length) out.inc.tutor = r2(out.tutor.reduce((t, o) => t + o.a, 0));
   out.other = d.other.filter(o => n(o.a)).map(o => ({ n: o.n.trim() || 'เงินอื่น ๆ', a: r2(o.a) }));
   for (const [id, r] of Object.entries(d.inv)) { const amt = n(r.amt), val = n(r.val); if (amt != null || val != null) out.inv[id] = { amt: r2(amt), val: val == null ? null : r2(val) }; }
   for (const [id, r] of Object.entries(d.sav)) { const o = { dep: r2(r.dep), wd: r2(r.wd), int: r2(r.int) }; if (o.dep || o.wd || o.int) out.sav[id] = o; }
@@ -757,7 +767,7 @@ function showMonth(m) {
   let h = `<div class="row"><h3 class="grow">${ymLabel(m)}</h3><button class="btn ghost" data-close>ปิด</button></div>`;
   if (!md.done) h += `<div class="hint">ข้อมูลเก่าที่ย้ายมา มีเฉพาะพอร์ต เงินเก็บ และหนี้ กด "รดน้ำเดือนนี้" เพื่อเติมรายได้และค่าใช้จ่ายได้</div>`;
   h += `<table class="tbl">`;
-  if (f.hasIncome) { h += `<tr><td>💼 เงินเดือน</td><td class="num">${money(f.salary)}</td></tr><tr><td>📒 สอนพิเศษ</td><td class="num">${money(f.tutor)}</td></tr>`; (md.other || []).forEach(o => h += `<tr><td>➕ ${esc(o.n)}</td><td class="num">${money(o.a)}</td></tr>`); h += `<tr class="tot"><td>เงินเข้า</td><td class="num">${money(f.income)}</td></tr>`; }
+  if (f.hasIncome) { h += `<tr><td>💼 เงินเดือน</td><td class="num">${money(f.salary)}</td></tr><tr><td>📒 สอนพิเศษ</td><td class="num">${money(f.tutor)}</td></tr>` + (md.tutor || []).map(t => `<tr><td style="padding-left:28px" class="meta">${t.d ? dShort(t.d) + ' · ' : ''}${esc(t.n)}</td><td class="num meta">${money(t.a)}</td></tr>`).join(''); (md.other || []).forEach(o => h += `<tr><td>➕ ${esc(o.n)}</td><td class="num">${money(o.a)}</td></tr>`); h += `<tr class="tot"><td>เงินเข้า</td><td class="num">${money(f.income)}</td></tr>`; }
   Object.entries(md.inv || {}).forEach(([id, r]) => h += `<tr><td>📈 ${esc(name(set.assets, id))}</td><td class="num">${money(r.amt)}${r.val != null ? `<div class="meta">มูลค่า ${money(r.val)}</div>` : ''}</td></tr>`);
   Object.entries(md.sav || {}).forEach(([id, r]) => h += `<tr><td>🐷 ${esc(name(set.savings, id))}</td><td class="num">${r.dep ? '+' + money(r.dep) : ''}${r.wd ? ' −' + money(r.wd) : ''}${r.int ? ` <span class="meta">ดอก ${money(r.int)}</span>` : ''}</td></tr>`);
   Object.entries(md.debt || {}).forEach(([id, v]) => h += `<tr><td>🧾 ${esc(name(set.debts, id))}</td><td class="num">${money(v)}</td></tr>`);
@@ -798,17 +808,22 @@ function bindView() {
   v.querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { draft = makeDraft(ymAdd(draft.m, +b.dataset.mv)); render(); });
   v.querySelectorAll('[data-k]').forEach(i => i.oninput = () => { setDraftVal(i.dataset.k, i.value); updateSums(); });
   v.querySelectorAll('[data-o]').forEach(i => i.oninput = () => { draft.other[+i.dataset.o][i.dataset.f] = i.value; updateSums(); });
+  v.querySelectorAll('[data-t]').forEach(i => i.oninput = () => { draft.tutor[+i.dataset.t][i.dataset.f] = i.value; updateSums(); });
+  v.querySelectorAll('[data-tdel]').forEach(b => b.onclick = () => { draft.tutor.splice(+b.dataset.tdel, 1); render(); });
   v.querySelectorAll('[data-odel]').forEach(b => b.onclick = () => { draft.other.splice(+b.dataset.odel, 1); render(); });
   v.querySelectorAll('[data-fill]').forEach(b => b.onclick = () => { setDraftVal(b.dataset.fill, b.dataset.v); render(); });
 }
 function updateSums() {
   const f = draftFlow(draft);
+  const tt = $('#tutorTot'); if (tt) tt.textContent = money(draft.tutor.reduce((t, o) => t + (+o.a || 0), 0));
   const sb = $('#sumbar'); if (sb) { sb.innerHTML = sumbarHTML(f); sb.querySelector('[data-act]').onclick = ACT.save; }
   const map = { 'var(--inc)': f.income, 'var(--inv)': f.inv, 'var(--debt)': f.debt, 'var(--sav)': f.sav, 'var(--exp)': f.exp };
   document.querySelectorAll('.step .tot').forEach(t => { const c = t.style.color; if (c in map) t.textContent = money(map[c]); });
 }
 const ACT = {
   'go-water': () => { draft = makeDraft(suggestMonth()); go('water'); },
+  'tutor-add': () => { draft.tutor.push({ n: '', dt: todayISO().startsWith(draft.m) ? todayISO() : '', a: '', iv: null }); render(); const ins = document.querySelectorAll('[data-t][data-f="n"]'); ins[ins.length - 1]?.focus(); },
+  'tutor-pull': () => { tutorMissing().forEach(t => draft.tutor.push({ ...t })); render(); },
   'other-add': () => { draft.other.push({ n: '', a: '' }); render(); const ins = document.querySelectorAll('[data-o][data-f="n"]'); ins[ins.length - 1]?.focus(); },
   save: () => { document.activeElement?.blur?.(); saveDraft(); },
   'month-del': () => { if (confirm(`ลบข้อมูลทั้งหมดของ ${ymLabel(draft.m)}?`)) { const m = draft.m; delMonth(m); draft = makeDraft(m); render(); } },
