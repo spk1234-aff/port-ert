@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="app-ver" content="2026-11-10c">
+<meta name="app-ver" content="2026-11-11a">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#13734a">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -92,7 +92,7 @@ nav.tabs button.on .ti{background:#d9f0e2;box-shadow:inset 0 0 0 2px #9fd6b5}
 .fl{display:flex;align-items:center;gap:8px 10px;padding:6px 0;border-top:1px dashed var(--line);flex-wrap:wrap}
 .fl:first-of-type{border-top:0}
 .fl .lab{flex:1;min-width:130px}
-.fl.o .in.name{min-width:0}.fl.sub{padding-left:6px;border-top:0;gap:6px}.fl.sub .in.num{width:100px}.fl.sub .btn{padding:2px 4px}.fl.o .in.num{width:120px}
+.fl.o .in.name{min-width:0}.fl.sub{padding-left:6px;border-top:0;gap:6px}.fl.slip{flex-wrap:nowrap;gap:6px}.fl.slip .lab{min-width:0}.fl.slip .lab div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fl.slip .btn{padding:2px 4px}.fl.sub .in.num{width:100px}.fl.sub .btn{padding:2px 4px}.fl.o .in.num{width:120px}
 .fl .lab .meta{line-height:1.15}
 .in{width:150px;flex:none;text-align:right;font-size:24px;border:1.5px solid var(--line);border-radius:12px;padding:3px 10px;background:#fbfdfb}
 .in:focus{border-color:var(--leaf);background:#fff}
@@ -557,8 +557,9 @@ function makeDraft(m) {
   if (!cur?.done && prev) d.from = prev.m;
   d.inc.salary = sv(src?.inc?.salary);
   // เงินสอนพิเศษ: เข้าได้หลายครั้งต่อเดือน (หลายคน) เก็บเป็นรายการ
-  d.tutor = cur?.tutor ? cur.tutor.map(t => ({ n: t.n, dt: t.d || '', a: sv(t.a), iv: t.iv || null })) : (+cur?.inc?.tutor ? [{ n: 'สอนพิเศษ', dt: '', a: sv(cur.inc.tutor), iv: null }] : []);
-  d.other = (src?.other || []).map(o => ({ n: o.n, a: sv(o.a) }));
+  d.tutor = cur?.tutor ? cur.tutor.map(t => ({ n: t.n, dt: t.d || '', a: sv(t.a), iv: t.iv || null, slip: t.slip || null, sf: t.sf || null })) : (+cur?.inc?.tutor ? [{ n: 'สอนพิเศษ', dt: '', a: sv(cur.inc.tutor), iv: null }] : []);
+  d.other = (src?.other || []).filter(o => cur?.done || !o.slip).map(o => ({ n: o.n, a: sv(o.a), slip: cur?.done ? o.slip || null : null, sf: cur?.done ? o.sf || null : null }));
+  d.slips = cur?.slips ? structuredClone(cur.slips) : [];
   live(set.assets).forEach(a => { const c = cur?.inv?.[a.id]; d.inv[a.id] = { amt: sv(c ? c.amt : prev?.inv?.[a.id]?.amt), val: sv(c?.val) }; });
   live(set.savings).forEach(s => { const c = cur?.sav?.[s.id]; d.sav[s.id] = c ? { dep: sv(c.dep), wd: sv(c.wd), int: sv(c.int) } : { dep: sv(prev?.sav?.[s.id]?.dep), wd: '', int: '' }; });
   live(set.debts).forEach(x => { const c = cur?.debt?.[x.id]; d.debt[x.id] = sv(c != null ? c : (debtAt(x, ymAdd(m, -1)).bal > 0 ? (prev?.debt?.[x.id] ?? x.payment) : '')); });
@@ -572,7 +573,7 @@ async function loadLinks(m) {
   const set = S(); linkData = { m, tutor: null, split: null };
   try {
     if (set.link?.tutor) { const snap = await cloud.fs.getDocs(cloud.fs.collection(cloud.fsdb, 'users', cloud.uid, 'invoices'));
-      const list = []; snap.forEach(x => { const iv = x.data(); if (iv.status === 'paid' && (iv.paidAt || '').startsWith(m)) list.push({ n: iv.studentName || 'สอนพิเศษ', dt: iv.paidAt, a: String(+iv.amount || 0), iv: iv.id || x.id }); });
+      const list = []; snap.forEach(x => { const iv = x.data(); if (iv.status === 'paid' && (iv.paidAt || '').startsWith(m)) list.push({ n: iv.studentName || 'สอนพิเศษ', dt: iv.paidAt, a: String(+iv.amount || 0), iv: iv.id || x.id, sf: iv.slip?.id || null }); });
       list.sort((a, b) => a.dt.localeCompare(b.dt)); linkData.tutor = { list }; }
     if (set.link?.split) { const snap = await cloud.fs.getDocs(cloud.fs.collection(cloud.fsdb, 'users', cloud.uid, 'split_services'));
       let t = 0; snap.forEach(x => { const s = x.data(); if (s.paused || (s.startYm || '0000-00') > m || (s.endYm && m > s.endYm)) return;
@@ -602,12 +603,14 @@ function waterHTML() {
   const d = draft, set = S(), f = draftFlow(d), cur = db.months[d.m], prevM = ymAdd(d.m, -1);
   let h = `<div class="monthpick"><button data-mv="-1" aria-label="เดือนก่อน">‹</button><div class="m">${ymLabel(d.m)}</div><button data-mv="1" aria-label="เดือนถัดไป">›</button></div>`;
   h += `<div class="prefill">${cur?.done ? '✓ รดน้ำเดือนนี้แล้ว แก้ไขแล้วกดบันทึกใหม่ได้' : d.from ? `เติมยอดจาก ${ymLabel(d.from)} ไว้ให้ ตรวจแล้วแก้ได้` : 'กรอกเฉพาะช่องที่มี ช่องที่เว้นไว้ไม่นับ'}</div>`;
+  h += `<div class="step"><h3>🧾 สลิป <span class="meta">${d.slips.length ? d.slips.length + ' ใบ' : ''}</span><span class="tot"><label class="btn primary sm" style="font-size:19px">📎 เพิ่มสลิป<input type="file" id="slipFile" accept="image/*" multiple hidden></label></span></h3>
+    ${d.slips.length ? slipRowsHTML(d.slips, true) : '<div class="hint">เลือกรูปสลิปโอนเงิน (ได้หลายรูป) แอปจะอ่านยอดและใส่ลงช่องให้ รูปเก็บลง Google Drive</div>'}</div>`;
   const tot = (v, c) => `<span class="tot num" style="color:${c}">${money(v)}</span>`;
   // เงินเข้า
   h += `<div class="step"><h3><span class="dot" style="background:var(--inc)"></span>เงินเข้า${tot(f.income, 'var(--inc)')}</h3>
     <div class="fl"><div class="lab">💼 เงินเดือน</div>${inp('inc.salary', d.inc.salary)}</div>
     <div class="fl" style="border-bottom:0"><div class="lab">📒 สอนพิเศษ <span class="meta">${d.tutor.length} รายการ</span></div><b class="num" id="tutorTot" style="font-size:23px;padding-right:12px">${money(d.tutor.reduce((t, o) => t + (+o.a || 0), 0))}</b></div>
-    ${d.tutor.map((o, i) => `<div class="fl o sub"><span class="meta" style="width:46px;flex:none;white-space:nowrap;font-size:16px">${o.dt ? dShort(o.dt) : ''}</span><input class="in name" data-t="${i}" data-f="n" value="${esc(o.n)}" placeholder="ชื่อนักเรียน"><input class="in num" type="text" inputmode="decimal" data-t="${i}" data-f="a" value="${esc(o.a)}"><button class="btn ghost sm" data-tdel="${i}" aria-label="ลบ">✕</button></div>`).join('')}
+    ${d.tutor.map((o, i) => `<div class="fl o sub"><span class="meta" style="width:46px;flex:none;white-space:nowrap;font-size:16px">${o.dt ? dShort(o.dt) : ''}</span><input class="in name" data-t="${i}" data-f="n" value="${esc(o.n)}" placeholder="ชื่อนักเรียน"><input class="in num" type="text" inputmode="decimal" data-t="${i}" data-f="a" value="${esc(o.a)}">${o.sf ? `<button class="btn ghost sm" data-slipv="${o.sf}" aria-label="ดูสลิป">🧾</button>` : ''}<button class="btn ghost sm" data-tdel="${i}" aria-label="ลบ">✕</button></div>`).join('')}
     <div class="row" style="margin:4px 0 4px 6px"><button class="btn sm" data-act="tutor-add">+ รายการสอนพิเศษ</button>${linkData.m === d.m && linkData.tutor && tutorMissing().length ? `<button class="sugg" data-act="tutor-pull">เพิ่ม ${tutorMissing().length} รายการที่รับเงินแล้วจากแอปสอนพิเศษ</button>` : ''}</div>
     ${d.other.map((o, i) => `<div class="fl o"><input class="in name" data-o="${i}" data-f="n" value="${esc(o.n)}" placeholder="เงินอื่น ๆ เช่น ค่าตรวจข้อสอบ"><input class="in num" type="text" inputmode="decimal" data-o="${i}" data-f="a" value="${esc(o.a)}"><button class="btn ghost sm" data-odel="${i}" aria-label="ลบ">✕</button></div>`).join('')}
     <button class="btn sm" data-act="other-add" style="margin-top:6px">+ เงินอื่น ๆ</button></div>`;
@@ -659,9 +662,10 @@ function setDraftVal(k, v) {
 function saveDraft() {
   const d = draft, n = numOrNull, out = { m: d.m, inc: {}, other: [], inv: {}, sav: {}, debt: {}, exp: {}, note: d.note.trim(), done: true, savedAt: Date.now() };
   if (n(d.inc.salary) != null) out.inc.salary = r2(d.inc.salary);
-  out.tutor = d.tutor.filter(o => n(o.a)).map(o => ({ n: o.n.trim() || 'สอนพิเศษ', d: o.dt || '', a: r2(o.a), iv: o.iv || null }));
+  out.tutor = d.tutor.filter(o => n(o.a)).map(o => ({ n: o.n.trim() || 'สอนพิเศษ', d: o.dt || '', a: r2(o.a), iv: o.iv || null, slip: o.slip || null, sf: o.sf || null }));
   if (out.tutor.length) out.inc.tutor = r2(out.tutor.reduce((t, o) => t + o.a, 0));
-  out.other = d.other.filter(o => n(o.a)).map(o => ({ n: o.n.trim() || 'เงินอื่น ๆ', a: r2(o.a) }));
+  out.other = d.other.filter(o => n(o.a)).map(o => ({ n: o.n.trim() || 'เงินอื่น ๆ', a: r2(o.a), slip: o.slip || null, sf: o.sf || null }));
+  out.slips = d.slips;
   for (const [id, r] of Object.entries(d.inv)) { const amt = n(r.amt), val = n(r.val); if (amt != null || val != null) out.inv[id] = { amt: r2(amt), val: val == null ? null : r2(val) }; }
   for (const [id, r] of Object.entries(d.sav)) { const o = { dep: r2(r.dep), wd: r2(r.wd), int: r2(r.int) }; if (o.dep || o.wd || o.int) out.sav[id] = o; }
   for (const [id, v] of Object.entries(d.debt)) if (n(v)) out.debt[id] = r2(v);
@@ -767,14 +771,15 @@ function showMonth(m) {
   let h = `<div class="row"><h3 class="grow">${ymLabel(m)}</h3><button class="btn ghost" data-close>ปิด</button></div>`;
   if (!md.done) h += `<div class="hint">ข้อมูลเก่าที่ย้ายมา มีเฉพาะพอร์ต เงินเก็บ และหนี้ กด "รดน้ำเดือนนี้" เพื่อเติมรายได้และค่าใช้จ่ายได้</div>`;
   h += `<table class="tbl">`;
-  if (f.hasIncome) { h += `<tr><td>💼 เงินเดือน</td><td class="num">${money(f.salary)}</td></tr><tr><td>📒 สอนพิเศษ</td><td class="num">${money(f.tutor)}</td></tr>` + (md.tutor || []).map(t => `<tr><td style="padding-left:28px" class="meta">${t.d ? dShort(t.d) + ' · ' : ''}${esc(t.n)}</td><td class="num meta">${money(t.a)}</td></tr>`).join(''); (md.other || []).forEach(o => h += `<tr><td>➕ ${esc(o.n)}</td><td class="num">${money(o.a)}</td></tr>`); h += `<tr class="tot"><td>เงินเข้า</td><td class="num">${money(f.income)}</td></tr>`; }
+  if (f.hasIncome) { h += `<tr><td>💼 เงินเดือน</td><td class="num">${money(f.salary)}</td></tr><tr><td>📒 สอนพิเศษ</td><td class="num">${money(f.tutor)}</td></tr>` + (md.tutor || []).map(t => `<tr><td style="padding-left:28px" class="meta">${t.d ? dShort(t.d) + ' · ' : ''}${esc(t.n)}${t.sf ? ' 🧾' : ''}</td><td class="num meta">${money(t.a)}</td></tr>`).join(''); (md.other || []).forEach(o => h += `<tr><td>➕ ${esc(o.n)}</td><td class="num">${money(o.a)}</td></tr>`); h += `<tr class="tot"><td>เงินเข้า</td><td class="num">${money(f.income)}</td></tr>`; }
   Object.entries(md.inv || {}).forEach(([id, r]) => h += `<tr><td>📈 ${esc(name(set.assets, id))}</td><td class="num">${money(r.amt)}${r.val != null ? `<div class="meta">มูลค่า ${money(r.val)}</div>` : ''}</td></tr>`);
   Object.entries(md.sav || {}).forEach(([id, r]) => h += `<tr><td>🐷 ${esc(name(set.savings, id))}</td><td class="num">${r.dep ? '+' + money(r.dep) : ''}${r.wd ? ' −' + money(r.wd) : ''}${r.int ? ` <span class="meta">ดอก ${money(r.int)}</span>` : ''}</td></tr>`);
   Object.entries(md.debt || {}).forEach(([id, v]) => h += `<tr><td>🧾 ${esc(name(set.debts, id))}</td><td class="num">${money(v)}</td></tr>`);
   Object.entries(md.exp || {}).forEach(([id, v]) => { const c = set.cats.find(x => x.id === id); h += `<tr><td>${c ? esc(c.emoji + ' ' + c.name) : '(หมวดที่ลบแล้ว)'}</td><td class="num">${money(v)}</td></tr>`; });
   if (f.hasIncome) h += `<tr class="tot"><td>เหลือ / ใช้ทั่วไป</td><td class="num ${f.left < 0 ? 'neg' : 'pos'}">${money(f.left)}</td></tr>`;
-  h += `</table>${md.note ? `<div class="hint">📝 ${esc(md.note)}</div>` : ''}<button class="btn primary" data-editm="${m}">${md.done ? 'แก้ไขเดือนนี้' : 'รดน้ำเดือนนี้'}</button>`;
+  h += `</table>${md.slips?.length ? `<h2 style="margin:4px 0 0">🧾 สลิป ${md.slips.length} ใบ</h2>${slipRowsHTML(md.slips, false)}` : ''}${md.note ? `<div class="hint">📝 ${esc(md.note)}</div>` : ''}<button class="btn primary" data-editm="${m}">${md.done ? 'แก้ไขเดือนนี้' : 'รดน้ำเดือนนี้'}</button>`;
   openSheet(h);
+  $('#sheet').querySelectorAll('[data-slipv]').forEach(b => b.onclick = () => viewSlip(b.dataset.slipv));
   $('#sheet [data-editm]').onclick = () => { closeSheet(); draft = makeDraft(m); go('water'); };
 }
 function doPrint() {
@@ -803,11 +808,14 @@ function bindView() {
   v.querySelectorAll('[data-year]').forEach(b => b.onclick = () => { histYear = b.dataset.year; render(); });
   v.querySelectorAll('[data-month]').forEach(b => b.onclick = () => showMonth(b.dataset.month));
   v.querySelectorAll('[data-asset]').forEach(b => b.onclick = () => showAsset(b.dataset.asset));
+  v.querySelectorAll('[data-slipv]').forEach(b => b.onclick = () => viewSlip(b.dataset.slipv));
   v.querySelectorAll('[data-extra]').forEach(i => i.onchange = () => { debtExtra[i.dataset.extra] = i.value; render(); });
   if (tab !== 'water') return;
   v.querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { draft = makeDraft(ymAdd(draft.m, +b.dataset.mv)); render(); });
   v.querySelectorAll('[data-k]').forEach(i => i.oninput = () => { setDraftVal(i.dataset.k, i.value); updateSums(); });
   v.querySelectorAll('[data-o]').forEach(i => i.oninput = () => { draft.other[+i.dataset.o][i.dataset.f] = i.value; updateSums(); });
+  const sfIn = v.querySelector('#slipFile'); if (sfIn) sfIn.onchange = e => { const fs = e.target.files; if (fs?.length) importSlips(fs); e.target.value = ''; };
+  v.querySelectorAll('[data-slipdel]').forEach(b => b.onclick = () => { const s = draft.slips.find(x => x.id === b.dataset.slipdel); if (!s || !confirm(`เอาสลิป ${money(s.a, 2)} บาท ออก? ยอดในช่องจะลดลงด้วย`)) return; applySlip(s, -1); draft.slips = draft.slips.filter(x => x !== s); if (s.f) driveCall({ action: 'trash', id: s.f }).catch(() => {}); render(); });
   v.querySelectorAll('[data-t]').forEach(i => i.oninput = () => { draft.tutor[+i.dataset.t][i.dataset.f] = i.value; updateSums(); });
   v.querySelectorAll('[data-tdel]').forEach(b => b.onclick = () => { draft.tutor.splice(+b.dataset.tdel, 1); render(); });
   v.querySelectorAll('[data-odel]').forEach(b => b.onclick = () => { draft.other.splice(+b.dataset.odel, 1); render(); });
@@ -972,6 +980,152 @@ function showImportCheck(st) {
     <table class="tbl"><tr><th>พอร์ต</th><th>เงินที่ใส่ไป</th><th>มูลค่าล่าสุด</th></tr>${rows}<tr class="tot"><td>รวม</td><td class="num">${money(T.inv, 2)}</td><td class="num">${money(T.port, 2)}</td></tr></table>
     <table class="tbl"><tr><td>เงินเก็บรวม</td><td class="num">${money(T.sav, 2)}</td></tr><tr><td>หนี้คงเหลือรวม</td><td class="num">${money(T.debt, 2)}</td></tr><tr class="tot"><td>ทรัพย์สินสุทธิ</td><td class="num">${money(T.net, 2)}</td></tr></table>`);
 }
+
+/* ====================== อ่านสลิป (OCR ฟรีในเครื่อง: Tesseract ภาษาไทย+อังกฤษ) ====================== */
+let ocrWorkerP = null;
+function loadOCR(onProg) {
+  if (!ocrWorkerP) ocrWorkerP = new Promise((res, rej) => {
+    const go = () => window.Tesseract.createWorker(['tha', 'eng'], 1, { logger: m => { if (m.status === 'recognizing text') ocrWorkerP.prog?.(m.progress); } }).then(res, rej);
+    if (window.Tesseract) return go();
+    const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = go; s.onerror = () => { ocrWorkerP = null; rej(new Error('โหลดตัวอ่านสลิปไม่สำเร็จ (ตรวจอินเทอร์เน็ต)')); }; document.head.appendChild(s);
+  });
+  ocrWorkerP.prog = onProg;
+  return ocrWorkerP;
+}
+// ย่อรูปก่อนอ่าน/เก็บ (ด้านยาวไม่เกิน max) คืน JPEG
+function shrinkImage(file, max = 1600) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement('canvas');
+      c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k);
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); c.toBlob(b => b ? res(b) : rej(new Error('อ่านรูปไม่ได้')), 'image/jpeg', 0.85); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('เปิดรูปนี้ไม่ได้')); };
+    im.src = url;
+  });
+}
+async function ocrImage(blob, onProg) { const w = await loadOCR(onProg); const { data } = await w.recognize(blob); return data.text || ''; }
+const SLIP_TH_M = { 'มค': 1, 'กพ': 2, 'มีค': 3, 'เมย': 4, 'พค': 5, 'มิย': 6, 'กค': 7, 'สค': 8, 'กย': 9, 'ตค': 10, 'พย': 11, 'ธค': 12 };
+const normKey = s => String(s || '').toLowerCase().replace(/[\s.,:;'"()\-_/]/g, '');
+const slipYear = y => { y = +y; if (y < 100) y += 2500; if (y > 2400) y -= 543; return y; };
+const slipISO = (y, m, d) => (m >= 1 && m <= 12 && d >= 1 && d <= 31 && y > 2000 && y < 2100) ? `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` : null;
+// แยกยอดเงิน วันที่ และชื่อจากข้อความในสลิป
+function parseSlip(text, fallbackDate) {
+  const lines = text.split(/\n/).map(l => l.trim()).filter(Boolean);
+  const NUM = /(\d{1,3}(?:,\d{3})+|\d+)\.(\d{2})(?!\d)/g, val = s => +s.replace(/,/g, '');
+  let amount = null;
+  const ki = lines.findIndex(l => /จ[ำํา]\s*นวน|ยอดเงิน|ยอดโอน|amount/i.test(l));
+  if (ki >= 0) for (let i = ki; i < Math.min(lines.length, ki + 3) && amount == null; i++) { const m = [...lines[i].matchAll(NUM)]; if (m.length) amount = val(m[0][0]); }
+  if (amount == null) { const all = []; lines.forEach(l => { if (/ธรรมเนียม|fee|คงเหลือ|balance|เลขที่|ref/i.test(l)) return; for (const m of l.matchAll(NUM)) all.push(val(m[0])); }); if (all.length) amount = Math.max(...all); }
+  let date = null;
+  for (const l of lines) {
+    let m = l.match(/(\d{1,2})\s*([ก-๙]{1,3}\s?\.?\s?[ก-๙]{1,2}\s?\.?)\s*(\d{2,4})/);
+    if (m) { const k = normKey(m[2]).replace(/[^ก-๙]/g, ''); if (SLIP_TH_M[k]) { date = slipISO(slipYear(m[3]), SLIP_TH_M[k], +m[1]); if (date) break; } }
+    m = l.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/); if (m) { date = slipISO(slipYear(m[3]), +m[2], +m[1]); if (date) break; }
+  }
+  if (!date || date > new Date().toISOString().slice(0, 10)) date = fallbackDate || null;
+  const NAME = /^(จาก|ไปยัง|ถึง|from|to)?\s*(นาย|นาง|น\.?\s?ส\.?|ด\.?\s?[ชญ]\.?|mr\.?\s|mrs\.?\s|ms\.?\s|miss\s)|บจก|บมจ|บริษัท|หจก|การไฟฟ้า|การประปา|ร้าน/i;
+  const names = lines.filter(l => NAME.test(l) && l.length < 60).map(l => l.replace(/^(จาก|ไปยัง|ถึง|from|to)\s*:?\s*/i, '').replace(/[^\sก-๙a-zA-Z0-9.()&]/g, '').trim());
+  return { amount, date, names, from: names[0] || '', to: names[1] || names[0] || '', text };
+}
+
+/* ---------- สลิป: นำเข้า อ่านยอด เก็บลง Drive ---------- */
+const MY_NAME_RE = /ศาสตราวุฒ|อาชนะชัย/;
+const SLIP_KW = [[/การไฟฟ้า|ไฟฟ้า|pea|mea/i, 'exp:util'], [/ประปา|pwa|mwa/i, 'exp:util'], [/ais|แอดวานซ์|ทรู|true|dtac|ดีแทค|3bb|โทรคมนาคม/i, 'exp:phone'],
+  [/netflix|youtube|google|disney|spotify|apple|เน็ตฟลิกซ์/i, 'exp:apps'], [/ประกัน|insurance|aia/i, 'exp:insure'], [/ปตท|ptt|บางจาก|shell|เชลล์|caltex|คาลเท็กซ์|น้ำมัน/i, 'exp:travel']];
+function slipTargets() {
+  const set = S(), g = [];
+  g.push(['เงินเข้า', [['tutor', '📒 สอนพิเศษ'], ['other', '➕ เงินอื่น ๆ'], ['salary', '💼 เงินเดือน']]]);
+  if (live(set.assets).length) g.push(['ลงทุน', live(set.assets).map(a => ['inv:' + a.id, '📈 ' + a.name])]);
+  if (live(set.savings).length) g.push(['เงินเก็บ (ฝาก)', live(set.savings).map(a => ['sav:' + a.id, '🐷 ' + a.name])]);
+  if (live(set.debts).length) g.push(['ใช้หนี้', live(set.debts).map(a => ['debt:' + a.id, '🪨 ' + a.name])]);
+  g.push(['ค่าใช้จ่าย', set.cats.map(c => ['exp:' + c.id, c.emoji + ' ' + c.name])]);
+  return g;
+}
+const targetLabel = t => { for (const [, l] of slipTargets()) for (const [v, lb] of l) if (v === t) return lb.replace(/^\S+\s/, ''); return 'อื่น ๆ'; };
+function guessTarget(p) {
+  const txt = normKey(p.text), set = S(), valid = new Set(slipTargets().flatMap(([, l]) => l.map(x => x[0])));
+  for (const [k, v] of Object.entries(set.slipMap || {})) if (k.length >= 4 && txt.includes(k) && valid.has(v)) return v;
+  if (MY_NAME_RE.test(p.to) && !MY_NAME_RE.test(p.from)) return 'tutor';
+  for (const [kind, list] of [['inv', set.assets], ['sav', set.savings], ['debt', set.debts]])
+    for (const x of live(list)) for (const tok of [x.name, x.src, ...String(x.name).split(/\s+/), ...slipAlias(x.src), ...slipAlias(x.name)]) { const k = normKey(tok); if (k.length >= 3 && txt.includes(k)) return kind + ':' + x.id; }
+  for (const [re, v] of SLIP_KW) if (re.test(p.text) && valid.has(v)) return v;
+  return '';
+}
+// ชื่อแพลตฟอร์มที่สลิปมักเขียนเป็นภาษาไทย
+const SLIP_ALIAS = { dime: ['ไดม์'], kbank: ['กสิกร'], kasikorn: ['กสิกร'], scb: ['ไทยพาณิชย์'], bbl: ['กรุงเทพ'], ktb: ['กรุงไทย'], krungthai: ['กรุงไทย'], gsb: ['ออมสิน'], lh: ['แลนด์แอนด์เฮ้าส์', 'แลนด์'], kkp: ['เกียรตินาคิน'], ttb: ['ทหารไทยธนชาต'], ylg: ['วายแอลจี'], 'goldnow': ['โกลด์นาว'], 'truemoney': ['ทรูมันนี่'], finnomena: ['ฟินโนมีนา'], 'binance': ['ไบแนนซ์'], bitkub: ['บิทคับ'], webull: ['เวบูล'], 'innovestx': ['อินโนเวสท์'] };
+const slipAlias = s => { const k = normKey(s); return Object.entries(SLIP_ALIAS).filter(([e]) => k.includes(e)).flatMap(([, v]) => v); };
+async function storeSlip(blob, s) {
+  if (!cloud) { toast('ยังไม่ได้ล็อกอิน: ไม่ได้เก็บรูปสลิป'); return null; }
+  try { const [y, m] = s.d.split('-');
+    const j = await driveCall({ action: 'upload', path: [APP, 'สลิป', String(+y + 543), `${m}-${TH_MONTH_FULL[+m - 1]}`], name: `${s.d} ${targetLabel(s.t)} ${s.n ? s.n + ' ' : ''}${money(s.a, 2)}.jpg`.replace(/[\/\\]/g, '-'), mime: 'image/jpeg', data: await blobToB64(blob) });
+    return j.file?.id || null;
+  } catch (e) { toast('เก็บสลิปลง Drive ไม่สำเร็จ: ' + e.message); return null; }
+}
+// ใส่ยอดสลิปลงช่อง: สลิปใบแรกของช่องนั้นแทนยอดที่เติมไว้ ใบต่อไปบวกเพิ่ม
+function applySlip(s, sign = 1) {
+  const d = draft, first = sign > 0 && !d.slips.some(x => x.t === s.t && x.id !== s.id), add = (cur) => { const v = (first ? 0 : (+cur || 0)) + sign * s.a; return Math.abs(v) < 0.005 ? '' : String(r2(v)); };
+  const [k, id] = s.t.split(':');
+  if (k === 'inv') { d.inv[id] ||= { amt: '', val: '' }; d.inv[id].amt = add(d.inv[id].amt); }
+  else if (k === 'sav') { d.sav[id] ||= { dep: '', wd: '', int: '' }; d.sav[id].dep = add(d.sav[id].dep); }
+  else if (k === 'debt') d.debt[id] = add(d.debt[id]);
+  else if (k === 'exp') d.exp[id] = add(d.exp[id]);
+  else if (k === 'salary') d.inc.salary = add(d.inc.salary);
+  else if (k === 'tutor') { if (sign > 0) d.tutor.push({ n: s.n || 'สอนพิเศษ', dt: s.d, a: String(s.a), iv: null, slip: s.id, sf: s.f }); else d.tutor = d.tutor.filter(x => x.slip !== s.id); }
+  else if (k === 'other') { if (sign > 0) d.other.push({ n: s.n || 'เงินอื่น ๆ', a: String(s.a), slip: s.id, sf: s.f }); else d.other = d.other.filter(x => x.slip !== s.id); }
+}
+function reviewSlip(blob, p, i, n) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(blob), t0 = guessTarget(p), inc = /^(tutor|other|salary)$/.test(t0);
+    const nm = inc ? p.from : (p.to || p.from);
+    openSheet(`<div class="row"><h3 class="grow">สลิป ${i + 1}/${n}</h3><button class="btn ghost" id="sStop">หยุด</button></div>
+      <img src="${url}" alt="สลิป" style="max-height:34vh;width:100%;object-fit:contain;border-radius:12px;background:#f3f5f4">
+      <div class="row"><label class="f grow">จำนวนเงิน (บาท)<input id="sAmt" inputmode="decimal" value="${p.amount ?? ''}" placeholder="อ่านยอดไม่ได้ พิมพ์เอง"></label><label class="f grow">วันที่<input id="sDate" type="date" value="${p.date || todayISO()}"></label></div>
+      <label class="f">เป็นรายการ<select id="sT"><option value="">— เลือก —</option>${slipTargets().map(([g, l]) => `<optgroup label="${g}">${l.map(([v, lb]) => `<option value="${v}" ${v === t0 ? 'selected' : ''}>${esc(lb)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+      <label class="f">ชื่อ / รายละเอียด<input id="sN" value="${esc(nm)}" placeholder="เช่น ชื่อผู้โอน หรือร้าน"></label>
+      <div class="hint" id="sHint">${t0 ? 'แอปเดาให้แล้ว ตรวจแล้วแก้ได้' : 'เลือกว่าเป็นรายการอะไร ครั้งต่อไปแอปจะจำปลายทางนี้'}</div>
+      <div class="row"><button class="btn" id="sSkip">ข้ามใบนี้</button><span class="grow"></span><button class="btn primary" id="sOk">บันทึกสลิป</button></div>`);
+    const done = r => { URL.revokeObjectURL(url); resolve(r); };
+    $('#sStop').onclick = () => done('stop'); $('#sSkip').onclick = () => done('skip');
+    const chk = () => { const d = $('#sDate').value; if (d && d.slice(0, 7) !== draft.m) $('#sHint').innerHTML = `⚠️ สลิปลงวันที่ ${d}: อยู่คนละเดือนกับ ${ymLabel(draft.m)} แต่จะบันทึกในเดือนนี้`; };
+    $('#sDate').onchange = chk; chk();
+    $('#sOk').onclick = async () => {
+      const a = numOrNull($('#sAmt').value), t = $('#sT').value;
+      if (!a) { $('#sAmt').focus(); return; } if (!t) { $('#sT').focus(); return; }
+      const s = { id: uid(), t, a: r2(a), d: $('#sDate').value || todayISO(), n: $('#sN').value.trim() };
+      $('#sOk').disabled = true; $('#sOk').textContent = 'กำลังเก็บลง Drive…';
+      s.f = await storeSlip(blob, s);
+      const key = normKey(inc ? p.from : (p.to || p.from)).slice(0, 24);
+      if (key.length >= 4 && !MY_NAME_RE.test(key) && S().slipMap?.[key] !== t) putSet({ slipMap: { ...(S().slipMap || {}), [key]: t } });
+      applySlip(s); draft.slips.push(s); done('ok');
+    };
+  });
+}
+async function importSlips(files) {
+  const list = [...files]; let ok = 0;
+  for (let i = 0; i < list.length; i++) {
+    const f = list[i];
+    openSheet(`<h3>กำลังอ่านสลิป ${i + 1}/${list.length}</h3><div class="hint" id="ocrMsg">กำลังเตรียมตัวอ่าน… (ครั้งแรกใช้เวลาสักครู่)</div><div class="goalbar"><span id="ocrBar" style="width:4%"></span></div>`);
+    let blob = null, p = { amount: null, date: null, names: [], from: '', to: '', text: '' };
+    const fb = f.lastModified ? new Date(f.lastModified - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10) : todayISO();
+    try { blob = await shrinkImage(f);
+      p = parseSlip(await ocrImage(blob, pr => { const b = $('#ocrBar'), m = $('#ocrMsg'); if (b) b.style.width = (8 + pr * 92) + '%'; if (m) m.textContent = 'กำลังอ่านยอดเงิน… ' + Math.round(pr * 100) + '%'; }), fb);
+    } catch (e) { if (!blob) { alert(e.message); continue; } toast(e.message); p.date = fb; }
+    const r = await reviewSlip(blob, p, i, list.length);
+    if (r === 'ok') ok++; if (r === 'stop') break;
+  }
+  closeSheet(); render(); if (ok) toast(`เพิ่มสลิป ${ok} ใบแล้ว อย่าลืมกด รดน้ำ ✓`);
+}
+const slipImgCache = {};
+async function viewSlip(fid) {
+  if (!fid) { toast('สลิปนี้ไม่ได้เก็บรูปไว้'); return; }
+  openSheet(`<div class="row"><h3 class="grow">สลิป</h3><button class="btn ghost" data-close>ปิด</button></div><div id="slipImg" class="hint">กำลังโหลดจาก Drive…</div>`);
+  try { if (!slipImgCache[fid]) { const j = await driveCall({ action: 'get', id: fid }); slipImgCache[fid] = { src: `data:${j.file.mime};base64,${j.data}`, url: j.file.url }; }
+    const c = slipImgCache[fid]; $('#slipImg').innerHTML = `<img src="${c.src}" alt="สลิป" style="width:100%;border-radius:12px"><div style="text-align:center;margin-top:6px"><a href="${c.url}" target="_blank" rel="noopener">เปิดใน Google Drive</a></div>`;
+  } catch (e) { const el = $('#slipImg'); if (el) el.textContent = 'โหลดไม่สำเร็จ: ' + e.message; }
+}
+const slipRowsHTML = (slips, editable) => slips.map(s => `<div class="fl slip"><span class="meta" style="width:46px;flex:none;white-space:nowrap;font-size:16px">${dShort(s.d)}</span><div class="lab"><div>${esc(targetLabel(s.t))}</div>${s.n ? `<div class="meta">${esc(s.n)}</div>` : ''}</div><b class="num">${money(s.a, 2)}</b><button class="btn ghost sm" data-slipv="${s.f || ''}" aria-label="ดูสลิป">🧾</button>${editable ? `<button class="btn ghost sm" data-slipdel="${s.id}" aria-label="ลบสลิป">✕</button>` : ''}</div>`).join('');
 
 /* ====================== Google Drive (สำรองข้อมูล) ======================
    ที่อยู่และรหัสลับของประตู Drive เก็บใน Firebase: users/{uid}/meta/drive (ไม่อยู่ในโค้ดสาธารณะนี้) */
